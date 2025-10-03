@@ -143,10 +143,15 @@ header nav a:hover {
   <footer>Los boneless del Olimpo</footer>
 
 <script>
+// usuarios.html (Reemplazar la línea 170 dentro de <script>)
+
 document.addEventListener('DOMContentLoaded', () => {
 
-    const API_URL = 'http://localhost:3000/api/usuarios';
-    const tablaBody = document.getElementById('tabla-usuarios-body');
+    // 🚨 CLAVE: CONFIGURACIÓN PARA LA NUBE
+    const API_BASE_URL = 'https://olimpollo-api.render.com/api'; 
+    const API_URL = API_BASE_URL + '/usuarios';
+    
+    const tablaBody = document.getElementById('tabla-usuarios-body');
     const modalUsuario = document.getElementById('modalUsuario');
     const modalEliminar = document.getElementById('modalEliminar');
     const formAgregar = document.getElementById('form-agregar');
