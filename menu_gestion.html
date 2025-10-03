@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Olimpollo - Gestión de Menú</title>
+    <style>
+        /* [CÓDIGO CSS ESTÁNDAR] Puedes copiar los estilos de header, nav, logout, container, tabla, y modales de inventario.html para mantener la consistencia. */
+        body { margin: 0; font-family: Arial, sans-serif; background: #F8F9FA; display: flex; flex-direction: column; min-height: 100vh; }
+        header { background: #D62828; color: white; padding: 15px 30px; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); display: flex; justify-content: space-between; align-items: center; }
+        header nav { display: flex; gap: 15px; background: rgba(255, 255, 255, 0.1); padding: 10px 20px; border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.3); }
+        header nav a { color: #FFFFFF; text-decoration: none; font-weight: 600; padding: 5px 10px; transition: color 0.3s, background 0.3s; border-radius: 5px; }
+        header nav a:hover { color: #D62828; background: #FFFFFF; }
+        .logout { background: #FFFFFF; color: #D62828; border: 2px solid #D62828; padding: 8px 15px; border-radius: 20px; cursor: pointer; font-weight: bold; transition: background 0.3s, color 0.3s; }
+        .logout:hover { background: #FCBF49; color: #343A40; border-color: #FCBF49; }
+        .container { padding: 40px; flex: 1; max-width: 1400px; margin: 0 auto; }
+        h1 { text-align: center; color: #D62828; margin-bottom: 25px; }
+        table { width: 100%; border-collapse: collapse; margin-bottom: 20px; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); }
+        th, td { padding: 12px; text-align: center; border: none; border-bottom: 1px solid #eee; }
+        th { background: #F8D9D9; color: #D62828; font-weight: bold; text-transform: uppercase; }
+        .btn { padding: 5px 10px; border-radius: 5px; cursor: pointer; margin: 2px; }
+        .btn-primary { background: #D62828; color: white; border: none; }
+        .btn-secondary { background: #007bff; color: white; border: none; }
+        .modal { display: none; position: fixed; z-index: 10; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.4); justify-content: center; align-items: center; }
+        .modal-content { background: white; padding: 30px; border-radius: 12px; max-width: 550px; position: relative; }
+        .close { position: absolute; right: 15px; top: 5px; font-size: 28px; cursor: pointer; }
+        .detail-panel { margin-top: 20px; padding: 15px; border: 1px solid #ddd; border-radius: 5px; background: #fff; }
+        .option-item { display: flex; justify-content: space-between; align-items: center; padding: 5px 0; border-bottom: 1px dotted #eee; }
+    </style>
+</head>
+<body>
+    <header>
+        <nav>
+      <a href="index.html">Página Principal</a>
+      <a href="reportes.html">Reportes</a>
+      <a href="pedidos.html">POS</a>
+      <a href="pedidos_lista.html">Pedidos</a>
+      <a href="inventario.html">Inventario</a>
+      <a href="recetas.html">Recetas</a>
+      <a href="usuarios.html">Usuarios</a>
+      <a href="menu_gestion.html">Menú</a>
+        </nav>
+        <button class="logout" id="btn-logout">Cerrar Sesión</button>
+    </header>
+
+    <div class="container">
+        <h1>Gestor de Productos de Venta</h1>
+        <button id="btn-agregar-producto" class="btn btn-primary" style="margin-bottom: 20px;">➕ Agregar Nuevo Producto</button>
+        <button id="btn-gestionar-opciones" class="btn btn-secondary" style="margin-bottom: 20px;">⚙️ Gestionar Modificadores/Salsas</button>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Producto</th>
+                    <th>Categoría</th>
+                    <th>Precio Base</th>
+                    <th>Receta ID</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="tabla-productos-body">
+                <td colspan="6">Cargando productos...</td>
+            </tbody>
+        </table>
+    </div>
+
+    <div id="modalProducto" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3 id="modal-titulo">Agregar Producto</h3>
+            <form id="form-producto">
+                <input type="hidden" id="producto-id">
+                
+                <label for="nombre-venta">Nombre del Producto:</label>
+                <input type="text" id="nombre-venta" required>
+
+                <label for="precio-base">Precio Base:</label>
+                <input type="number" id="precio-base" min="0" step="0.01" required>
+
+                <label for="categoria">Categoría:</label>
+                <select id="categoria" required>
+                    <option value="Platos Fuertes">Platos Fuertes</option>
+                    <option value="Sides">Sides</option>
+                    <option value="Bebidas">Bebidas</option>
+                    <option value="Postres">PROMOS</option>
+                    <option value="Extras">Aderezos</option>
+                </select>
+
+                <label for="grupos-modificadores">Grupos de Modificadores (Separados por coma):</label>
+                <input type="text" id="grupos-modificadores" name="grupos-modificadores" value=""> 
+                <small>Ejemplo: Salsa,Tipo de Papa</small>  
+                
+                <label for="receta-id">ID de Receta (Opcional):</label>
+                <input type="number" id="receta-id" placeholder="ID de la tabla Recetas para costeo">
+
+                <label for="descripcion">Descripción:</label>
+                <textarea id="descripcion" rows="2"></textarea>
+                
+                <button type="submit" class="btn btn-primary">Guardar Producto</button>
+            </form>
+        </div>
+    </div>
+
+<div id="modalOpciones" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h3>Gestionar Modificadores</h3>
+        
+        <label for="select-grupo-mod">Seleccionar Grupo a Modificar:</label>
+        <select id="select-grupo-mod" style="width: 100%; padding: 10px; margin-bottom: 20px;">
+            <option value="Salsa">Salsa</option>
+            <option value="Tipo de Papa">Tipo de Papa</option>
+            <option value="Aderezo">Aderezo</option>
+            <option value="Acompañamiento">Acompañamiento</option>
+        </select>
+
+        <div class="detail-panel">
+            <p>Valores Activos para: <strong id="nombre-grupo-actual">Salsa</strong></p>
+            <ul id="lista-opciones-valores">
+                </ul>
+        </div>
+        
+        <form id="form-agregar-opcion" style="margin-top: 20px;">
+            <h4>Agregar Nuevo Valor a <span id="nombre-grupo-form">Salsa</span></h4>
+            
+            <label for="valor-opcion">Valor (Ej: BBQ Picante):</label>
+            <input type="text" id="valor-opcion" required>
+
+            <label for="precio-adicional">Precio Adicional ($):</label>
+            <input type="number" id="precio-adicional" value="0.00" step="0.01" min="0" required>
+            
+            <button type="submit" class="btn btn-secondary">Añadir Valor</button>
+        </form>
+    </div>
+</div>
+    </div>
+    
+    <footer>Los boneless del Olimpo</footer>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+
+        // --- 1. CONFIGURACIÓN DE API Y ESTADO ---
+        const API_MENU_PRODUCTOS_URL = 'http://localhost:3000/api/menu/productos';
+        const API_MENU_OPCIONES_URL = 'http://localhost:3000/api/menu/opciones';
+
+        // --- 2. ELEMENTOS DEL DOM Y ESTADO GLOBAL ---
+        const tablaBody = document.getElementById('tabla-productos-body');
+        const modalProducto = document.getElementById('modalProducto');
+        const modalOpciones = document.getElementById('modalOpciones');
+        const listaOpcionesValores = document.getElementById('lista-opciones-valores');
+        const formProducto = document.getElementById('form-producto');
+        const formAgregarOpcion = document.getElementById('form-agregar-opcion');
+        const btnLogout = document.getElementById('btn-logout');
+        const selectGrupoMod = document.getElementById('select-grupo-mod');
+        const nombreGrupoActual = document.getElementById('nombre-grupo-actual');
+        const nombreGrupoForm = document.getElementById('nombre-grupo-form');
+        
+        // Elementos del formulario de producto
+        const productoIdInput = document.getElementById('producto-id');
+        const nombreVentaInput = document.getElementById('nombre-venta');
+        const precioBaseInput = document.getElementById('precio-base');
+        const categoriaSelect = document.getElementById('categoria');
+        const gruposModificadoresInput = document.getElementById('grupos-modificadores'); // CLAVE
+        const recetaIdInput = document.getElementById('receta-id');
+        const descripcionTextarea = document.getElementById('descripcion');
+        
+        let opcionesData = []; 
+        let productosData = [];     
+
+        // --- 3. FUNCIONES DE UTILIDAD ---
+        const cerrarSesion = () => { localStorage.removeItem('authToken'); localStorage.removeItem('userRole'); window.location.href = 'login.html'; };
+        const abrirModal = (modal) => { modal.style.display = 'flex'; };
+        const cerrarModales = () => { modalProducto.style.display = 'none'; modalOpciones.style.display = 'none'; };
+        
+        // --- 4. RENDERIZADO DEL MENÚ Y OPCIONES ---
+
+        const renderOpcionesValores = () => {
+            listaOpcionesValores.innerHTML = '';
+            if (opcionesData.length === 0) {
+                 listaOpcionesValores.innerHTML = '<li>No hay valores registrados para este grupo.</li>';
+            }
+            opcionesData.forEach(opcion => {
+                const li = document.createElement('li');
+                li.className = 'option-item';
+                li.innerHTML = `
+                    <span>${opcion.valor} ($${parseFloat(opcion.precio_adicional).toFixed(2)})</span>
+                    <button class="btn btn-cancelar btn-eliminar-opcion" data-id="${opcion.id}" style="padding: 3px 8px;">X</button>
+                `;
+                listaOpcionesValores.appendChild(li);
+            });
+        };
+
+        const renderProductos = (productos) => {
+            productosData = productos; 
+            tablaBody.innerHTML = '';
+            productos.forEach(p => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>${p.id}</td>
+                    <td>${p.nombre_venta}</td>
+                    <td>${p.categoria}</td>
+                    <td>$${parseFloat(p.precio_base).toFixed(2)}</td>
+                    <td>${p.receta_id || 'N/A'}</td>
+                    <td>
+                        <button class="btn btn-secondary btn-editar-producto" data-id="${p.id}">Editar</button>
+                        <button class="btn btn-cancelar btn-eliminar-producto" data-id="${p.id}">Eliminar</button>
+                    </td>
+                `;
+                tablaBody.appendChild(tr);
+            });
+        };
+        
+        // --- 5. COMUNICACIÓN CON EL BACK-END ---
+
+        const fetchProductos = async () => {
+            try {
+                const response = await fetch(API_MENU_PRODUCTOS_URL);
+                if (!response.ok) throw new Error('No se pudo cargar el menú.');
+                const productos = await response.json();
+                renderProductos(productos);
+                // No necesitamos retornar, ya que renderProductos guarda en productosData
+            } catch (error) {
+                console.error('Error al cargar productos:', error);
+                tablaBody.innerHTML = `<tr><td colspan="6" style="color:red;">Error: ${error.message}</td></tr>`;
+            }
+        };
+
+        const fetchOpcionesPorGrupo = async (grupo) => {
+            nombreGrupoActual.textContent = grupo;
+            nombreGrupoForm.textContent = grupo;
+
+            try {
+                const response = await fetch(API_MENU_OPCIONES_URL + `?nombre_opcion=${encodeURIComponent(grupo)}`); 
+                if (!response.ok) throw new Error(`No se pudo cargar las opciones para ${grupo}.`);
+                
+                opcionesData = await response.json();
+                renderOpcionesValores(); 
+            } catch (error) {
+                console.error('Error al cargar opciones:', error);
+                listaOpcionesValores.innerHTML = `<li>Error al cargar opciones.</li>`;
+            }
+        };
+
+        // --- FUNCIONES CRUD ---
+
+        const guardarProducto = async (data, isEdit) => {
+            try {
+                const url = isEdit ? `${API_MENU_PRODUCTOS_URL}/${data.id}` : API_MENU_PRODUCTOS_URL;
+                const method = isEdit ? 'PUT' : 'POST';
+                
+                const response = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                if (!response.ok) throw new Error('Error al guardar el producto.');
+                
+                cerrarModales();
+                fetchProductos();
+                alert(`Producto ${isEdit ? 'actualizado' : 'agregado'} con éxito.`);
+            } catch (error) {
+                alert('Error al guardar: ' + error.message);
+            }
+        };
+        
+        const eliminarProducto = async (id) => {
+            if (!confirm('¿Seguro que quieres eliminar este producto?')) return;
+            try {
+                const response = await fetch(`${API_MENU_PRODUCTOS_URL}/${id}`, { method: 'DELETE' });
+                if (!response.ok) throw new Error('Error al eliminar producto.');
+                fetchProductos();
+                alert('Producto eliminado.');
+            } catch (error) {
+                alert('Error al eliminar: ' + error.message);
+            }
+        };
+
+        const guardarOpcion = async (data) => {
+            try {
+                const response = await fetch(API_MENU_OPCIONES_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                if (!response.ok) throw new Error('Error al añadir opción.');
+                
+                formAgregarOpcion.reset();
+                fetchOpcionesPorGrupo(selectGrupoMod.value); 
+                alert('Opción añadida con éxito.');
+            } catch (error) {
+                alert('Error al añadir opción: ' + error.message);
+            }
+        };
+
+        const eliminarOpcion = async (id) => {
+            if (!confirm('¿Seguro que quieres eliminar esta opción?')) return;
+            try {
+                const response = await fetch(`${API_MENU_OPCIONES_URL}/${id}`, { method: 'DELETE' });
+                if (!response.ok) throw new Error('Error al eliminar opción.');
+                
+                fetchOpcionesPorGrupo(selectGrupoMod.value); 
+                alert('Opción eliminada.');
+            } catch (error) {
+                alert('Error al eliminar opción: ' + error.message);
+            }
+        };
+
+        // --- 6. MANEJADORES DE EVENTOS ---
+
+        document.getElementById('btn-agregar-producto').addEventListener('click', () => {
+            document.getElementById('modal-titulo').textContent = 'Agregar Producto';
+            formProducto.reset();
+            productoIdInput.value = ''; 
+            gruposModificadoresInput.value = ''; // Asegura que esté vacío al agregar
+            abrirModal(modalProducto);
+        });
+
+        document.getElementById('btn-gestionar-opciones').addEventListener('click', () => {
+            fetchOpcionesPorGrupo(selectGrupoMod.value); 
+            abrirModal(modalOpciones);
+        });
+
+        // NUEVO LISTENER: Recargar lista al cambiar el Dropdown
+        selectGrupoMod.addEventListener('change', (e) => {
+            fetchOpcionesPorGrupo(e.target.value);
+        });
+        
+        // CORRECCIÓN CLAVE: Submit de Producto
+        formProducto.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const id = productoIdInput.value;
+            
+            const gruposModificadores = gruposModificadoresInput.value; 
+
+            const data = {
+                id: id ? parseInt(id) : null,
+                nombre_venta: nombreVentaInput.value,
+                precio_base: parseFloat(precioBaseInput.value),
+                categoria: categoriaSelect.value,
+                grupos_modificadores: gruposModificadores.trim(), 
+                receta_id: recetaIdInput.value || null,
+                descripcion: descripcionTextarea.value
+            };
+            
+            if (isNaN(data.precio_base) || data.precio_base < 0) {
+                alert('El precio base debe ser un número positivo.');
+                return;
+            }
+
+            guardarProducto(data, !!id);
+        });
+
+        formAgregarOpcion.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const data = {
+                nombre_opcion: selectGrupoMod.value, 
+                valor: document.getElementById('valor-opcion').value,
+                precio_adicional: parseFloat(document.getElementById('precio-adicional').value)
+            };
+            guardarOpcion(data);
+        });
+
+        // 🚨 CORRECCIÓN CLAVE: Delegación de eventos para la tabla (Editar/Eliminar)
+        tablaBody.addEventListener('click', (e) => {
+            const btn = e.target.closest('.btn');
+            if (!btn) return;
+            
+            const id = btn.dataset.id;
+            
+            if (btn.classList.contains('btn-editar-producto')) {
+                const producto = productosData.find(p => p.id == id); 
+                
+                if (producto) {
+                    document.getElementById('modal-titulo').textContent = 'Editar Producto';
+                    productoIdInput.value = producto.id;
+                    nombreVentaInput.value = producto.nombre_venta;
+                    precioBaseInput.value = producto.precio_base;
+                    categoriaSelect.value = producto.categoria;
+                    
+                    // 🚨 LLENAR EL CAMPO MODIFICADOR
+                    gruposModificadoresInput.value = producto.grupos_modificadores || '';
+                    
+                    recetaIdInput.value = producto.receta_id || '';
+                    descripcionTextarea.value = producto.descripcion || '';
+                    abrirModal(modalProducto);
+                }
+            } else if (btn.classList.contains('btn-eliminar-producto')) {
+                eliminarProducto(id);
+            }
+        });
+
+
+        // Delegación de eventos para eliminar opciones del modal
+        listaOpcionesValores.addEventListener('click', (e) => {
+            if (e.target.classList.contains('btn-eliminar-opcion')) {
+                eliminarOpcion(e.target.dataset.id);
+            }
+        });
+
+        document.querySelectorAll('.close').forEach(el => el.addEventListener('click', cerrarModales));
+        btnLogout.addEventListener('click', cerrarSesion);
+        
+        // --- 7. INICIALIZACIÓN ---
+        fetchProductos(); 
+    });
+</script>

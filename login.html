@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Olimpollo - Login</title>
+  <style>
+    /* Estilos Generales y Fondo */
+    body {
+      margin: 0;
+      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; /* Fuente moderna */
+      background: #F8F9FA; /* Fondo blanco muy suave */
+      background-image: linear-gradient(135deg, #D62828 0%, #B71C1C 100%); /* Degradado sutil */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      flex-direction: column;
+    }
+    
+    /* Caja de Login (El 'Login Box') */
+    .login-box {
+      background: #ffffff;
+      padding: 40px;
+      border-radius: 12px; /* Bordes más suaves */
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25); /* Sombra más pronunciada y profesional */
+      text-align: center;
+      width: 320px; /* Un poco más ancho */
+      transition: all 0.3s ease;
+    }
+    
+    /* Encabezados y Slogan */
+    .login-box h1 {
+      color: #D62828;
+      margin-bottom: 5px;
+      font-size: 28px;
+    }
+    .login-box .slogan {
+      color: #343A40; /* Gris oscuro para el slogan */
+      font-style: italic;
+      margin-bottom: 25px;
+      font-size: 14px;
+    }
+
+    /* Campos de Entrada */
+    .login-box input {
+      width: 100%; /* Ocupa el 100% de la caja */
+      padding: 12px;
+      margin: 10px 0;
+      border: 1px solid #ced4da;
+      border-radius: 6px;
+      box-sizing: border-box; /* Asegura que el padding no cambie el ancho */
+      font-size: 16px;
+      transition: border-color 0.3s;
+    }
+    .login-box input:focus {
+        border-color: #FCBF49; /* Borde de acento al enfocar */
+        outline: none;
+        box-shadow: 0 0 5px rgba(252, 191, 73, 0.5);
+    }
+    
+    /* Botón Principal */
+    .login-box button {
+      background: #D62828;
+      color: white;
+      border: none;
+      padding: 12px;
+      width: 100%;
+      border-radius: 6px;
+      font-size: 18px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: background 0.3s;
+      margin-top: 20px;
+    }
+    .login-box button:hover {
+      background: #B71C1C;
+    }
+    
+    /* Imagen/Logo */
+    .login-box .logo {
+        max-width: 100px; /* Tamaño más controlado */
+        margin-bottom: 15px;
+        border-radius: 50%; /* Si es circular, se verá mejor */
+    }
+
+    /* Mensaje de Error */
+    #error-message {
+        color: #D62828;
+        background: #F8D7DA;
+        padding: 8px;
+        border-radius: 4px;
+        font-weight: bold;
+        margin-bottom: 15px;
+        display: none;
+    }
+
+    /* Footer (Fuera de la Caja) */
+    footer {
+      position: absolute;
+      bottom: 20px;
+      color: rgba(255, 255, 255, 0.7); /* Blanco semitransparente sobre el fondo rojo */
+      font-size: 14px;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-box">
+        <img src="LOGO.jpeg" alt="Logo Olimpollo" class="logo">
+    <h1>Olimpollo</h1>
+    <p class="slogan">Los boneless del Olimpo</p>
+    
+        <form id="login-form">
+      <input type="text" id="username" placeholder="Usuario" required>       <input type="password" id="password" placeholder="Contraseña" required>
+      <div id="error-message"></div>
+      <button type="submit">Ingresar</button>
+    </form>
+      </div>
+  <footer>
+    Los boneless del Olimpo
+  </footer>
+
+<script>
+document.getElementById('login-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const username = document.getElementById('username').value;
+    const password = document.getElementById('password').value;
+    const errorMessage = document.getElementById('error-message');
+
+    // Ocultar mensaje anterior
+    errorMessage.style.display = 'none';
+
+    try {
+        const response = await fetch('http://localhost:3000/api/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ username, password })
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+            // Almacenar el token y el rol en el almacenamiento local del navegador
+            localStorage.setItem('authToken', data.token);
+            localStorage.setItem('userRole', data.rol);
+            
+            // Redirigir a la página principal
+            window.location.href = 'index.html';
+        } else {
+            // Mostrar mensaje de error del Back-End
+            errorMessage.textContent = data.error || 'Error al iniciar sesión.';
+            errorMessage.style.display = 'block';
+        }
+
+    } catch (error) {
+        console.error('Error de conexión:', error);
+        errorMessage.textContent = 'Error: No se pudo conectar con el servidor de autenticación.';
+        errorMessage.style.display = 'block';
+    }
+});
+</script>
+</body>
+</html>

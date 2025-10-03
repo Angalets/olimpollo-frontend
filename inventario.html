@@ -1,0 +1,706 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Olimpollo - Inventario</title>
+  <style>
+    /* 1. ESTILOS BASE Y LAYOUT */
+    body { 
+        margin: 0; 
+        font-family: Arial, sans-serif; 
+        background: #F8F9FA; /* Fondo blanco suave */
+        display: flex; 
+        flex-direction: column; 
+        min-height: 100vh; 
+    }
+    
+    /* 2. HEADER Y NAVEGACIÓN (Diseño Moderno) */
+    header {
+        background: #D62828;
+        color: white;
+        padding: 15px 30px; 
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); 
+        display: flex; 
+        justify-content: space-between; 
+        align-items: center; 
+    }
+    header nav {
+        display: flex;
+        gap: 15px;
+        background: rgba(255, 255, 255, 0.1); 
+        padding: 10px 20px;
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, 0.3);
+    }
+    header nav a {
+        color: #FFFFFF;
+        text-decoration: none;
+        font-weight: 600;
+        padding: 5px 10px;
+        transition: color 0.3s, background 0.3s;
+        border-radius: 5px;
+    }
+    header nav a:hover {
+        color: #D62828; 
+        background: #FFFFFF; 
+    }
+    .logout {
+        background: #FFFFFF;
+        color: #D62828;
+        border: 2px solid #D62828;
+        padding: 8px 15px;
+        border-radius: 20px;
+        cursor: pointer;
+        font-weight: bold;
+        transition: background 0.3s, color 0.3s;
+    }
+    .logout:hover {
+        background: #FCBF49; /* Naranja/Oro */
+        color: #343A40;
+        border-color: #FCBF49;
+    }
+
+    /* 3. CONTENEDOR Y TABLA (Diseño Limpio) */
+    .container { 
+        padding: 40px; 
+        flex: 1; 
+        position: relative;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+    h1 {
+        text-align: center;
+        color: #D62828;
+        margin-bottom: 25px;
+    }
+    table { 
+        width: 100%; 
+        border-collapse: separate; 
+        border-spacing: 0;
+        background: #FFFFFF;
+        border-radius: 8px; 
+        overflow: hidden; 
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        margin-bottom: 20px;
+    }
+    th, td { 
+        padding: 12px; 
+        text-align: center; 
+        border: none;
+    }
+    th { 
+        background: #F8D9D9; 
+        color: #D62828; 
+        font-weight: bold;
+        text-transform: uppercase;
+        border-bottom: 2px solid #D62828;
+    }
+    td {
+        border-bottom: 1px solid #EEEEEE;
+        color: #343A40;
+    }
+    tr:hover {
+        background-color: #FFF3F3 !important;
+    }
+    
+    /* 4. BOTONES DE ACCIÓN EN TABLA Y MODAL */
+    .btn { 
+        padding: 5px 10px;
+        font-size: 14px;
+        border-radius: 5px;
+        margin: 2px;
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+    .btn.btn-edit {
+        background-color: #007bff; /* Azul */
+        color: white;
+        border: 1px solid #007bff;
+    }
+    .btn.btn-eliminar, .btn-confirmar {
+        background-color: #dc3545; /* Rojo */
+        color: white;
+        border: 1px solid #dc3545;
+    }
+    .btn.btn-cancelar {
+        background-color: #6c757d; /* Gris */
+        color: white;
+        border: 1px solid #6c757d;
+    }
+    
+    /* 5. MODALES */
+    .modal {
+        display: none; 
+        position: fixed; 
+        z-index: 10; 
+        left: 0;
+        top: 0;
+        width: 100%; 
+        height: 100%; 
+        overflow: auto; 
+        background-color: rgba(0,0,0,0.4); 
+    }
+    .modal-content {
+        background-color: #fefefe;
+        margin: 10% auto; 
+        padding: 30px;
+        border: 1px solid #888;
+        width: 80%; 
+        max-width: 500px;
+        border-radius: 12px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        position: relative;
+    }
+    .modal-content h3 {
+        color: #D62828;
+        border-bottom: 2px solid #FCBF49; 
+        padding-bottom: 10px;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+    .modal-content label {
+        display: block;
+        margin-top: 15px;
+        font-weight: bold;
+    }
+    .modal-content input, .modal-content select {
+        width: 95%;
+        padding: 10px;
+        margin-top: 5px;
+        border-radius: 5px;
+        border: 1px solid #ccc;
+        box-sizing: border-box;
+    }
+    .modal-content button {
+        margin-top: 20px;
+        width: 100%;
+    }
+    .close {
+        color: #aaa;
+        float: right;
+        font-size: 28px;
+        font-weight: bold;
+        position: absolute;
+        right: 15px;
+        top: 5px;
+    }
+    .close:hover, .close:focus {
+        color: black;
+        text-decoration: none;
+        cursor: pointer;
+    }
+
+    /* 6. NOTIFICACIÓN */
+    #notificacion {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background-color: #4CAF50;
+        color: white;
+        padding: 15px;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        z-index: 100;
+        display: none;
+    }
+
+    /* 7. FOOTER */
+    footer {
+        background: #343A40; 
+        color: #FFFFFF;
+        padding: 15px;
+        text-align: center;
+        font-style: italic;
+    }
+    /* Estilos del botón principal de agregar */
+    #btn-agregar {
+        background: #D62828;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+        margin-bottom: 20px;
+        transition: background 0.3s;
+    }
+    #btn-agregar:hover {
+        background: #b71c1c;
+    }
+  </style>
+</head>
+<body>
+    <header>
+        <nav>
+      <a href="index.html">Página Principal</a>
+      <a href="reportes.html">Reportes</a>
+      <a href="pedidos.html">POS</a>
+      <a href="pedidos_lista.html">Pedidos</a>
+      <a href="inventario.html">Inventario</a>
+      <a href="recetas.html">Recetas</a>
+      <a href="usuarios.html">Usuarios</a>
+      <a href="menu_gestion.html">Menú</a>
+        </nav>
+        <button class="logout" id="btn-logout">Cerrar Sesión</button>
+    </header>
+
+    <div class="container">
+        <h1>Gestión de Inventario</h1>
+        
+        <div style="display: flex; gap: 15px; margin-bottom: 20px;">
+            <button id="btn-agregar" class="btn" style="background: #D62828; color: white; font-weight: bold;">➕ Agregar Nuevo Insumo</button>
+            <button id="btn-guardar-corte" class="btn btn-confirmar" style="background: #FCBF49; color: #343A40; border: none; font-weight: bold;">
+                💾 Guardar Inventario Físico
+            </button>
+        </div>
+
+        <div class="filtros-container" style="margin-bottom: 25px; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 1px 5px rgba(0,0,0,0.05); display: flex; gap: 20px; align-items: center;">
+            <h3 style="color: #D62828; margin: 0;">Filtros:</h3>
+
+            <div style="flex: 1;">
+                <label for="filtro-categoria" style="font-weight: bold; font-size: 14px; display: block; margin-bottom: 5px;">Categoría:</label>
+                <select id="filtro-categoria" style="width: 100%; padding: 8px; border-radius: 5px;">
+                    <option value="">-- Todas --</option>
+                    <option value="Materia Prima">Materia Prima</option>
+                    <option value="Salsas">Salsas</option>
+                    <option value="Aderezos">Aderezos</option>
+                    <option value="Aceite">Aceite</option>
+                    <option value="Bebidas">Bebidas</option>
+                    <option value="Empacado">Empacado</option>
+                    <option value="Gases">Gas</option>
+                    <option value="Otros">Otros</option>
+                </select>
+            </div>
+
+            <div style="flex: 1;">
+                <label for="filtro-estado" style="font-weight: bold; font-size: 14px; display: block; margin-bottom: 5px;">Alerta:</label>
+                <select id="filtro-estado" style="width: 100%; padding: 8px; border-radius: 5px;">
+                    <option value="">-- Todas --</option>
+                    <option value="En stock">En Stock</option>
+                    <option value="Requiere re-stock">Stock Bajo</option>
+                    <option value="Agotado">Agotado</option>
+                </select>
+            </div>
+
+            <button id="btn-aplicar-filtro" class="btn" style="background-color: #007bff; color: white; padding: 10px 20px; font-size: 14px; margin-top: 15px;">Aplicar Filtro</button>
+        </div>
+
+        <table id="tabla-inventario">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Categoría</th>  
+                    <th>Cantidad</th>
+                    <th>Unidad</th>       
+                    <th>Estado</th>       
+                    <th>Acciones</th>
+                </tr>
+            </thead>    
+            <tbody>
+                </tbody>
+        </table>
+    </div>
+
+    <div id="modalProducto" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>Agregar Nuevo Insumo</h3>
+            <form id="form-agregar">
+                <label for="nombre-agregar">Nombre del Insumo:</label>
+                <input type="text" id="nombre-agregar" placeholder="Ej: Harina, Ranch, Pollo" required>
+                
+                <label for="categoria-agregar">Categoría:</label>
+                <select id="categoria-agregar" required>
+                    <option value="Materia Prima">Materia Prima</option>
+                    <option value="Salsas">Salsas</option>
+                    <option value="Aderezos">Aderezos</option>
+                    <option value="Aceite">Aceite</option>
+                    <option value="Bebidas">Bebidas</option>
+                    <option value="Empacado">Empacado</option>
+                    <option value="Gases">Gas</option>
+                    <option value="Otros">Otros</option>
+                </select>
+
+                <label for="cantidad-agregar">Cantidad Inicial:</label>
+                <input type="number" id="cantidad-agregar" min="0" value="0" required>
+                
+                <label for="unidad-agregar">Unidad de Medida (Ej: Kg, Pz, Litro):</label>
+                <input type="text" id="unidad-agregar" placeholder="Ej: Kg, Pieza, Litro" value="Unidad" required>
+                
+                <label for="stock-minimo-agregar">Stock Mínimo (Umbral de Alerta):</label>
+                <input type="number" id="stock-minimo-agregar" min="0" value="10" required>
+                
+                <button type="submit" class="btn">Guardar Insumo</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="modalEditar" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>Editar Insumo</h3>
+            <form id="form-editar">
+                <input type="hidden" id="edit-id">
+                <label>ID Producto:</label>
+                <input type="text" id="edit-id-display" readonly disabled>
+                
+                <label for="edit-nombre">Nombre:</label>
+                <input type="text" id="edit-nombre" required>
+                
+                <label for="edit-categoria">Categoría:</label>
+                <select id="edit-categoria" required>
+                    <option value="Materia Prima">Materia Prima</option>
+                    <option value="Salsas">Salsas</option>
+                    <option value="Aderezos">Aderezos</option>
+                    <option value="Aceite">Aceite</option>
+                    <option value="Bebidas">Bebidas</option>
+                    <option value="Empacado">Empacado</option>
+                    <option value="Gases">Gas</option>
+                    <option value="Otros">Otros</option>
+                </select>
+
+                <label for="edit-cantidad">Cantidad:</label>
+                <input type="number" id="edit-cantidad" min="0" required>
+                
+                <label for="edit-unidad">Unidad de Medida (Ej: Kg, Pz, Litro):</label>
+                <input type="text" id="edit-unidad" required>
+
+                <label for="edit-stock-minimo">Stock Mínimo (Alerta):</label>
+                <input type="number" id="edit-stock-minimo" min="0" required>
+                
+                <button type="submit" class="btn">Guardar Cambios</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="modalConfirmar" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>Confirmar Eliminación</h3>
+            <p>¿Estás seguro de que deseas eliminar el insumo: <strong id="insumo-a-eliminar"></strong>?</p>
+            <button id="btn-confirmar-eliminar" class="btn btn-confirmar">Sí, Eliminar</button>
+            <button class="btn btn-cancelar">Cancelar</button>
+        </div>
+    </div>
+
+    <div id="notificacion"></div>
+
+    <footer>
+        Los boneless del Olimpo
+    </footer>
+
+    <script>
+        const API_URL = 'http://localhost:3000/api/inventario';
+        const tablaBody = document.querySelector('#tabla-inventario tbody');
+        
+        // Elementos para filtros
+        const filtroCategoria = document.getElementById('filtro-categoria');
+        const filtroEstado = document.getElementById('filtro-estado');
+        const btnAplicarFiltro = document.getElementById('btn-aplicar-filtro');
+
+        // Botón de guardar corte
+        const btnGuardarCorte = document.getElementById('btn-guardar-corte');
+        
+        // Modales y Forms
+        const modalProducto = document.getElementById('modalProducto');
+        const modalEditar = document.getElementById('modalEditar');
+        const modalConfirmar = document.getElementById('modalConfirmar');
+        const insumoAEliminar = document.getElementById('insumo-a-eliminar');
+        const formAgregar = document.getElementById('form-agregar');
+        const formEditar = document.getElementById('form-editar');
+        const btnConfirmarEliminar = document.getElementById('btn-confirmar-eliminar');
+        
+        let productoIdActual = null; // Para guardar el ID a eliminar
+
+        // --- 1. FUNCIONES DE UTILIDAD (Modales y Notificación) ---
+
+        const abrirModal = (modal) => { modal.style.display = 'block'; };
+        const cerrarModales = () => {
+            modalProducto.style.display = 'none';
+            modalEditar.style.display = 'none';
+            modalConfirmar.style.display = 'none';
+        };
+        const mostrarNotificacion = (mensaje) => {
+            const notificacion = document.getElementById('notificacion');
+            notificacion.textContent = mensaje;
+            notificacion.style.display = 'block';
+            setTimeout(() => { notificacion.style.display = 'none'; }, 3000);
+        };
+
+        // --- 2. FUNCIONES DE API (CRUD) ---
+
+        const renderInventario = async () => {
+            try {
+                // Leer los valores de los filtros para construir la URL
+                const categoria = filtroCategoria.value;
+                const estado = filtroEstado.value;
+
+                let url = API_URL + '?';
+                if (categoria) {
+                    url += `categoria=${encodeURIComponent(categoria)}&`;
+                }
+                if (estado) {
+                    url += `estado=${encodeURIComponent(estado)}&`;
+                }
+
+                url = url.endsWith('&') ? url.slice(0, -1) : url;
+                url = url.endsWith('?') ? url.slice(0, -1) : url;
+
+
+                const token = localStorage.getItem('authToken');
+                const response = await fetch(url, { // Usar la URL construida
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if (!response.ok) {
+                    if (response.status === 401 || response.status === 403) {
+                        alert('Sesión expirada o no autorizado. Por favor, inicia sesión de nuevo.');
+                        window.location.href = 'login.html';
+                        return;
+                    }
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Error al obtener el inventario');
+                }
+
+                const inventario = await response.json();
+
+                tablaBody.innerHTML = '';
+                inventario.forEach(producto => {
+                    const tr = document.createElement('tr');
+                    
+                    let color = '';
+                    if (producto.estado === 'Agotado') {
+                        color = 'background-color: #ffcccc;'; 
+                    } else if (producto.estado === 'Requiere re-stock') {
+                        color = 'background-color: #ffebcc;'; 
+                    }
+                    tr.style = color;
+
+                    tr.innerHTML = `
+                        <td>${producto.id}</td>
+                        <td>${producto.nombre}</td>
+                        <td>${producto.categoria}</td> 
+                        <td>${producto.cantidad}</td>
+                        <td>${producto.unidad}</td>  
+                        <td><span style="font-weight: bold;">${producto.estado}</span></td> 
+                        <td>
+                            <button class="btn btn-edit" 
+                                data-id="${producto.id}" 
+                                data-nombre="${producto.nombre}" 
+                                data-cantidad="${producto.cantidad}"
+                                data-unidad="${producto.unidad}"              
+                                data-stock-minimo="${producto.stock_minimo}"
+                                data-categoria="${producto.categoria}"> 
+                                Editar
+                            </button>
+                            <button class="btn btn-eliminar" data-id="${producto.id}">Eliminar</button>
+                        </td>
+                    `;
+                    tablaBody.appendChild(tr);
+                });
+            } catch (error) {
+                console.error('Error al cargar el inventario:', error);
+                mostrarNotificacion('Error: ' + error.message);
+            }
+        };
+
+        const agregarProducto = async (data) => {
+            try {
+                const token = localStorage.getItem('authToken');
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify(data)
+                });
+
+                if (!response.ok) throw new Error('Error al agregar el insumo');
+                
+                await response.json(); 
+                renderInventario(); 
+                cerrarModales();
+                mostrarNotificacion(`Insumo "${data.nombre}" agregado exitosamente.`);
+            } catch (error) {
+                console.error('Error al agregar:', error);
+                mostrarNotificacion('Error al agregar el insumo.');
+            }
+        };
+
+        const editarProducto = async (id, data) => {
+            try {
+                const token = localStorage.getItem('authToken');
+                const response = await fetch(`${API_URL}/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                    body: JSON.stringify(data)
+                });
+
+                if (!response.ok) throw new Error('Error al editar el insumo');
+                
+                await response.json(); 
+                renderInventario(); 
+                cerrarModales();
+                mostrarNotificacion(`Insumo "${data.nombre}" actualizado exitosamente.`);
+            } catch (error) {
+                console.error('Error al editar:', error);
+                mostrarNotificacion('Error al editar el insumo.');
+            }
+        };
+
+        const eliminarProducto = async (id) => {
+            try {
+                const token = localStorage.getItem('authToken');
+                const response = await fetch(`${API_URL}/${id}`, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                
+                if (response.status === 409) { 
+                    const data = await response.json();
+                    throw new Error(data.mensaje); 
+                }
+                if (!response.ok) throw new Error('Error al eliminar el insumo.');
+                
+                renderInventario(); 
+                cerrarModales();
+                mostrarNotificacion('Insumo eliminado exitosamente.');
+            } catch (error) {
+                console.error('Error al eliminar:', error);
+                mostrarNotificacion('Error: ' + error.message);
+            }
+        };
+        
+        // --- FUNCIÓN DE GUARDADO FÍSICO ---
+        const guardarInventarioFisico = async () => {
+            try {
+                const token = localStorage.getItem('authToken');
+                const response = await fetch('http://localhost:3000/api/inventario/guardar', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Error al guardar el inventario físico.');
+                }
+
+                mostrarNotificacion(data.mensaje);
+            } catch (error) {
+                console.error('Error al guardar corte:', error);
+                mostrarNotificacion('Error: ' + error.message);
+            }
+        };
+
+        // --- 3. MANEJADORES DE EVENTOS ---
+
+        // Evento para abrir modal de AGREGAR
+        document.getElementById('btn-agregar').addEventListener('click', () => {
+            formAgregar.reset(); 
+            abrirModal(modalProducto);
+        });
+
+        // Evento para aplicar filtros
+        btnAplicarFiltro.addEventListener('click', renderInventario);
+
+        // Evento para guardar corte
+        btnGuardarCorte.addEventListener('click', guardarInventarioFisico);
+
+        // Evento para manejar EDITAR y ELIMINAR (usando delegación)
+        tablaBody.addEventListener('click', (e) => {
+            const id = e.target.dataset.id;
+            
+            if (e.target.classList.contains('btn-edit')) {
+                // 1. Llenar los campos del modal de Edición
+                document.getElementById('edit-id').value = id;
+                document.getElementById('edit-id-display').value = id;
+                document.getElementById('edit-nombre').value = e.target.dataset.nombre;
+                
+                // Llenar campos nuevos de Categoría, Unidad y Stock Mínimo
+                document.getElementById('edit-categoria').value = e.target.dataset.categoria; 
+                document.getElementById('edit-cantidad').value = e.target.dataset.cantidad;
+                document.getElementById('edit-unidad').value = e.target.dataset.unidad;
+                document.getElementById('edit-stock-minimo').value = e.target.dataset.stockMinimo;
+                
+                abrirModal(modalEditar);
+                
+            } else if (e.target.classList.contains('btn-eliminar')) {
+                // 2. Abrir modal de Confirmación
+                productoIdActual = id;
+                const nombreInsumo = e.target.closest('tr').querySelector('td:nth-child(2)').textContent;
+                insumoAEliminar.textContent = nombreInsumo;
+                abrirModal(modalConfirmar);
+            }
+        });
+
+        // Evento de submit para AGREGAR (Actualizado)
+        formAgregar.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const nombre = document.getElementById('nombre-agregar').value.trim();
+            const categoria = document.getElementById('categoria-agregar').value;
+            const cantidad = parseInt(document.getElementById('cantidad-agregar').value, 10);
+            const unidad = document.getElementById('unidad-agregar').value.trim();
+            const stock_minimo = parseInt(document.getElementById('stock-minimo-agregar').value, 10);
+
+            if (!nombre || cantidad < 0 || isNaN(cantidad) || isNaN(stock_minimo) || stock_minimo < 0) {
+                alert('Por favor, ingresa un nombre válido y cantidades positivas.');
+                return;
+            }
+
+            agregarProducto({ nombre, cantidad, unidad, stock_minimo, categoria }); 
+        });
+        
+        // Evento de submit para EDITAR (Actualizado)
+        formEditar.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const id = document.getElementById('edit-id').value;
+            const nombre = document.getElementById('edit-nombre').value.trim();
+            const categoria = document.getElementById('edit-categoria').value;
+            const cantidad = parseInt(document.getElementById('edit-cantidad').value, 10);
+            const unidad = document.getElementById('edit-unidad').value.trim();
+            const stock_minimo = parseInt(document.getElementById('edit-stock-minimo').value, 10);
+
+            if (!nombre || cantidad < 0 || isNaN(cantidad) || isNaN(stock_minimo) || stock_minimo < 0) {
+                alert('Por favor, ingresa un nombre válido y cantidades positivas.');
+                return;
+            }
+            
+            editarProducto(id, { nombre, cantidad, unidad, stock_minimo, categoria });
+        });
+
+        // Evento de click para CONFIRMAR ELIMINAR
+        btnConfirmarEliminar.addEventListener('click', () => {
+            eliminarProducto(productoIdActual);
+        });
+
+        // Cerrar modales (botones 'x', cancelar, clic fuera)
+        document.querySelectorAll('.close, .btn-cancelar').forEach(el => el.addEventListener('click', cerrarModales));
+        window.addEventListener('click', (e) => {
+            if (e.target.classList.contains('modal')) cerrarModales();
+        });
+
+        // Lógica de Cerrar Sesión
+        document.getElementById('btn-logout').addEventListener('click', () => {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('userRole');
+            window.location.href = 'login.html';
+        });
+
+        // --- 4. INICIALIZACIÓN ---
+        
+        const verificarLogin = () => {
+            const token = localStorage.getItem('authToken');
+            const role = localStorage.getItem('userRole'); 
+            
+            if (!token || !role) {
+                window.location.href = 'login.html';
+                return;
+            }
+            
+            renderInventario(); 
+        };
+
+        document.addEventListener('DOMContentLoaded', verificarLogin);
+    </script>
+</body>
+</html>

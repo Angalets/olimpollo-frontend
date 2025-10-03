@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Olimpollo - Gestor de Usuarios</title>
+  <style>
+    /* Usa los mismos estilos que inventario.html para coherencia */
+    body { margin: 0; font-family: Arial, sans-serif; background: #fff5f5; display: flex; flex-direction: column; min-height: 100vh; }
+    header {
+    background: #D62828;
+    color: white;
+    padding: 15px 30px; /* Consistencia con index.html */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); 
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    /* QUITAMOS EL DISPLAY:FLEX DEL NAV Y SE LO DAMOS AL HEADER */
+}
+
+/* Modificación al BOTÓN CERRAR SESIÓN */
+.logout {
+    background: #FFFFFF;
+    color: #D62828;
+    border: 2px solid #D62828;
+    padding: 8px 15px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.3s;
+}
+.logout:hover {
+    background: #FCBF49; /* Naranja/Oro */
+    color: #343A40;
+    border-color: #FCBF49;
+}
+header nav {
+    /* Mantenemos los enlaces juntos */
+    display: flex;
+    gap: 15px;
+    
+    /* Le damos un fondo blanco flotante y sutilmente redondeado */
+    background: rgba(255, 255, 255, 0.1); /* Fondo muy sutil */
+    padding: 10px 20px;
+    border-radius: 10px;
+    /* Borde ligero para definir el área */
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Estilo de los enlaces individuales */
+header nav a {
+    color: #FFFFFF;
+    text-decoration: none;
+    font-weight: 600; /* Un poco más de peso */
+    padding: 5px 10px;
+    transition: color 0.3s, background 0.3s;
+    border-radius: 5px;
+}
+
+/* Efecto Hover Moderno: resalta el enlace activo o al pasar el mouse */
+header nav a:hover {
+    color: #D62828; /* El texto se vuelve rojo */
+    background: #FFFFFF; /* El fondo se vuelve blanco */
+}
+    .container { padding: 20px; flex: 1; position: relative; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+    table, th, td { border: 1px solid #ddd; }
+    th, td { padding: 12px; text-align: center; }
+    th { background: #f8d7da; color: #b71c1c; }
+    .btn { background: #d62828; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; margin: 2px; }
+    .btn:hover { opacity: 0.8; }
+    .btn.btn-edit { background-color: #007bff; }
+    footer { background: #111; color: white; text-align: center; padding: 10px; font-style: italic; }
+    .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); justify-content: center; align-items: center; }
+    .modal-content { background: white; padding: 20px; border-radius: 8px; width: 90%; max-width: 400px; text-align: left; position: relative; }
+    .modal-content h3 { margin-top: 0; color: #d62828; }
+    .modal-content label { display: block; margin: 10px 0 5px; font-weight: bold; }
+    .modal-content input, .modal-content select { width: 100%; padding: 8px; margin-bottom: 10px; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
+    .close { position: absolute; top: 10px; right: 15px; font-size: 20px; cursor: pointer; color: #d62828; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <header>
+    <nav>
+      <a href="index.html">Página Principal</a>
+      <a href="reportes.html">Reportes</a>
+      <a href="pedidos.html">POS</a>
+      <a href="pedidos_lista.html">Pedidos</a>
+      <a href="inventario.html">Inventario</a>
+      <a href="recetas.html">Recetas</a>
+      <a href="usuarios.html">Usuarios</a>
+      <a href="menu_gestion.html">Menú</a>
+     </nav>
+    <button class="logout" id="btn-logout">Cerrar Sesión</button>
+  </header>
+
+  <div class="container">
+    <h2>Gestión de Usuarios</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Usuario</th>
+          <th>Rol</th>
+          <th>Acciones</th>
+        </tr>
+      </thead>
+      <tbody id="tabla-usuarios-body">
+      </tbody>
+    </table>
+    <button class="btn" id="btn-agregar-usuario">Agregar Usuario</button>
+  </div>
+
+  <div id="modalUsuario" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h3>Agregar Nuevo Usuario</h3>
+      <form id="form-agregar">
+        <label for="username-agregar">Usuario:</label>
+        <input type="text" id="username-agregar" required>
+        <label for="password-agregar">Contraseña:</label>
+        <input type="password" id="password-agregar" required>
+        <label for="rol-agregar">Rol:</label>
+        <select id="rol-agregar" required>
+          <option value="Empleado">Empleado</option>
+          <option value="Gerente">Gerente</option>
+          <option value="Administrador">Administrador</option>
+        </select>
+        <button type="submit" class="btn">Crear Usuario</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="modalEliminar" class="modal">
+    <div class="modal-content" style="text-align: center;">
+      <span class="close">&times;</span>
+      <h3>¿Eliminar Usuario?</h3>
+      <p id="mensaje-eliminar"></p>
+      <button class="btn" id="btn-confirmar-eliminar">Sí, eliminar</button>
+      <button type="button" class="btn btn-cancelar" style="background:gray;">Cancelar</button>
+    </div>
+  </div>
+
+  <footer>Los boneless del Olimpo</footer>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    const API_URL = 'http://localhost:3000/api/usuarios';
+    const tablaBody = document.getElementById('tabla-usuarios-body');
+    const modalUsuario = document.getElementById('modalUsuario');
+    const modalEliminar = document.getElementById('modalEliminar');
+    const formAgregar = document.getElementById('form-agregar');
+    let usuarioIdActual = null; // Para guardar el ID del usuario a eliminar
+
+    // --- 1. Control de Acceso y Log Out ---
+
+    const verificarPermisos = () => {
+        const token = localStorage.getItem('authToken');
+        const role = localStorage.getItem('userRole');
+        if (!token || role !== 'Administrador') {
+            alert('Acceso denegado. Solo Administradores.');
+            window.location.href = 'index.html';
+        }
+    };
+    
+    document.getElementById('btn-logout').addEventListener('click', () => { 
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('userRole');
+        window.location.href = 'login.html'; 
+    });
+
+    // --- 2. Funciones de Renderizado y FETCH ---
+
+    const fetchUsuarios = async () => {
+        try {
+            const response = await fetch(API_URL);
+            if (!response.ok) throw new Error('Error al cargar los usuarios');
+            const usuarios = await response.json();
+            renderUsuarios(usuarios);
+        } catch (error) {
+            console.error('Error:', error);
+            alert('No se pudo cargar la lista de usuarios.');
+        }
+    };
+
+    const renderUsuarios = (usuarios) => {
+        tablaBody.innerHTML = '';
+        usuarios.forEach(usuario => {
+            const row = tablaBody.insertRow();
+            row.innerHTML = `
+                <td>${usuario.id}</td>
+                <td>${usuario.username}</td>
+                <td>${usuario.rol}</td>
+                <td>
+                    <button class="btn btn-eliminar" data-id="${usuario.id}" data-username="${usuario.username}">Eliminar</button>
+                    </td>
+            `;
+        });
+    };
+
+    // --- 3. Lógica para Agregar Usuario (POST) ---
+
+    document.getElementById('btn-agregar-usuario').addEventListener('click', () => {
+        modalUsuario.style.display = 'flex';
+        formAgregar.reset(); // Limpia el formulario
+        document.getElementById('password-agregar').required = true;
+    });
+
+    formAgregar.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const username = document.getElementById('username-agregar').value.trim();
+        const password = document.getElementById('password-agregar').value;
+        const rol = document.getElementById('rol-agregar').value;
+        
+        try {
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password, rol })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) throw new Error(data.error || 'Error al crear el usuario.');
+
+            alert(`Usuario ${username} creado exitosamente.`);
+            cerrarModales();
+            fetchUsuarios(); // Recargar la lista
+            
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error al crear el usuario: ' + error.message);
+        }
+    });
+
+
+    // --- 4. Lógica para Eliminar Usuario (DELETE) ---
+
+    tablaBody.addEventListener('click', (e) => {
+        if (e.target.classList.contains('btn-eliminar')) {
+            usuarioIdActual = e.target.dataset.id;
+            const username = e.target.dataset.username;
+            
+            document.getElementById('mensaje-eliminar').innerHTML = `¿Está seguro de eliminar a <strong>${username}</strong> (ID: ${usuarioIdActual})?`;
+            modalEliminar.style.display = 'flex';
+        }
+    });
+
+    document.getElementById('btn-confirmar-eliminar').addEventListener('click', async () => {
+        try {
+            const response = await fetch(`${API_URL}/${usuarioIdActual}`, {
+                method: 'DELETE'
+            });
+
+            if (response.status === 403) {
+                const data = await response.json();
+                throw new Error(data.error);
+            }
+            if (!response.ok) throw new Error('Error al eliminar el usuario.');
+            
+            alert(`Usuario (ID: ${usuarioIdActual}) eliminado exitosamente.`);
+            cerrarModales();
+            fetchUsuarios(); // Recargar la lista
+
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error al eliminar: ' + error.message);
+        }
+    });
+
+    // --- 5. Lógica de Modales ---
+
+    const cerrarModales = () => {
+        modalUsuario.style.display = 'none';
+        modalEliminar.style.display = 'none';
+    };
+
+    document.querySelectorAll('.close, .btn-cancelar').forEach(el => el.addEventListener('click', cerrarModales));
+    window.addEventListener('click', (e) => {
+        if (e.target.classList.contains('modal')) cerrarModales();
+    });
+
+    // --- 6. INICIALIZACIÓN ---
+    verificarPermisos();
+    fetchUsuarios();
+});
+</script>
+</body>
+</html>

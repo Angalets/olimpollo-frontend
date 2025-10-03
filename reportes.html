@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Olimpollo - Reportes</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #fff5f5;
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+     header {
+    background: #D62828;
+    color: white;
+    padding: 15px 30px; /* Consistencia con index.html */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); 
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    /* QUITAMOS EL DISPLAY:FLEX DEL NAV Y SE LO DAMOS AL HEADER */
+}
+
+/* Modificación al BOTÓN CERRAR SESIÓN */
+.logout {
+    background: #FFFFFF;
+    color: #D62828;
+    border: 2px solid #D62828;
+    padding: 8px 15px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.3s;
+}
+.logout:hover {
+    background: #FCBF49; /* Naranja/Oro */
+    color: #343A40;
+    border-color: #FCBF49;
+}
+header nav {
+    /* Mantenemos los enlaces juntos */
+    display: flex;
+    gap: 15px;
+    
+    /* Le damos un fondo blanco flotante y sutilmente redondeado */
+    background: rgba(255, 255, 255, 0.1); /* Fondo muy sutil */
+    padding: 10px 20px;
+    border-radius: 10px;
+    /* Borde ligero para definir el área */
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Estilo de los enlaces individuales */
+header nav a {
+    color: #FFFFFF;
+    text-decoration: none;
+    font-weight: 600; /* Un poco más de peso */
+    padding: 5px 10px;
+    transition: color 0.3s, background 0.3s;
+    border-radius: 5px;
+}
+
+/* Efecto Hover Moderno: resalta el enlace activo o al pasar el mouse */
+header nav a:hover {
+    color: #D62828; /* El texto se vuelve rojo */
+    background: #FFFFFF; /* El fondo se vuelve blanco */
+}
+    .container {
+      flex: 1;
+      padding: 20px;
+    }
+    h1 {
+      text-align: center;
+      color: #d62828;
+    }
+    .filtros {
+      margin: 20px auto;
+      padding: 15px;
+      background: white;
+      border-radius: 10px;
+      max-width: 500px;
+      text-align: center;
+      box-shadow: 0px 0px 5px rgba(0,0,0,0.2);
+    }
+    .filtros label {
+      margin: 0 10px;
+    }
+    .filtros button {
+      background: #d62828;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      margin-top: 10px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+    footer {
+      background: #111;
+      color: white;
+      padding: 15px;
+      text-align: center;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav>
+      <a href="index.html">Página Principal</a>
+      <a href="reportes.html">Reportes</a>
+      <a href="pedidos.html">POS</a>
+      <a href="pedidos_lista.html">Pedidos</a>
+      <a href="inventario.html">Inventario</a>
+      <a href="recetas.html">Recetas</a>
+      <a href="usuarios.html">Usuarios</a>
+      <a href="menu_gestion.html">Menú</a>
+     </nav>
+    <button class="logout" id="btn-logout">Cerrar Sesión</button>
+  </header>
+  <div class="container">
+    <h1>Reportes</h1>
+    <div class="filtros">
+      <label for="fechaInicio">Fecha inicio:</label>
+      <input type="date" id="fechaInicio">
+      <label for="fechaFin">Fecha fin:</label>
+      <input type="date" id="fechaFin">
+      <br><br>
+<select id="select-tipo-reporte">
+    <option value="">Seleccionar Tipo</option>
+    <option value="ventas">Reporte de Ventas</option>
+    <option value="historico_inventario">Inventario Histórico</option> </select>
+      <br><br>
+      <button id="btn-generar">Generar Reporte</button>
+      <p id="mensaje-reporte" style="color: green; font-weight: bold; margin-top: 15px;"></p>
+    </div>
+  </div>
+
+  <footer>
+    Los boneless del Olimpo
+  </footer>
+
+  <script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    const API_URL = 'http://localhost:3000/api/reportes';
+    
+    // Elementos del DOM
+    const botonGenerar = document.getElementById('btn-generar');
+    const mensajeElemento = document.getElementById('mensaje-reporte');
+    const inputFechaInicio = document.getElementById('fechaInicio');
+    const inputFechaFin = document.getElementById('fechaFin');
+    const selectTipoReporte = document.getElementById('select-tipo-reporte');
+    
+    // Crear/Obtener el div donde se mostrarán los resultados (debe existir en tu HTML)
+    let resultadosDiv = document.getElementById('resultados-reporte');
+    if (!resultadosDiv) {
+        resultadosDiv = document.createElement('div');
+        resultadosDiv.id = 'resultados-reporte';
+        resultadosDiv.style.marginTop = '20px';
+        resultadosDiv.style.padding = '15px';
+        resultadosDiv.style.background = '#f1f1f1';
+        resultadosDiv.style.borderRadius = '8px';
+        document.querySelector('.filtros').appendChild(resultadosDiv);
+    }
+    
+    // --- Lógica de la Navegación y Permisos ---
+
+    const verificarLogin = () => {
+        const token = localStorage.getItem('authToken');
+        const role = localStorage.getItem('userRole');
+        if (!token) {
+            window.location.href = 'login.html';
+            return;
+        }
+        
+        // Regla de Permisos (Solo Admin y Gerente pueden ver reportes)
+        if (role !== 'Administrador' && role !== 'Gerente') {
+            alert('Acceso denegado: No tiene permisos para ver reportes.');
+            window.location.href = 'index.html';
+        }
+    };
+    
+    const botonLogout = document.getElementById('btn-logout');
+    botonLogout.addEventListener('click', function() {
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('userRole');
+      window.location.href = 'login.html';
+    });
+    
+    // --- 1. FUNCIÓN DE REPORTE DE INVENTARIO HISTÓRICO ---
+    const generarReporteHistorico = async (fecha) => {
+        resultadosDiv.innerHTML = 'Cargando registros...';
+        
+        try {
+            const url = `${API_URL}/inventario?fecha=${fecha}`;
+            const response = await fetch(url);
+            const data = await response.json();
+
+            if (!response.ok) {
+                if (response.status === 404) {
+                    resultadosDiv.innerHTML = `<p style="color:orange; font-weight:bold;">No se encontraron registros de inventario para la fecha: ${fecha}.</p>`;
+                    return;
+                }
+                throw new Error(data.error || 'Error desconocido al generar reporte histórico');
+            }
+
+            // Construir la tabla de resultados
+            let tablaHTML = `
+                <h4>Inventario Registrado el ${fecha}</h4>
+                <table style="width:100%; text-align:left; font-size:14px; border-collapse: collapse;">
+                    <thead style="background:#ddd;"><tr>
+                        <th style="padding: 10px;">Insumo</th>
+                        <th style="padding: 10px;">Cantidad</th>
+                        <th style="padding: 10px;">Unidad</th>
+                        <th style="padding: 10px;">Categoría</th>
+                    </tr></thead><tbody>
+            `;
+            
+            data.forEach(item => {
+                tablaHTML += `
+                    <tr style="border-bottom: 1px solid #eee;">
+                        <td style="padding: 10px;">${item.nombre_insumo}</td>
+                        <td style="padding: 10px;">${item.cantidad_registrada}</td>
+                        <td style="padding: 10px;">${item.unidad_medida}</td>
+                        <td style="padding: 10px;">${item.categoria}</td>
+                    </tr>
+                `;
+            });
+
+            tablaHTML += `</tbody></table>`;
+            resultadosDiv.innerHTML = tablaHTML;
+            mensajeElemento.textContent = 'Reporte histórico generado exitosamente.';
+            mensajeElemento.style.color = 'green';
+            
+        } catch (error) {
+            console.error('Error del reporte:', error);
+            resultadosDiv.innerHTML = '';
+            mensajeElemento.textContent = `Error: ${error.message}`;
+            mensajeElemento.style.color = 'red';
+        }
+    };
+    
+    // --- 2. FUNCIÓN DE REPORTE DE VENTAS ---
+    const generarReporteVentas = async (fechaInicio, fechaFin) => {
+        resultadosDiv.innerHTML = 'Cargando registros...';
+
+        const url = `${API_URL}/ventas?fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`;
+        
+        try {
+            const response = await fetch(url);
+            const data = await response.json();
+
+            if (!response.ok) throw new Error(data.error || 'Error desconocido al generar reporte');
+
+            // Mostrar resultados
+            resultadosDiv.innerHTML = `
+                <h4>Resultados del Reporte de Ventas</h4>
+                <p>Periodo: ${data.fechaInicio} al ${data.fechaFin}</p>
+                <p>Total de Pedidos Entregados: <strong>${data.total_pedidos}</strong></p>
+                <p>Ventas Netas Totales: <strong style="color: green;">$${data.ventas_totales}</strong></p>
+            `;
+            
+            mensajeElemento.textContent = 'Reporte generado exitosamente.';
+            mensajeElemento.style.color = 'green';
+
+        } catch (error) {
+            console.error('Error del reporte:', error);
+            resultadosDiv.innerHTML = '';
+            mensajeElemento.textContent = `Error: ${error.message}`;
+            mensajeElemento.style.color = 'red';
+        }
+    };
+
+    // --- 3. MANEJADOR PRINCIPAL DE GENERACIÓN DE REPORTES ---
+    botonGenerar.addEventListener('click', function() {
+        const tipoReporte = selectTipoReporte.value;
+        const fechaInicio = inputFechaInicio.value; // Se usa para la fecha del Histórico
+        const fechaFin = inputFechaFin.value;
+
+        if (tipoReporte === '') {
+            mensajeElemento.textContent = 'Por favor, selecciona el tipo de reporte.';
+            mensajeElemento.style.color = 'red';
+            return;
+        }
+        
+        resultadosDiv.innerHTML = ''; // Limpiar resultados anteriores
+
+        if (tipoReporte === 'ventas') {
+            if (!fechaInicio || !fechaFin) {
+                mensajeElemento.textContent = 'Para el reporte de ventas, selecciona ambas fechas.';
+                mensajeElemento.style.color = 'red';
+                return;
+            }
+            generarReporteVentas(fechaInicio, fechaFin);
+            
+        } else if (tipoReporte === 'historico_inventario') {
+            if (!fechaInicio) {
+                mensajeElemento.textContent = 'Selecciona la fecha de registro (Fecha inicio).';
+                mensajeElemento.style.color = 'red';
+                return;
+            }
+            // Solo se necesita la fecha de inicio
+            generarReporteHistorico(fechaInicio); 
+            
+        } else {
+             mensajeElemento.textContent = 'Tipo de reporte no soportado.';
+             mensajeElemento.style.color = 'orange';
+        }
+        
+        setTimeout(() => { mensajeElemento.textContent = ''; }, 5000);
+    });
+    
+    // --- 4. INICIALIZACIÓN ---
+    verificarLogin();
+});
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Olimpollo - Principal</title>
+  <style>
+    /* 1. ESTILOS BASE Y PALETA DE COLORES */
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #F8F9FA; /* Fondo blanco suave */
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+    }
+    
+    /* 2. HEADER Y NAVEGACIÓN */
+    header {
+      background: #D62828;
+      color: #FFFFFF;
+      padding: 15px 30px; 
+      font-size: 24px;
+      font-weight: bold;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15); /* Sombra suave */
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .logout {
+      background: #FFFFFF;
+      color: #D62828;
+      border: 2px solid #D62828;
+      padding: 8px 15px;
+      border-radius: 20px; /* Forma de píldora */
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: bold;
+      transition: background 0.3s, color 0.3s;
+    }
+    .logout:hover {
+      background: #FCBF49; /* Naranja/Oro de acento */
+      color: #343A40;
+      border-color: #FCBF49;
+    }
+
+    /* 3. CONTENEDOR PRINCIPAL (LAYOUT DE BOTONES) */
+    .container {
+      flex: 1; /* Ocupa el espacio restante */
+      display: flex;
+      flex-wrap: wrap; /* Permite que los botones se ajusten en pantalla pequeña */
+      justify-content: center;
+      align-items: center;
+      gap: 25px; /* Más espacio entre botones */
+      padding: 40px;
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    /* 4. ESTILOS DE BOTONES GRANDES (para index.html) */
+    .btn {
+      background: #D62828;
+      color: white;
+      border: none;
+      padding: 20px 30px; /* Más padding para que sean grandes */
+      border-radius: 12px; /* Bordes suaves */
+      font-size: 18px;
+      cursor: pointer;
+      width: 250px; /* Ancho fijo para consistencia */
+      height: 100px; /* Alto fijo */
+      transition: 0.3s;
+      text-decoration: none;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-weight: bold;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .btn:hover {
+      background: #b71c1c; /* Rojo más oscuro en hover */
+      transform: translateY(-3px); /* Efecto 3D sutil */
+      box-shadow: 0 8px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    /* 5. FOOTER */
+    footer {
+      background: #343A40; /* Gris oscuro para el footer */
+      color: #FFFFFF;
+      padding: 15px;
+      text-align: center;
+      font-style: italic;
+    }
+    
+    /* 6. RESPONSIVO */
+    @media (max-width: 768px) {
+      .container {
+        padding: 20px;
+      }
+      .btn {
+        width: 100%; /* Ocupa todo el ancho en móviles */
+        max-width: 300px;
+      }
+    }
+  </style>
+</head>
+<body>
+<header>
+    Olimpollo - Panel Principal
+    <button class="logout" id="btn-logout">Cerrar Sesión</button>
+</header>
+
+ <div class="container" id="panel-botones">
+    </div>
+
+<footer>
+    Los boneless del Olimpo
+</footer>
+
+<script>
+    const verificarLogin = () => {
+        const token = localStorage.getItem('authToken');
+        const role = localStorage.getItem('userRole'); // Obtener el rol
+        
+        if (!token) {
+            window.location.href = 'login.html';
+            return;
+        }
+
+        const panel = document.getElementById('panel-botones');
+        
+        const botones = [
+            { id: 'reportes', text: 'Reportes', href: 'reportes.html', roles: ['Administrador', 'Gerente'] },
+            // La terminal POS es ahora 'pedidos.html'
+            { id: 'pos', text: 'POS', href: 'pedidos.html', roles: ['Administrador', 'Gerente', 'Empleado'] }, 
+            // La lista de gestión es la nueva página
+            { id: 'pedidos_lista', text: 'Lista de Pedidos', href: 'pedidos_lista.html', roles: ['Administrador', 'Gerente'] }, 
+            
+            { id: 'inventario', text: 'Inventario', href: 'inventario.html', roles: ['Administrador', 'Gerente'] },
+            { id: 'menu', text: 'Menú', href: 'menu.html', roles: ['Administrador', 'Gerente', 'Empleado'] },
+            { id: 'recetas', text: 'Recetas', href: 'recetas.html', roles: ['Administrador'] },
+            { id: 'usuarios', text: 'Usuarios', href: 'usuarios.html', roles: ['Administrador'] },
+            { id: 'menugestion', text: 'Gestión de Menú', href: 'menu_gestion.html', roles: ['Administrador'] }
+        ];
+        
+        // Renderizar solo los botones permitidos para el rol actual
+        botones.forEach(btn => {
+            if (btn.roles.includes(role)) {
+                const link = document.createElement('a');
+                link.href = btn.href;
+                link.className = 'btn';
+                link.textContent = btn.text;
+                panel.appendChild(link);
+            }
+        });
+
+        // LOGICA PARA EL BOTÓN DE CERRAR SESIÓN (Asegurando que esté dentro del DOMContentLoaded)
+        const btnLogout = document.getElementById('btn-logout');
+        btnLogout.addEventListener('click', () => {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('userRole');
+            window.location.href = 'login.html';
+        });
+    };
+
+    document.addEventListener('DOMContentLoaded', verificarLogin);
+</script>
+</body>
+</html>
