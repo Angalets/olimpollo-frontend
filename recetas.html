@@ -192,11 +192,10 @@ header nav a:hover {
 document.addEventListener('DOMContentLoaded', () => {
 
     // 🚨 CLAVE: CONFIGURACIÓN PARA LA NUBE
-    const API_BASE_URL = 'https://olimpollo-api.render.com/api'; 
+const API_BASE_URL = 'https://olimpollo-api.render.com/api'; 
     
-    // --- 1. CONFIGURACIÓN DE LA API Y DATOS BASE ---
-    const API_RECETAS_URL = `${API_BASE_URL}/recetas`;
-    const API_INSUMOS_URL = `${API_BASE_URL}/inventario`; // Necesitamos la lista de insumos
+const API_RECETAS_URL = `${API_BASE_URL}/recetas`;
+const API_INSUMOS_URL = `${API_BASE_URL}/inventario`; 
 
     let recetas = []; // Almacena las recetas cargadas
     let insumosDisponibles = []; // Almacena la lista de insumos para los selectores
@@ -507,4 +506,5 @@ document.addEventListener('DOMContentLoaded', () => {
 </body>
 
 </html>
+
 
