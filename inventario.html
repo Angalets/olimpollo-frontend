@@ -391,11 +391,16 @@
     </footer>
 
     <script>
+// inventario.html (Reemplazar las líneas 600-605 dentro de <script>)
+
 document.addEventListener('DOMContentLoaded', () => {
 
     // 🚨 CLAVE: CONFIGURACIÓN PARA LA NUBE
     const API_BASE_URL = 'https://olimpollo-api.render.com/api'; 
-    const API_URL = API_BASE_URL + '/inventario';
+    const API_URL = API_BASE_URL + '/inventario'; // API_URL se refiere a /api/inventario
+    
+    // ... (El resto del código sigue igual)
+    // ...
         // Elementos para filtros
         const filtroCategoria = document.getElementById('filtro-categoria');
         const filtroEstado = document.getElementById('filtro-estado');
@@ -708,4 +713,5 @@ document.addEventListener('DOMContentLoaded', () => {
 </body>
 
 </html>
+
 
