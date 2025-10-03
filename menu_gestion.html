@@ -138,11 +138,17 @@
     <footer>Los boneless del Olimpo</footer>
 
 <script>
+// menu_gestion.html (Reemplazar las líneas 173-176 dentro de <script>)
+
+<script>
     document.addEventListener('DOMContentLoaded', () => {
 
+        // 🚨 CLAVE: CONFIGURACIÓN PARA LA NUBE
+        const API_BASE_URL = 'https://olimpollo-api.render.com/api'; 
+        
         // --- 1. CONFIGURACIÓN DE API Y ESTADO ---
-const API_BASE_URL = 'https://olimpollo-api.render.com/api'; // Nueva base
-const API_PEDIDOS_URL = API_BASE_URL + '/pedidos'; // Uso de la base
+        const API_MENU_PRODUCTOS_URL = `${API_BASE_URL}/menu/productos`;
+        const API_MENU_OPCIONES_URL = `${API_BASE_URL}/menu/opciones`;
 
         // --- 2. ELEMENTOS DEL DOM Y ESTADO GLOBAL ---
         const tablaBody = document.getElementById('tabla-productos-body');
