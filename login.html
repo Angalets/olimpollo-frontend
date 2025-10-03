@@ -121,6 +121,10 @@
   </footer>
 
 <script>
+// 🚨 URL BASE DE LA API EN RENDER
+const API_BASE_URL = 'https://olimpollo-api.render.com/api'; 
+const API_LOGIN_URL = API_BASE_URL + '/login';
+
 document.getElementById('login-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     
@@ -132,7 +136,8 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
     errorMessage.style.display = 'none';
 
     try {
-        const response = await fetch('http://localhost:3000/api/login', {
+        // 🚨 CAMBIO CLAVE: Usar la URL pública de Render
+        const response = await fetch(API_LOGIN_URL, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username, password })
@@ -161,4 +166,5 @@ document.getElementById('login-form').addEventListener('submit', async (e) => {
 });
 </script>
 </body>
+
 </html>
