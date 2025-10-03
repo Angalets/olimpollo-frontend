@@ -142,10 +142,18 @@ header nav a:hover {
   </footer>
 
   <script>
+// reportes.html (Reemplazar las líneas 162-163 dentro de <script>)
+
 document.addEventListener('DOMContentLoaded', () => {
 
-    const API_URL = 'http://localhost:3000/api/reportes';
+    // 🚨 CLAVE: CONFIGURACIÓN PARA LA NUBE
+    const API_BASE_URL = 'https://olimpollo-api.render.com/api'; 
+    const API_URL = API_BASE_URL + '/reportes';
     
+    // Elementos del DOM
+    const botonGenerar = document.getElementById('btn-generar');
+// ... (El resto del código JavaScript sigue igual)
+// ...
     // Elementos del DOM
     const botonGenerar = document.getElementById('btn-generar');
     const mensajeElemento = document.getElementById('mensaje-reporte');
@@ -318,4 +326,5 @@ document.addEventListener('DOMContentLoaded', () => {
   </script>
 
 </body>
+
 </html>
