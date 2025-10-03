@@ -141,8 +141,8 @@
     document.addEventListener('DOMContentLoaded', () => {
 
         // --- 1. CONFIGURACIÓN DE API Y ESTADO ---
-        const API_MENU_PRODUCTOS_URL = 'http://localhost:3000/api/menu/productos';
-        const API_MENU_OPCIONES_URL = 'http://localhost:3000/api/menu/opciones';
+const API_BASE_URL = 'https://olimpollo-api.render.com/api'; // Nueva base
+const API_PEDIDOS_URL = API_BASE_URL + '/pedidos'; // Uso de la base
 
         // --- 2. ELEMENTOS DEL DOM Y ESTADO GLOBAL ---
         const tablaBody = document.getElementById('tabla-productos-body');
