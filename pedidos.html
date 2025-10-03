@@ -221,8 +221,12 @@
 document.addEventListener('DOMContentLoaded', () => {
 
     // --- 1. CONFIGURACIÓN DE API Y ESTADO GLOBAL ---
-const API_BASE_URL = 'https://olimpollo-api.render.com/api'; // Nueva base
-const API_PEDIDOS_URL = API_BASE_URL + '/pedidos'; // Uso de la base
+    // 🚨 CLAVE: URL PÚBLICA DE TU API EN RENDER
+    const API_BASE_URL = 'https://olimpollo-api.render.com/api'; 
+
+    // Definición de las URLs de los endpoints
+    const API_MENU_URL = `${API_BASE_URL}/menu/pos`;
+    const API_PEDIDOS_URL = `${API_BASE_URL}/pedidos`;
 
     let menuData = { productos: [], opciones: {} }; 
     let carrito = []; 
@@ -516,3 +520,4 @@ const API_PEDIDOS_URL = API_BASE_URL + '/pedidos'; // Uso de la base
 </body>
 
 </html>
+
