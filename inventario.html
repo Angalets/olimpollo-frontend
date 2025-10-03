@@ -391,9 +391,11 @@
     </footer>
 
     <script>
-const API_BASE_URL = 'https://olimpollo-api.render.com/api'; // Nueva base
-const API_PEDIDOS_URL = API_BASE_URL + '/pedidos'; // Uso de la base
-        
+document.addEventListener('DOMContentLoaded', () => {
+
+    // 🚨 CLAVE: CONFIGURACIÓN PARA LA NUBE
+    const API_BASE_URL = 'https://olimpollo-api.render.com/api'; 
+    const API_URL = API_BASE_URL + '/inventario';
         // Elementos para filtros
         const filtroCategoria = document.getElementById('filtro-categoria');
         const filtroEstado = document.getElementById('filtro-estado');
@@ -570,14 +572,15 @@ const API_PEDIDOS_URL = API_BASE_URL + '/pedidos'; // Uso de la base
             }
         };
         
-        // --- FUNCIÓN DE GUARDADO FÍSICO ---
-        const guardarInventarioFisico = async () => {
-            try {
-                const token = localStorage.getItem('authToken');
-                const response = await fetch('http://localhost:3000/api/inventario/guardar', {
-                    method: 'POST',
-                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
-                });
+    // --- FUNCIÓN DE GUARDADO FÍSICO ---
+    // 🚨 CLAVE: Actualizar la URL de guardado físico
+    const guardarInventarioFisico = async () => {
+        try {
+            const token = localStorage.getItem('authToken');
+            const response = await fetch(`${API_BASE_URL}/inventario/guardar`, {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+            });
 
                 const data = await response.json();
 
@@ -705,3 +708,4 @@ const API_PEDIDOS_URL = API_BASE_URL + '/pedidos'; // Uso de la base
 </body>
 
 </html>
+
