@@ -391,8 +391,8 @@
     </footer>
 
     <script>
-        const API_URL = 'http://localhost:3000/api/inventario';
-        const tablaBody = document.querySelector('#tabla-inventario tbody');
+const API_BASE_URL = 'https://olimpollo-api.render.com/api'; // Nueva base
+const API_PEDIDOS_URL = API_BASE_URL + '/pedidos'; // Uso de la base
         
         // Elementos para filtros
         const filtroCategoria = document.getElementById('filtro-categoria');
@@ -703,4 +703,5 @@
         document.addEventListener('DOMContentLoaded', verificarLogin);
     </script>
 </body>
+
 </html>
