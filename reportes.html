@@ -88,7 +88,7 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            const API_URL = 'https://olimpollo-api.onrender.com';
+const API_URL = 'https://olimpollo-api.onrender.com/api/reportes';
             
             // --- VERIFICACIÓN DE LOGIN Y USUARIO ---
             const token = localStorage.getItem('authToken');
@@ -129,7 +129,7 @@
                 resultadosDiv.style.display = 'block';
                 
                 try {
-                    const url = `${API_URL}/inventario?fecha=${fecha}`;
+const url = `${API_URL}/inventario?fecha=${fecha}`;
                     const response = await fetch(url);
                     const data = await response.json();
 
@@ -204,4 +204,5 @@
         });
     </script>
 </body>
+
 </html>
