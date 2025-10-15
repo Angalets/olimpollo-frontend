@@ -188,7 +188,7 @@
     <footer>&copy; 2025 Los Boneless del Olimpo</footer>
 
     <script>
-        const API_URL = 'https://olimpollo-api.onrender.com';
+const API_URL = 'https://olimpollo-api.onrender.com/api/inventario';
         const tablaBody = document.querySelector('#tabla-inventario tbody');
         
         // Elementos para filtros
@@ -371,7 +371,7 @@
         const guardarInventarioFisico = async () => {
             try {
                 const token = localStorage.getItem('authToken');
-                const response = await fetch('https://olimpollo-api.onrender.com', {
+const response = await fetch(`${API_URL}/guardar`, { ... });
                     method: 'POST',
                     headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
                 });
@@ -500,4 +500,5 @@
         document.addEventListener('DOMContentLoaded', verificarLogin);
     </script>
 </body>
+
 </html>
