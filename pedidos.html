@@ -150,8 +150,8 @@
 document.addEventListener('DOMContentLoaded', () => {
 
     // --- 1. CONFIGURACIÓN Y ESTADO ---
-    const API_MENU_URL = 'https://olimpollo-api.onrender.com';
-    const API_PEDIDOS_URL = 'https://olimpollo-api.onrender.com';
+const API_MENU_URL = 'https://olimpollo-api.onrender.com/api/menu/pos';
+const API_PEDIDOS_URL = 'https://olimpollo-api.onrender.com/api/pedidos';
     let menuData = { productos: [], opciones: {} }; 
     let carrito = []; 
 
@@ -406,4 +406,5 @@ const renderProductos = (productos) => {
 });
 </script>
 </body>
+
 </html>
