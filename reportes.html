@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Olimpollo - Reportes</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  
+    <style>
+        /* ==========================================================================
+           BASE DE ESTILOS UNIFICADA PARA OLIMPOLLO
+           ========================================================================== */
+        :root{--bg-main:#ECF0F1;--bg-header:#FFFFFF;--card-bg:#FFFFFF;--primary-text:#502c2c;--secondary-text:#808B96;--accent-color:#db3434;--accent-hover:#b92929;--border-color:#D5D8DC;--shadow-light:0 4px 15px rgba(0, 0, 0, 0.08);--shadow-heavy:0 10px 20px rgba(0, 0, 0, 0.12);}body{margin:0;font-family:'Poppins', sans-serif;background-color:var(--bg-main);color:var(--primary-text);display:flex;flex-direction:column;min-height:100vh;}header{background:var(--bg-header);padding:15px 40px;box-shadow:0 2px 10px rgba(0, 0, 0, 0.05);display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border-color);}header .logo{font-size:24px;font-weight:600;text-decoration:none;color:var(--primary-text);}header nav{display:flex;gap:20px;}header nav a{text-decoration:none;color:var(--secondary-text);font-weight:500;transition:color 0.3s;}header nav a:hover{color:var(--accent-color);}.user-info{display:flex;align-items:center;gap:20px;}#user-identifier{font-weight:500;background-color:var(--bg-main);padding:5px 12px;border-radius:15px;font-size:14px;}.logout{background:var(--accent-color);color:white;border:none;padding:8px 18px;border-radius:20px;cursor:pointer;font-size:14px;font-weight:500;transition:background-color 0.3s;}.logout:hover{background-color:var(--accent-hover);}main{flex:1;padding:40px;max-width:1400px;margin:0 auto;width:100%;box-sizing:border-box;}h1, h2, h3{margin-top:0;}h2.page-title{margin-bottom:30px;font-size:28px;font-weight:600;}.card{background:var(--card-bg);border-radius:12px;padding:25px;box-shadow:var(--shadow-light);margin-bottom:25px;}table{width:100%;border-collapse:collapse;background:var(--card-bg);border-radius:12px;overflow:hidden;box-shadow:var(--shadow-light);}th, td{padding:15px;text-align:left;border-bottom:1px solid var(--bg-main);}th{font-weight:600;font-size:14px;text-transform:uppercase;color:var(--secondary-text);background-color:#F8F9F9;}tr:hover{background-color:#FDF2F2;}.btn{border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:500;font-family:'Poppins', sans-serif;transition:background-color 0.3s, transform 0.2s;}.btn:hover{transform:translateY(-2px);}.btn-primary{background-color:var(--accent-color);color:white;}.btn-primary:hover{background-color:var(--accent-hover);}.btn-secondary{background-color:var(--secondary-text);color:white;}.btn-secondary:hover{background-color:#6C7A89;}.btn-danger{background-color:#E74C3C;color:white;}.btn-success{background-color:#2ECC71;color:white;}label{display:block;margin-bottom:8px;font-weight:500;font-size:14px;}input[type="text"],input[type="password"],input[type="number"],input[type="date"],select,textarea{width:100%;padding:12px;border:1px solid var(--border-color);border-radius:8px;font-family:'Poppins', sans-serif;font-size:14px;box-sizing:border-box;transition:border-color 0.3s, box-shadow 0.3s;}input:focus, select:focus, textarea:focus{outline:none;border-color:var(--accent-color);box-shadow:0 0 0 3px rgba(219, 52, 52, 0.1);}.modal{display:none;position:fixed;z-index:1000;left:0;top:0;width:100%;height:100%;background-color:rgba(0,0,0,0.5);justify-content:center;align-items:center;}.modal-content{background:var(--card-bg);padding:30px;border-radius:12px;box-shadow:var(--shadow-heavy);width:90%;max-width:500px;position:relative;}.close{position:absolute;top:15px;right:20px;font-size:28px;cursor:pointer;color:var(--secondary-text);}footer{text-align:center;padding:20px;font-size:14px;color:var(--secondary-text);}
+    
+        /* Estilos específicos para esta página */
+        .filtros-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            align-items: flex-end;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="index.html" class="logo">Olimpollo</a>
+        <nav>
+          <a href="pedidos.html">POS</a>
+          <a href="reportes.html">Reportes</a>
+          <a href="pedidos_lista.html">Pedidos</a>
+          <a href="inventario.html">Inventario</a>
+          <a href="recetas.html">Recetas</a>
+        </nav>
+        <div class="user-info">
+            <span id="user-identifier"></span>
+            <button class="logout" id="btn-logout">Cerrar Sesión</button>
+        </div>
+    </header>
+
+    <main>
+        <h2 class="page-title">Generador de Reportes</h2>
+
+        <div class="card">
+            <div class="filtros-grid">
+                <div>
+                    <label for="select-tipo-reporte">Tipo de Reporte:</label>
+                    <select id="select-tipo-reporte">
+                        <option value="">Seleccionar Tipo</option>
+                        <option value="ventas">Reporte de Ventas</option>
+                        <option value="historico_inventario">Inventario Histórico</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="fechaInicio">Fecha Inicio / Fecha Única:</label>
+                    <input type="date" id="fechaInicio">
+                </div>
+                <div>
+                    <label for="fechaFin">Fecha Fin:</label>
+                    <input type="date" id="fechaFin">
+                </div>
+                <div>
+                    <button id="btn-generar" class="btn btn-primary" style="width: 100%;">Generar Reporte</button>
+                </div>
+            </div>
+            <p id="mensaje-reporte" style="margin-top: 15px; text-align: center;"></p>
+        </div>
+
+        <div id="resultados-reporte" class="card" style="display: none;">
+            </div>
+    </main>
+
+    <footer>
+        &copy; 2025 Los Boneless del Olimpo
+    </footer>
+
+    <script>
+        // Función para decodificar el token JWT
+        function parseJwt(token) {
+            try {
+                const base64Url = token.split('.')[1];
+                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+                return JSON.parse(jsonPayload);
+            } catch (e) {
+                return null;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const API_URL = 'https://olimpollo-api.onrender.com';
+            
+            // --- VERIFICACIÓN DE LOGIN Y USUARIO ---
+            const token = localStorage.getItem('authToken');
+            const role = localStorage.getItem('userRole');
+
+            if (!token || !role) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            if (role !== 'Administrador' && role !== 'Gerente') {
+                alert('Acceso denegado: No tiene permisos para ver reportes.');
+                window.location.href = 'index.html';
+            }
+
+            const userData = parseJwt(token);
+            if (userData && userData.username) {
+                document.getElementById('user-identifier').textContent = userData.username;
+            }
+
+            document.getElementById('btn-logout').addEventListener('click', () => {
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('userRole');
+                window.location.href = 'login.html';
+            });
+            
+            // --- ELEMENTOS DEL DOM ---
+            const botonGenerar = document.getElementById('btn-generar');
+            const mensajeElemento = document.getElementById('mensaje-reporte');
+            const inputFechaInicio = document.getElementById('fechaInicio');
+            const inputFechaFin = document.getElementById('fechaFin');
+            const selectTipoReporte = document.getElementById('select-tipo-reporte');
+            const resultadosDiv = document.getElementById('resultados-reporte'); // El div ya existe
+            
+            // --- LÓGICA DE REPORTES (sin cambios funcionales) ---
+            const generarReporteHistorico = async (fecha) => {
+                resultadosDiv.innerHTML = '<h4>Cargando registros...</h4>';
+                resultadosDiv.style.display = 'block';
+                
+                try {
+                    const url = `${API_URL}/inventario?fecha=${fecha}`;
+                    const response = await fetch(url);
+                    const data = await response.json();
+
+                    if (!response.ok) {
+                        throw new Error(data.mensaje || 'Error al generar reporte histórico');
+                    }
+                    
+                    let tablaHTML = `<h4>Inventario Registrado el ${fecha}</h4><table><thead><tr><th>Insumo</th><th>Cantidad</th><th>Unidad</th><th>Categoría</th></tr></thead><tbody>`;
+                    data.forEach(item => {
+                        tablaHTML += `<tr><td>${item.nombre_insumo}</td><td>${item.cantidad_registrada}</td><td>${item.unidad_medida}</td><td>${item.categoria}</td></tr>`;
+                    });
+                    tablaHTML += `</tbody></table>`;
+                    
+                    resultadosDiv.innerHTML = tablaHTML;
+                    mensajeElemento.textContent = 'Reporte histórico generado exitosamente.';
+                    mensajeElemento.style.color = 'green';
+                } catch (error) {
+                    resultadosDiv.innerHTML = `<p style="color:red; font-weight:bold;">${error.message}</p>`;
+                }
+            };
+            
+            const generarReporteVentas = async (fechaInicio, fechaFin) => {
+                resultadosDiv.innerHTML = '<h4>Cargando registros...</h4>';
+                resultadosDiv.style.display = 'block';
+
+                const url = `${API_URL}/ventas?fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`;
+                try {
+                    const response = await fetch(url);
+                    const data = await response.json();
+
+                    if (!response.ok) throw new Error(data.error || 'Error desconocido al generar reporte');
+                    
+                    resultadosDiv.innerHTML = `<h4>Resultados del Reporte de Ventas</h4><p><strong>Periodo:</strong> ${data.fechaInicio} al ${data.fechaFin}</p><p><strong>Total de Pedidos Entregados:</strong> ${data.total_pedidos}</p><p><strong>Ventas Netas Totales:</strong> <strong style="color: green; font-size: 1.2em;">$${data.ventas_totales}</strong></p>`;
+                    mensajeElemento.textContent = 'Reporte generado exitosamente.';
+                    mensajeElemento.style.color = 'green';
+                } catch (error) {
+                    resultadosDiv.innerHTML = `<p style="color:red; font-weight:bold;">${error.message}</p>`;
+                }
+            };
+            
+            botonGenerar.addEventListener('click', () => {
+                const tipoReporte = selectTipoReporte.value;
+                const fechaInicio = inputFechaInicio.value;
+                const fechaFin = inputFechaFin.value;
+
+                mensajeElemento.textContent = '';
+                resultadosDiv.style.display = 'none';
+
+                if (!tipoReporte) {
+                    mensajeElemento.textContent = 'Por favor, selecciona el tipo de reporte.';
+                    mensajeElemento.style.color = 'red';
+                    return;
+                }
+
+                if (tipoReporte === 'ventas') {
+                    if (!fechaInicio || !fechaFin) {
+                        mensajeElemento.textContent = 'Para el reporte de ventas, selecciona ambas fechas.';
+                        mensajeElemento.style.color = 'red';
+                        return;
+                    }
+                    generarReporteVentas(fechaInicio, fechaFin);
+                } else if (tipoReporte === 'historico_inventario') {
+                    if (!fechaInicio) {
+                        mensajeElemento.textContent = 'Selecciona la fecha de registro (Fecha inicio).';
+                        mensajeElemento.style.color = 'red';
+                        return;
+                    }
+                    generarReporteHistorico(fechaInicio);
+                }
+                setTimeout(() => { mensajeElemento.textContent = ''; }, 5000);
+            });
+        });
+    </script>
+</body>
+</html>

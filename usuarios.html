@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Olimpollo - Gestor de Usuarios</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  
+    <style>
+        /* ==========================================================================
+           BASE DE ESTILOS UNIFICADA PARA OLIMPOLLO
+           ========================================================================== */
+        :root{--bg-main:#ECF0F1;--bg-header:#FFFFFF;--card-bg:#FFFFFF;--primary-text:#502c2c;--secondary-text:#808B96;--accent-color:#db3434;--accent-hover:#b92929;--border-color:#D5D8DC;--shadow-light:0 4px 15px rgba(0, 0, 0, 0.08);--shadow-heavy:0 10px 20px rgba(0, 0, 0, 0.12);}body{margin:0;font-family:'Poppins', sans-serif;background-color:var(--bg-main);color:var(--primary-text);display:flex;flex-direction:column;min-height:100vh;}header{background:var(--bg-header);padding:15px 40px;box-shadow:0 2px 10px rgba(0, 0, 0, 0.05);display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border-color);}header .logo{font-size:24px;font-weight:600;text-decoration:none;color:var(--primary-text);}header nav{display:flex;gap:20px;}header nav a{text-decoration:none;color:var(--secondary-text);font-weight:500;transition:color 0.3s;}header nav a:hover{color:var(--accent-color);}.user-info{display:flex;align-items:center;gap:20px;}#user-identifier{font-weight:500;background-color:var(--bg-main);padding:5px 12px;border-radius:15px;font-size:14px;}.logout{background:var(--accent-color);color:white;border:none;padding:8px 18px;border-radius:20px;cursor:pointer;font-size:14px;font-weight:500;transition:background-color 0.3s;}.logout:hover{background-color:var(--accent-hover);}main{flex:1;padding:40px;max-width:1400px;margin:0 auto;width:100%;box-sizing:border-box;}h1, h2, h3{margin-top:0;}h2.page-title{margin-bottom:30px;font-size:28px;font-weight:600;}.card{background:var(--card-bg);border-radius:12px;padding:25px;box-shadow:var(--shadow-light);margin-bottom:25px;}table{width:100%;border-collapse:collapse;background:var(--card-bg);border-radius:12px;overflow:hidden;box-shadow:var(--shadow-light);}th, td{padding:15px;text-align:left;border-bottom:1px solid var(--bg-main);}th{font-weight:600;font-size:14px;text-transform:uppercase;color:var(--secondary-text);background-color:#F8F9F9;}tr:hover{background-color:#FDF2F2;}.btn{border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:500;font-family:'Poppins', sans-serif;transition:background-color 0.3s, transform 0.2s;}.btn:hover{transform:translateY(-2px);}.btn-primary{background-color:var(--accent-color);color:white;}.btn-primary:hover{background-color:var(--accent-hover);}.btn-secondary{background-color:var(--secondary-text);color:white;}.btn-secondary:hover{background-color:#6C7A89;}.btn-danger{background-color:#E74C3C;color:white;}.btn-success{background-color:#2ECC71;color:white;}label{display:block;margin-bottom:8px;font-weight:500;font-size:14px;}input[type="text"],input[type="password"],input[type="number"],input[type="date"],select,textarea{width:100%;padding:12px;border:1px solid var(--border-color);border-radius:8px;font-family:'Poppins', sans-serif;font-size:14px;box-sizing:border-box;transition:border-color 0.3s, box-shadow 0.3s;}input:focus, select:focus, textarea:focus{outline:none;border-color:var(--accent-color);box-shadow:0 0 0 3px rgba(219, 52, 52, 0.1);}.modal{display:none;position:fixed;z-index:1000;left:0;top:0;width:100%;height:100%;background-color:rgba(0,0,0,0.5);justify-content:center;align-items:center;}.modal-content{background:var(--card-bg);padding:30px;border-radius:12px;box-shadow:var(--shadow-heavy);width:90%;max-width:500px;position:relative;}.close{position:absolute;top:15px;right:20px;font-size:28px;cursor:pointer;color:var(--secondary-text);}footer{text-align:center;padding:20px;font-size:14px;color:var(--secondary-text);}
+
+        /* Estilos específicos para esta página */
+        .action-bar { margin-bottom: 25px; }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="index.html" class="logo">Olimpollo</a>
+        <nav>
+          <a href="pedidos.html">POS</a>
+          <a href="reportes.html">Reportes</a>
+          <a href="pedidos_lista.html">Pedidos</a>
+          <a href="inventario.html">Inventario</a>
+          <a href="recetas.html">Recetas</a>
+        </nav>
+        <div class="user-info">
+            <span id="user-identifier"></span>
+            <button class="logout" id="btn-logout">Cerrar Sesión</button>
+        </div>
+    </header>
+
+    <main>
+        <h2 class="page-title">Gestión de Usuarios</h2>
+        <div class="action-bar">
+            <button class="btn btn-primary" id="btn-agregar-usuario">➕ Agregar Nuevo Usuario</button>
+        </div>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Usuario</th>
+                    <th>Rol</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="tabla-usuarios-body"></tbody>
+        </table>
+    </main>
+
+    <div id="modalUsuario" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>Agregar Nuevo Usuario</h3>
+            <form id="form-agregar" style="margin-top: 20px; display: grid; gap: 15px;">
+                <div>
+                    <label for="username-agregar">Usuario:</label>
+                    <input type="text" id="username-agregar" required>
+                </div>
+                <div>
+                    <label for="password-agregar">Contraseña:</label>
+                    <input type="password" id="password-agregar" required>
+                </div>
+                <div>
+                    <label for="rol-agregar">Rol:</label>
+                    <select id="rol-agregar" required>
+                        <option value="Empleado">Empleado</option>
+                        <option value="Gerente">Gerente</option>
+                        <option value="Administrador">Administrador</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary" style="margin-top: 10px;">Crear Usuario</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="modalEliminar" class="modal">
+        <div class="modal-content" style="text-align: center;">
+            <span class="close">&times;</span>
+            <h3>¿Eliminar Usuario?</h3>
+            <p id="mensaje-eliminar"></p>
+            <div style="display: flex; gap: 15px; justify-content: center; margin-top: 20px;">
+                <button class="btn btn-danger" id="btn-confirmar-eliminar">Sí, Eliminar</button>
+                <button type="button" class="btn btn-secondary btn-cancelar">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>&copy; 2025 Los Boneless del Olimpo</footer>
+
+    <script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    const API_URL = 'https://olimpollo-api.onrender.com';
+    const tablaBody = document.getElementById('tabla-usuarios-body');
+    const modalUsuario = document.getElementById('modalUsuario');
+    const modalEliminar = document.getElementById('modalEliminar');
+    const formAgregar = document.getElementById('form-agregar');
+    let usuarioIdActual = null; // Para guardar el ID del usuario a eliminar
+
+    // --- 1. Control de Acceso y Log Out ---
+
+    const verificarPermisos = () => {
+        const token = localStorage.getItem('authToken');
+        const role = localStorage.getItem('userRole');
+        if (!token || role !== 'Administrador') {
+            alert('Acceso denegado. Solo Administradores.');
+            window.location.href = 'index.html';
+        }
+    };
+    
+    document.getElementById('btn-logout').addEventListener('click', () => { 
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('userRole');
+        window.location.href = 'login.html'; 
+    });
+
+    // --- 2. Funciones de Renderizado y FETCH ---
+
+    const fetchUsuarios = async () => {
+        try {
+            const response = await fetch(API_URL);
+            if (!response.ok) throw new Error('Error al cargar los usuarios');
+            const usuarios = await response.json();
+            renderUsuarios(usuarios);
+        } catch (error) {
+            console.error('Error:', error);
+            alert('No se pudo cargar la lista de usuarios.');
+        }
+    };
+
+    const renderUsuarios = (usuarios) => {
+        tablaBody.innerHTML = '';
+        usuarios.forEach(usuario => {
+            const row = tablaBody.insertRow();
+            row.innerHTML = `
+                <td>${usuario.id}</td>
+                <td>${usuario.username}</td>
+                <td>${usuario.rol}</td>
+                <td>
+                    <button class="btn btn-eliminar" data-id="${usuario.id}" data-username="${usuario.username}">Eliminar</button>
+                    </td>
+            `;
+        });
+    };
+
+    // --- 3. Lógica para Agregar Usuario (POST) ---
+
+    document.getElementById('btn-agregar-usuario').addEventListener('click', () => {
+        modalUsuario.style.display = 'flex';
+        formAgregar.reset(); // Limpia el formulario
+        document.getElementById('password-agregar').required = true;
+    });
+
+    formAgregar.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const username = document.getElementById('username-agregar').value.trim();
+        const password = document.getElementById('password-agregar').value;
+        const rol = document.getElementById('rol-agregar').value;
+        
+        try {
+            const response = await fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password, rol })
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) throw new Error(data.error || 'Error al crear el usuario.');
+
+            alert(`Usuario ${username} creado exitosamente.`);
+            cerrarModales();
+            fetchUsuarios(); // Recargar la lista
+            
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error al crear el usuario: ' + error.message);
+        }
+    });
+
+
+    // --- 4. Lógica para Eliminar Usuario (DELETE) ---
+
+    tablaBody.addEventListener('click', (e) => {
+        if (e.target.classList.contains('btn-eliminar')) {
+            usuarioIdActual = e.target.dataset.id;
+            const username = e.target.dataset.username;
+            
+            document.getElementById('mensaje-eliminar').innerHTML = `¿Está seguro de eliminar a <strong>${username}</strong> (ID: ${usuarioIdActual})?`;
+            modalEliminar.style.display = 'flex';
+        }
+    });
+
+    document.getElementById('btn-confirmar-eliminar').addEventListener('click', async () => {
+        try {
+            const response = await fetch(`${API_URL}/${usuarioIdActual}`, {
+                method: 'DELETE'
+            });
+
+            if (response.status === 403) {
+                const data = await response.json();
+                throw new Error(data.error);
+            }
+            if (!response.ok) throw new Error('Error al eliminar el usuario.');
+            
+            alert(`Usuario (ID: ${usuarioIdActual}) eliminado exitosamente.`);
+            cerrarModales();
+            fetchUsuarios(); // Recargar la lista
+
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error al eliminar: ' + error.message);
+        }
+    });
+
+    // --- 5. Lógica de Modales ---
+
+    const cerrarModales = () => {
+        modalUsuario.style.display = 'none';
+        modalEliminar.style.display = 'none';
+    };
+
+    document.querySelectorAll('.close, .btn-cancelar').forEach(el => el.addEventListener('click', cerrarModales));
+    window.addEventListener('click', (e) => {
+        if (e.target.classList.contains('modal')) cerrarModales();
+    });
+
+    // --- 6. INICIALIZACIÓN ---
+    verificarPermisos();
+    fetchUsuarios();
+});
+</script>
+</body>
+</html>

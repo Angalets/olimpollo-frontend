@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Olimpollo - Recetas</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <style>
+        /* ==========================================================================
+           BASE DE ESTILOS UNIFICADA PARA OLIMPOLLO
+           ========================================================================== */
+        :root{--bg-main:#ECF0F1;--bg-header:#FFFFFF;--card-bg:#FFFFFF;--primary-text:#502c2c;--secondary-text:#808B96;--accent-color:#db3434;--accent-hover:#b92929;--border-color:#D5D8DC;--shadow-light:0 4px 15px rgba(0, 0, 0, 0.08);--shadow-heavy:0 10px 20px rgba(0, 0, 0, 0.12);}body{margin:0;font-family:'Poppins', sans-serif;background-color:var(--bg-main);color:var(--primary-text);display:flex;flex-direction:column;min-height:100vh;}header{background:var(--bg-header);padding:15px 40px;box-shadow:0 2px 10px rgba(0, 0, 0, 0.05);display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border-color);}header .logo{font-size:24px;font-weight:600;text-decoration:none;color:var(--primary-text);}header nav{display:flex;gap:20px;}header nav a{text-decoration:none;color:var(--secondary-text);font-weight:500;transition:color 0.3s;}header nav a:hover{color:var(--accent-color);}.user-info{display:flex;align-items:center;gap:20px;}#user-identifier{font-weight:500;background-color:var(--bg-main);padding:5px 12px;border-radius:15px;font-size:14px;}.logout{background:var(--accent-color);color:white;border:none;padding:8px 18px;border-radius:20px;cursor:pointer;font-size:14px;font-weight:500;transition:background-color 0.3s;}.logout:hover{background-color:var(--accent-hover);}main{flex:1;padding:40px;max-width:1400px;margin:0 auto;width:100%;box-sizing:border-box;}h1, h2, h3{margin-top:0;}h2.page-title{margin-bottom:30px;font-size:28px;font-weight:600;}.card{background:var(--card-bg);border-radius:12px;padding:25px;box-shadow:var(--shadow-light);margin-bottom:25px;}table{width:100%;border-collapse:collapse;background:var(--card-bg);border-radius:12px;overflow:hidden;box-shadow:var(--shadow-light);}th, td{padding:15px;text-align:left;border-bottom:1px solid var(--bg-main);}th{font-weight:600;font-size:14px;text-transform:uppercase;color:var(--secondary-text);background-color:#F8F9F9;}tr:hover{background-color:#FDF2F2;}.btn{border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:500;font-family:'Poppins', sans-serif;transition:background-color 0.3s, transform 0.2s;}.btn:hover{transform:translateY(-2px);}.btn-primary{background-color:var(--accent-color);color:white;}.btn-primary:hover{background-color:var(--accent-hover);}.btn-secondary{background-color:var(--secondary-text);color:white;}.btn-secondary:hover{background-color:#6C7A89;}.btn-danger{background-color:#E74C3C;color:white;}.btn-success{background-color:#2ECC71;color:white;}label{display:block;margin-bottom:8px;font-weight:500;font-size:14px;}input[type="text"],input[type="password"],input[type="number"],input[type="date"],select,textarea{width:100%;padding:12px;border:1px solid var(--border-color);border-radius:8px;font-family:'Poppins', sans-serif;font-size:14px;box-sizing:border-box;transition:border-color 0.3s, box-shadow 0.3s;}input:focus, select:focus, textarea:focus{outline:none;border-color:var(--accent-color);box-shadow:0 0 0 3px rgba(219, 52, 52, 0.1);}.modal{display:none;position:fixed;z-index:1000;left:0;top:0;width:100%;height:100%;background-color:rgba(0,0,0,0.5);justify-content:center;align-items:center;overflow-y:auto;padding:20px 0;}.modal-content{background:var(--card-bg);padding:30px;border-radius:12px;box-shadow:var(--shadow-heavy);width:90%;max-width:600px;position:relative;margin:auto;}.close{position:absolute;top:15px;right:20px;font-size:28px;cursor:pointer;color:var(--secondary-text);}footer{text-align:center;padding:20px;font-size:14px;color:var(--secondary-text);}
+        
+        /* Estilos específicos para esta página */
+        .layout-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 25px; align-items: flex-start; }
+        .action-bar { margin-bottom: 25px; }
+        .item-adder { display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 15px; align-items: flex-end; margin-bottom: 15px; }
+        .item-adder-pasos { grid-template-columns: 1fr auto; }
+        .item-list { list-style-position: inside; padding-left: 0; margin-top: 0; }
+        .item-list li { display: flex; justify-content: space-between; align-items: center; padding: 8px; border-radius: 6px; }
+        .item-list li:nth-child(odd) { background-color: var(--bg-main); }
+        .remove-item { cursor: pointer; color: var(--accent-color); font-weight: bold; font-size: 20px; padding: 0 10px; }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="index.html" class="logo">Olimpollo</a>
+        <nav>
+          <a href="pedidos.html">POS</a>
+          <a href="reportes.html">Reportes</a>
+          <a href="pedidos_lista.html">Pedidos</a>
+          <a href="inventario.html">Inventario</a>
+          <a href="recetas.html">Recetas</a>
+        </nav>
+        <div class="user-info">
+            <span id="user-identifier"></span>
+            <button class="logout" id="btn-logout">Cerrar Sesión</button>
+        </div>
+    </header>
+
+    <main>
+        <h2 class="page-title">Gestión de Recetas</h2>
+        <div class="layout-grid">
+            <div class="recetas-lista">
+                <div class="action-bar">
+                    <button class="btn btn-primary" id="btn-agregar-receta">➕ Agregar Nueva Receta</button>
+                </div>
+                <table>
+                    <thead><tr><th>ID</th><th>Nombre</th><th>Descripción</th><th>Acciones</th></tr></thead>
+                    <tbody id="tabla-recetas-body"></tbody>
+                </table>
+            </div>
+
+            <div class="recetas-detalles card">
+                <h3 id="detalle-titulo">Detalles de la Receta</h3>
+                <div id="detalle-contenido">
+                    <p>Selecciona una receta de la lista para ver sus detalles aquí.</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <div id="modalReceta" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3 id="modal-titulo">Agregar Receta</h3>
+            <form id="form-receta">
+                <input type="hidden" id="receta-id">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                    <div>
+                        <label for="receta-nombre">Nombre de la Receta:</label>
+                        <input type="text" id="receta-nombre" required>
+                    </div>
+                    <div>
+                        <label for="producto-venta-id">Vincular a Producto:</label>
+                        <select id="producto-venta-id"><option value="">-- Ninguno --</option></select>
+                    </div>
+                </div>
+                <div style="margin-bottom: 20px;">
+                    <label for="receta-descripcion">Descripción Corta:</label>
+                    <textarea id="receta-descripcion" rows="2"></textarea>
+                </div>
+                <hr style="border: 1px solid var(--bg-main); margin: 20px 0;">
+                
+                <h4>Ingredientes</h4>
+                <div class="item-adder">
+                    <div><label>Insumo:</label><select id="select-insumo"></select></div>
+                    <div><label>Cantidad:</label><input type="number" id="cantidad-necesaria" min="0.001" step="0.001"></div>
+                    <div><label>Unidad:</label><input type="text" id="unidad-medida" placeholder="Ej: Kg, L"></div>
+                    <button type="button" class="btn btn-secondary" id="btn-agregar-ingrediente">Añadir</button>
+                </div>
+                <ul class="item-list" id="lista-ingredientes"></ul>
+                <hr style="border: 1px solid var(--bg-main); margin: 20px 0;">
+
+                <h4>Pasos de Preparación</h4>
+                <div class="item-adder item-adder-pasos">
+                    <div><label>Descripción del Paso:</label><textarea id="paso-descripcion" rows="2"></textarea></div>
+                    <button type="button" class="btn btn-secondary" id="btn-agregar-paso">Añadir</button> 
+                </div>
+                <ol class="item-list" id="lista-pasos"></ol>
+                <hr style="border: 1px solid var(--bg-main); margin: 20px 0;">
+
+                <button type="submit" class="btn btn-primary" id="btn-guardar-receta" style="width: 100%; padding: 15px;">Guardar Receta</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="modalEliminar" class="modal">
+        <div class="modal-content" style="text-align: center;">
+            <span class="close">&times;</span>
+            <h3>¿Eliminar Receta?</h3>
+            <p id="mensaje-eliminar"></p>
+            <div style="display: flex; gap: 15px; justify-content: center; margin-top: 20px;">
+                <button class="btn btn-danger" id="btn-confirmar-eliminar">Sí, eliminar</button>
+                <button type="button" class="btn btn-secondary btn-cancelar">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>&copy; 2025 Los Boneless del Olimpo</footer>
+
+    <script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    // --- 1. CONFIGURACIÓN DE API Y ESTADO GLOBAL ---
+    const API_BASE_URL = 'https://olimpollo-api.onrender.com';
+    const API_RECETAS_URL = `${API_BASE_URL}/recetas`;
+    const API_INSUMOS_URL = `${API_BASE_URL}/inventario`;
+    const API_MENU_PRODUCTOS_URL = `${API_BASE_URL}/menu/productos`;
+
+    let recetas = [];
+    let insumosDisponibles = [];
+    let productosVenta = [];
+    let recetaIdActual = null;
+    let tempIngredientes = [];
+    let tempPasos = [];
+
+    // --- 2. ELEMENTOS DEL DOM ---
+    const tablaBody = document.getElementById('tabla-recetas-body');
+    const detalleContenido = document.getElementById('detalle-contenido');
+    const detalleTitulo = document.getElementById('detalle-titulo');
+    const btnLogout = document.getElementById('btn-logout');
+    const modalReceta = document.getElementById('modalReceta');
+    const modalEliminar = document.getElementById('modalEliminar');
+    const modalTitulo = document.getElementById('modal-titulo');
+    const formReceta = document.getElementById('form-receta');
+    const btnConfirmarEliminar = document.getElementById('btn-confirmar-eliminar');
+    const btnAgregarReceta = document.getElementById('btn-agregar-receta');
+
+    // Inputs del formulario
+    const recetaIdInput = document.getElementById('receta-id');
+    const recetaNombreInput = document.getElementById('receta-nombre');
+    const recetaDescInput = document.getElementById('receta-descripcion');
+    const productoVentaSelect = document.getElementById('producto-venta-id');
+    const selectInsumo = document.getElementById('select-insumo');
+    const cantidadNecesariaInput = document.getElementById('cantidad-necesaria');
+    const unidadMedidaInput = document.getElementById('unidad-medida');
+    const listaIngredientes = document.getElementById('lista-ingredientes');
+    const btnAgregarIngrediente = document.getElementById('btn-agregar-ingrediente');
+    const pasoDescripcionTextarea = document.getElementById('paso-descripcion');
+    const listaPasos = document.getElementById('lista-pasos');
+    const btnAgregarPaso = document.getElementById('btn-agregar-paso');
+
+    // --- 3. FUNCIONES DE UTILIDAD Y UI ---
+    const abrirModal = (modal) => modal.style.display = 'flex';
+    const cerrarModales = () => {
+        modalReceta.style.display = 'none';
+        modalEliminar.style.display = 'none';
+    };
+    const cerrarSesion = () => {
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('userRole');
+        window.location.href = 'login.html';
+    };
+
+    const renderTempItems = () => {
+        listaIngredientes.innerHTML = '';
+        tempIngredientes.forEach((ing, index) => {
+            const insumo = insumosDisponibles.find(i => i.id == ing.insumo_id);
+            const nombreInsumo = insumo ? insumo.nombre : 'Insumo Desconocido';
+            const li = document.createElement('li');
+            li.innerHTML = `<span>${ing.cantidad_necesaria} ${ing.unidad_medida} de <strong>${nombreInsumo}</strong></span> <span class="remove-item" data-index="${index}">&times;</span>`;
+            listaIngredientes.appendChild(li);
+        });
+
+        listaPasos.innerHTML = '';
+        tempPasos.forEach((paso, index) => {
+            const li = document.createElement('li');
+            li.innerHTML = `<span>${paso}</span> <span class="remove-item" data-type="paso" data-index="${index}">&times;</span>`;
+            listaPasos.appendChild(li);
+        });
+    };
+
+    // --- 4. CARGA DE DATOS INICIALES ---
+    const cargarDatosIniciales = async () => {
+        try {
+            const [resInsumos, resProductos] = await Promise.all([
+                fetch(API_INSUMOS_URL),
+                fetch(API_MENU_PRODUCTOS_URL)
+            ]);
+            if (!resInsumos.ok || !resProductos.ok) throw new Error('Fallo al cargar datos iniciales.');
+
+            insumosDisponibles = await resInsumos.json();
+            productosVenta = await resProductos.json();
+
+            // Llenar select de insumos
+            selectInsumo.innerHTML = '<option value="">-- Seleccionar Insumo --</option>';
+            insumosDisponibles.forEach(insumo => {
+                const option = document.createElement('option');
+                option.value = insumo.id;
+                option.textContent = `${insumo.nombre} (${insumo.unidad})`;
+                selectInsumo.appendChild(option);
+            });
+
+            // Llenar select de productos de venta
+            productoVentaSelect.innerHTML = '<option value="">-- Ninguno --</option>';
+            productosVenta.forEach(p => {
+                const option = document.createElement('option');
+                option.value = p.id;
+                option.textContent = p.nombre_venta;
+                productoVentaSelect.appendChild(option);
+            });
+
+        } catch (error) {
+            console.error('Error cargando datos:', error);
+            alert('Error crítico: No se pudieron cargar los insumos y productos. Recargue la página.');
+        }
+    };
+
+    // --- 5. FUNCIONES CRUD (FETCH) ---
+
+    const renderRecetas = async () => {
+        try {
+            const response = await fetch(API_RECETAS_URL);
+            if (!response.ok) throw new Error('Error al cargar recetas');
+            recetas = await response.json();
+
+            tablaBody.innerHTML = '';
+            if (recetas.length === 0) {
+                tablaBody.innerHTML = '<tr><td colspan="4">No hay recetas registradas.</td></tr>';
+            }
+
+            recetas.forEach(receta => {
+                const tr = document.createElement('tr');
+                tr.dataset.recetaId = receta.id;
+                const descCorta = receta.descripcion ? (receta.descripcion.substring(0, 50) + '...') : 'Sin descripción';
+                tr.innerHTML = `
+                    <td>${receta.id.toString().padStart(3, '0')}</td>
+                    <td>${receta.nombre}</td>
+                    <td>${descCorta}</td>
+                    <td>
+                        <button class="btn btn-edit" data-id="${receta.id}">Editar</button>
+                        <button class="btn btn-eliminar" data-id="${receta.id}">Eliminar</button>
+                    </td>
+                `;
+                tablaBody.appendChild(tr);
+            });
+            mostrarDetalles(null);
+        } catch (error) {
+            console.error('Error al renderizar recetas:', error);
+            tablaBody.innerHTML = '<tr><td colspan="4" style="color:red; font-weight:bold;">Error al conectar con el servidor.</td></tr>';
+        }
+    };
+
+    const guardarReceta = async (recetaData, id) => {
+        const isEdit = !!id;
+        const url = isEdit ? `${API_RECETAS_URL}/${id}` : API_RECETAS_URL;
+        const method = isEdit ? 'PUT' : 'POST';
+
+        try {
+            const response = await fetch(url, {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(recetaData)
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                throw new Error(errorData.error || `Error al ${isEdit ? 'actualizar' : 'crear'} la receta.`);
+            }
+
+            alert(`Receta "${recetaData.nombre}" ${isEdit ? 'actualizada' : 'creada'} exitosamente.`);
+            cerrarModales();
+            await cargarDatosIniciales(); // Recargar productos por si la vinculación cambió
+            await renderRecetas();
+        } catch (error) {
+            console.error('Error al guardar receta:', error);
+            alert(`Error: ${error.message}`);
+        }
+    };
+
+    const eliminarReceta = async (id) => {
+        try {
+            const response = await fetch(`${API_RECETAS_URL}/${id}`, { method: 'DELETE' });
+            if (!response.ok) throw new Error('No se pudo eliminar la receta.');
+            
+            alert('Receta eliminada exitosamente.');
+            cerrarModales();
+            await renderRecetas();
+        } catch (error) {
+            console.error('Error al eliminar receta:', error);
+            alert('Error: ' + error.message);
+        }
+    };
+
+    const mostrarDetalles = (id) => {
+        detalleTitulo.textContent = 'Detalles de la Receta';
+        detalleContenido.innerHTML = '<p>Selecciona una receta de la lista para ver sus detalles.</p>';
+        if (!id) return;
+
+        const receta = recetas.find(r => r.id == id);
+        if (!receta) return;
+
+        detalleTitulo.textContent = receta.nombre;
+        let contenidoHTML = `
+            <h4>Descripción:</h4><p>${receta.descripcion || 'N/A'}</p>
+            <h4>Ingredientes:</h4><ul>`;
+        if (receta.ingredientes && receta.ingredientes[0].insumo_id) { // Verificar si hay ingredientes reales
+            receta.ingredientes.forEach(ing => {
+                contenidoHTML += `<li><strong>${ing.nombre}:</strong> ${ing.cantidad_necesaria} ${ing.unidad_medida}</li>`;
+            });
+        }
+        contenidoHTML += '</ul><h4>Pasos:</h4><ol>';
+        const pasosArray = receta.pasos ? receta.pasos.split(/\.\s*|\n/).filter(p => p.trim()) : [];
+        if (pasosArray.length > 0) {
+            pasosArray.forEach(paso => { contenidoHTML += `<li>${paso}</li>`; });
+        } else {
+            contenidoHTML += '<li>No hay pasos registrados.</li>';
+        }
+        contenidoHTML += '</ol>';
+        detalleContenido.innerHTML = contenidoHTML;
+    };
+
+    // --- 6. EVENT LISTENERS ---
+    
+    // Abrir modal para crear
+    btnAgregarReceta.addEventListener('click', () => {
+        modalTitulo.textContent = 'Agregar Receta';
+        formReceta.reset();
+        recetaIdInput.value = '';
+        tempIngredientes = [];
+        tempPasos = [];
+        renderTempItems();
+        productoVentaSelect.value = '';
+        abrirModal(modalReceta);
+    });
+
+    // Clicks en la tabla (Editar, Eliminar, Ver Detalles)
+    tablaBody.addEventListener('click', (e) => {
+        const target = e.target;
+        const fila = target.closest('tr');
+        if (!fila) return;
+
+        const id = fila.dataset.recetaId;
+
+        if (target.classList.contains('btn-edit')) {
+            const receta = recetas.find(r => r.id == id);
+            const productoVinculado = productosVenta.find(p => p.receta_id == id);
+            
+            modalTitulo.textContent = 'Editar Receta';
+            recetaIdInput.value = receta.id;
+            recetaNombreInput.value = receta.nombre;
+            recetaDescInput.value = receta.descripcion;
+            productoVentaSelect.value = productoVinculado ? productoVinculado.id : '';
+            
+            tempPasos = receta.pasos ? receta.pasos.split(/\.\s*|\n/).filter(p => p.trim()) : [];
+            tempIngredientes = receta.ingredientes && receta.ingredientes[0].insumo_id ? receta.ingredientes.map(ing => ({
+                insumo_id: ing.insumo_id,
+                cantidad_necesaria: ing.cantidad_necesaria,
+                unidad_medida: ing.unidad_medida,
+            })) : [];
+            
+            renderTempItems();
+            abrirModal(modalReceta);
+        } else if (target.classList.contains('btn-eliminar')) {
+            recetaIdActual = id;
+            const receta = recetas.find(r => r.id == id);
+            document.getElementById('mensaje-eliminar').textContent = `¿Seguro que deseas eliminar la receta "${receta.nombre}"?`;
+            abrirModal(modalEliminar);
+        } else {
+            mostrarDetalles(id);
+        }
+    });
+
+    // Agregar ingrediente a la lista temporal
+    btnAgregarIngrediente.addEventListener('click', () => {
+        const insumoId = selectInsumo.value;
+        const cantidad = parseFloat(cantidadNecesariaInput.value);
+        const unidad = unidadMedidaInput.value.trim();
+
+        if (!insumoId || isNaN(cantidad) || cantidad <= 0 || !unidad) {
+            alert('Por favor, selecciona un insumo, ingresa una cantidad válida y una unidad.');
+            return;
+        }
+        tempIngredientes.push({ insumo_id: insumoId, cantidad_necesaria: cantidad, unidad_medida: unidad });
+        renderTempItems();
+        cantidadNecesariaInput.value = '';
+        unidadMedidaInput.value = '';
+        selectInsumo.value = '';
+    });
+
+    // Agregar paso a la lista temporal
+    btnAgregarPaso.addEventListener('click', () => {
+        const paso = pasoDescripcionTextarea.value.trim();
+        if (paso) {
+            tempPasos.push(paso);
+            renderTempItems();
+            pasoDescripcionTextarea.value = '';
+        }
+    });
+
+    // Eliminar items temporales de las listas
+    listaIngredientes.addEventListener('click', (e) => {
+        if (e.target.classList.contains('remove-item')) {
+            tempIngredientes.splice(e.target.dataset.index, 1);
+            renderTempItems();
+        }
+    });
+    listaPasos.addEventListener('click', (e) => {
+        if (e.target.classList.contains('remove-item')) {
+            tempPasos.splice(e.target.dataset.index, 1);
+            renderTempItems();
+        }
+    });
+
+    // ** Listener principal para guardar (Crear o Editar) **
+    formReceta.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const id = recetaIdInput.value;
+        if (tempIngredientes.length === 0) {
+            alert('La receta debe tener al menos un ingrediente.');
+            return;
+        }
+        const recetaData = {
+            nombre: recetaNombreInput.value.trim(),
+            descripcion: recetaDescInput.value.trim(),
+            pasos: tempPasos.join('.\n'),
+            ingredientes: tempIngredientes,
+            producto_venta_id: productoVentaSelect.value || null
+        };
+        guardarReceta(recetaData, id);
+    });
+
+    // Confirmar eliminación
+    btnConfirmarEliminar.addEventListener('click', () => {
+        eliminarReceta(recetaIdActual);
+    });
+
+    // Listeners generales
+    btnLogout.addEventListener('click', cerrarSesion);
+    document.querySelectorAll('.close, .btn-cancelar').forEach(el => el.addEventListener('click', cerrarModales));
+    window.addEventListener('click', (e) => { if (e.target.classList.contains('modal')) cerrarModales(); });
+
+    // --- 7. INICIALIZACIÓN ---
+    const init = async () => {
+        await cargarDatosIniciales();
+        await renderRecetas();
+    };
+    init();
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Olimpollo - Gestión de Menú</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <style>
+        /* ==========================================================================
+           BASE DE ESTILOS UNIFICADA PARA OLIMPOLLO
+           ========================================================================== */
+        :root{--bg-main:#ECF0F1;--bg-header:#FFFFFF;--card-bg:#FFFFFF;--primary-text:#502c2c;--secondary-text:#808B96;--accent-color:#db3434;--accent-hover:#b92929;--border-color:#D5D8DC;--shadow-light:0 4px 15px rgba(0, 0, 0, 0.08);--shadow-heavy:0 10px 20px rgba(0, 0, 0, 0.12);}body{margin:0;font-family:'Poppins', sans-serif;background-color:var(--bg-main);color:var(--primary-text);display:flex;flex-direction:column;min-height:100vh;}header{background:var(--bg-header);padding:15px 40px;box-shadow:0 2px 10px rgba(0, 0, 0, 0.05);display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border-color);}header .logo{font-size:24px;font-weight:600;text-decoration:none;color:var(--primary-text);}header nav{display:flex;gap:20px;}header nav a{text-decoration:none;color:var(--secondary-text);font-weight:500;transition:color 0.3s;}header nav a:hover{color:var(--accent-color);}.user-info{display:flex;align-items:center;gap:20px;}#user-identifier{font-weight:500;background-color:var(--bg-main);padding:5px 12px;border-radius:15px;font-size:14px;}.logout{background:var(--accent-color);color:white;border:none;padding:8px 18px;border-radius:20px;cursor:pointer;font-size:14px;font-weight:500;transition:background-color 0.3s;}.logout:hover{background-color:var(--accent-hover);}main{flex:1;padding:40px;max-width:1400px;margin:0 auto;width:100%;box-sizing:border-box;}h1, h2, h3{margin-top:0;}h2.page-title{margin-bottom:30px;font-size:28px;font-weight:600;}.card{background:var(--card-bg);border-radius:12px;padding:25px;box-shadow:var(--shadow-light);margin-bottom:25px;}table{width:100%;border-collapse:collapse;background:var(--card-bg);border-radius:12px;overflow:hidden;box-shadow:var(--shadow-light);}th, td{padding:15px;text-align:left;border-bottom:1px solid var(--bg-main);}th{font-weight:600;font-size:14px;text-transform:uppercase;color:var(--secondary-text);background-color:#F8F9F9;}tr:hover{background-color:#FDF2F2;}.btn{border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:500;font-family:'Poppins', sans-serif;transition:background-color 0.3s, transform 0.2s;}.btn:hover{transform:translateY(-2px);}.btn-primary{background-color:var(--accent-color);color:white;}.btn-primary:hover{background-color:var(--accent-hover);}.btn-secondary{background-color:var(--secondary-text);color:white;}.btn-secondary:hover{background-color:#6C7A89;}.btn-danger{background-color:#E74C3C;color:white;}.btn-success{background-color:#2ECC71;color:white;}label{display:block;margin-bottom:8px;font-weight:500;font-size:14px;}input[type="text"],input[type="password"],input[type="number"],input[type="date"],select,textarea{width:100%;padding:12px;border:1px solid var(--border-color);border-radius:8px;font-family:'Poppins', sans-serif;font-size:14px;box-sizing:border-box;transition:border-color 0.3s, box-shadow 0.3s;}input:focus, select:focus, textarea:focus{outline:none;border-color:var(--accent-color);box-shadow:0 0 0 3px rgba(219, 52, 52, 0.1);}.modal{display:none;position:fixed;z-index:1000;left:0;top:0;width:100%;height:100%;background-color:rgba(0,0,0,0.5);justify-content:center;align-items:center;overflow-y:auto;padding:20px 0;}.modal-content{background:var(--card-bg);padding:30px;border-radius:12px;box-shadow:var(--shadow-heavy);width:90%;max-width:500px;position:relative;margin:auto;}.close{position:absolute;top:15px;right:20px;font-size:28px;cursor:pointer;color:var(--secondary-text);}footer{text-align:center;padding:20px;font-size:14px;color:var(--secondary-text);}
+        /* Estilos específicos para esta página */
+        .action-bar { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 25px; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        .form-grid-full { grid-column: 1 / -1; }
+        .option-list { list-style: none; padding: 0; margin: 15px 0; max-height: 200px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 8px; }
+        .option-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; }
+        .option-item:not(:last-child) { border-bottom: 1px solid var(--bg-main); }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="index.html" class="logo">Olimpollo</a>
+        <nav>
+            <a href="pedidos.html">POS</a>
+            <a href="pedidos_lista.html">Pedidos</a>
+            <a href="inventario.html">Inventario</a>
+            <a href="reportes.html">Reportes</a>
+        </nav>
+        <div class="user-info">
+            <span id="user-identifier"></span>
+            <button class="logout" id="btn-logout">Cerrar Sesión</button>
+        </div>
+    </header>
+
+    <main>
+        <h2 class="page-title">Gestión de Menú</h2>
+        <div class="action-bar">
+            <button id="btn-agregar-producto" class="btn btn-primary">➕ Agregar Nuevo Producto</button>
+            <button id="btn-gestionar-opciones" class="btn btn-secondary">⚙️ Gestionar Modificadores</button>
+        </div>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th><th>Producto</th><th>Categoría</th><th>Precio</th><th>Receta ID</th><th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody id="tabla-productos-body">
+                <tr><td colspan="6">Cargando productos...</td></tr>
+            </tbody>
+        </table>
+    </main>
+
+    <div id="modalProducto" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3 id="modal-titulo">Agregar Producto</h3>
+            <form id="form-producto" style="margin-top: 20px;">
+                <input type="hidden" id="producto-id">
+                <div class="form-grid">
+                    <div>
+                        <label for="nombre-venta">Nombre del Producto:</label>
+                        <input type="text" id="nombre-venta" required>
+                    </div>
+                    <div>
+                        <label for="precio-base">Precio Base:</label>
+                        <input type="number" id="precio-base" min="0" step="0.01" required>
+                    </div>
+                    <div class="form-grid-full">
+                        <label for="categoria">Categoría:</label>
+                        <select id="categoria" required>
+                            <option value="Platos Fuertes">Platos Fuertes</option>
+                            <option value="Sides">Sides</option>
+                            <option value="Bebidas">Bebidas</option>
+                            <option value="Promos">Promos</option>
+                            <option value="Aderezos">Aderezos</option>
+                        </select>
+                    </div>
+                    <div class="form-grid-full">
+                        <label for="grupos-modificadores">Grupos de Modificadores (Separados por coma):</label>
+                        <input type="text" id="grupos-modificadores" placeholder="Ej: Salsa,Aderezo">
+                    </div>
+                    <div class="form-grid-full">
+                        <label for="descripcion">Descripción:</label>
+                        <textarea id="descripcion" rows="2"></textarea>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 20px;">Guardar Producto</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="modalOpciones" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>Gestionar Modificadores</h3>
+            <div style="margin-top: 20px;">
+                <label for="select-grupo-mod">Seleccionar Grupo:</label>
+                <select id="select-grupo-mod">
+                    <option value="Salsa">Salsa</option>
+                    <option value="Aderezo">Aderezo</option>
+                    <option value="Acompañamiento">Acompañamiento</option>
+                </select>
+            </div>
+            <div style="margin-top: 20px;">
+                <h4>Valores para "<strong id="nombre-grupo-actual">Salsa</strong>"</h4>
+                <ul id="lista-opciones-valores" class="option-list"></ul>
+            </div>
+            <hr style="border: 1px solid var(--bg-main); margin: 20px 0;">
+            <form id="form-agregar-opcion">
+                <h4>Agregar a "<span id="nombre-grupo-form">Salsa</span>"</h4>
+                <div class="form-grid">
+                    <div>
+                        <label for="valor-opcion">Valor (Ej: BBQ Picante):</label>
+                        <input type="text" id="valor-opcion" required>
+                    </div>
+                    <div>
+                        <label for="precio-adicional">Precio Adicional ($):</label>
+                        <input type="number" id="precio-adicional" value="0.00" step="0.01" min="0" required>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-secondary" style="width: 100%; margin-top: 20px;">Añadir Valor</button>
+            </form>
+        </div>
+    </div>
+    
+    <footer>&copy; 2025 Los Boneless del Olimpo</footer>
+
+    <script>
+        // Función para decodificar JWT
+        function parseJwt(token) {
+            try {
+                const base64Url = token.split('.')[1];
+                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+                return JSON.parse(jsonPayload);
+            } catch (e) {
+                return null;
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- 1. VERIFICACIÓN Y CONFIGURACIÓN ---
+            const token = localStorage.getItem('authToken');
+            const role = localStorage.getItem('userRole');
+            if (!token || role !== 'Administrador') {
+                alert('Acceso denegado. Solo Administradores.');
+                window.location.href = 'index.html';
+                return;
+            }
+            const userData = parseJwt(token);
+            if (userData && userData.username) {
+                document.getElementById('user-identifier').textContent = userData.username;
+            }
+            document.getElementById('btn-logout').addEventListener('click', () => {
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('userRole');
+                window.location.href = 'login.html';
+            });
+
+            const API_MENU_PRODUCTOS_URL = 'https://olimpollo-api.onrender.com';
+            const API_MENU_OPCIONES_URL = 'https://olimpollo-api.onrender.com';
+
+            // --- 2. ELEMENTOS DEL DOM ---
+            const tablaBody = document.getElementById('tabla-productos-body');
+            const modalProducto = document.getElementById('modalProducto');
+            const modalOpciones = document.getElementById('modalOpciones');
+            const listaOpcionesValores = document.getElementById('lista-opciones-valores');
+            const formProducto = document.getElementById('form-producto');
+            const formAgregarOpcion = document.getElementById('form-agregar-opcion');
+            const selectGrupoMod = document.getElementById('select-grupo-mod');
+            const nombreGrupoActual = document.getElementById('nombre-grupo-actual');
+            const nombreGrupoForm = document.getElementById('nombre-grupo-form');
+            const productoIdInput = document.getElementById('producto-id');
+            const nombreVentaInput = document.getElementById('nombre-venta');
+            const precioBaseInput = document.getElementById('precio-base');
+            const categoriaSelect = document.getElementById('categoria');
+            const gruposModificadoresInput = document.getElementById('grupos-modificadores');
+            const descripcionTextarea = document.getElementById('descripcion');
+            
+            let opcionesData = []; 
+            let productosData = [];     
+
+            // --- 3. FUNCIONES ---
+            const abrirModal = (modal) => modal.style.display = 'flex';
+            const cerrarModales = () => { modalProducto.style.display = 'none'; modalOpciones.style.display = 'none'; };
+
+            const renderOpcionesValores = () => {
+                listaOpcionesValores.innerHTML = '';
+                if (opcionesData.length === 0) {
+                    listaOpcionesValores.innerHTML = '<li class="option-item">No hay valores para este grupo.</li>';
+                } else {
+                    opcionesData.forEach(opcion => {
+                        const li = document.createElement('li');
+                        li.className = 'option-item';
+                        li.innerHTML = `<span>${opcion.valor} ($${parseFloat(opcion.precio_adicional).toFixed(2)})</span> <button class="btn btn-danger btn-eliminar-opcion" data-id="${opcion.id}" style="padding: 3px 8px;">X</button>`;
+                        listaOpcionesValores.appendChild(li);
+                    });
+                }
+            };
+
+            const renderProductos = (productos) => {
+                productosData = productos; 
+                tablaBody.innerHTML = '';
+                productos.forEach(p => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `<td>${p.id}</td><td>${p.nombre_venta}</td><td>${p.categoria}</td><td>$${parseFloat(p.precio_base).toFixed(2)}</td><td>${p.receta_id || "N/A"}</td><td><button class="btn btn-secondary btn-editar-producto" data-id="${p.id}">Editar</button> <button class="btn btn-danger btn-eliminar-producto" data-id="${p.id}">Eliminar</button></td>`;
+                    tablaBody.appendChild(tr);
+                });
+            };
+
+            const fetchProductos = async () => {
+                try {
+                    const response = await fetch(API_MENU_PRODUCTOS_URL);
+                    if (!response.ok) throw new Error("No se pudo cargar el menú.");
+                    const productos = await response.json();
+                    renderProductos(productos);
+                } catch (error) {
+                    console.error("Error al cargar productos:", error);
+                    tablaBody.innerHTML = `<tr><td colspan="6" style="color:red;">Error: ${error.message}</td></tr>`;
+                }
+            };
+
+            const fetchOpcionesPorGrupo = async (grupo) => {
+                nombreGrupoActual.textContent = grupo;
+                nombreGrupoForm.textContent = grupo;
+                try {
+                    const response = await fetch(API_MENU_OPCIONES_URL + `?nombre_opcion=${encodeURIComponent(grupo)}`);
+                    if (!response.ok) throw new Error(`No se pudo cargar las opciones para ${grupo}.`);
+                    opcionesData = await response.json();
+                    renderOpcionesValores();
+                } catch (error) {
+                    console.error("Error al cargar opciones:", error);
+                    listaOpcionesValores.innerHTML = "<li>Error al cargar opciones.</li>";
+                }
+            };
+
+            const guardarProducto = async (data, isEdit) => {
+                try {
+                    const url = isEdit ? `${API_MENU_PRODUCTOS_URL}/${data.id}` : API_MENU_PRODUCTOS_URL;
+                    const method = isEdit ? 'PUT' : 'POST';
+                    const response = await fetch(url, {
+                        method: method,
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(data)
+                    });
+                    if (!response.ok) throw new Error("Error al guardar el producto.");
+                    cerrarModales();
+                    fetchProductos();
+                    alert(`Producto ${isEdit ? "actualizado" : "agregado"} con éxito.`);
+                } catch (error) {
+                    alert("Error al guardar: " + error.message);
+                }
+            };
+
+            const eliminarProducto = async (id) => {
+                if (!confirm("¿Seguro que quieres eliminar este producto?")) return;
+                try {
+                    const response = await fetch(`${API_MENU_PRODUCTOS_URL}/${id}`, { method: "DELETE" });
+                    if (!response.ok) throw new Error("Error al eliminar producto.");
+                    fetchProductos();
+                    alert("Producto eliminado.");
+                } catch (error) {
+                    alert("Error al eliminar: " + error.message);
+                }
+            };
+
+            const guardarOpcion = async (data) => {
+                try {
+                    const response = await fetch(API_MENU_OPCIONES_URL, {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(data)
+                    });
+                    if (!response.ok) throw new Error("Error al añadir opción.");
+                    formAgregarOpcion.reset();
+                    fetchOpcionesPorGrupo(selectGrupoMod.value);
+                    alert("Opción añadida con éxito.");
+                } catch (error) {
+                    alert("Error al añadir opción: " + error.message);
+                }
+            };
+
+            const eliminarOpcion = async (id) => {
+                if (!confirm("¿Seguro que quieres eliminar esta opción?")) return;
+                try {
+                    const response = await fetch(`${API_MENU_OPCIONES_URL}/${id}`, { method: "DELETE" });
+                    if (!response.ok) throw new Error("Error al eliminar opción.");
+                    fetchOpcionesPorGrupo(selectGrupoMod.value);
+                    alert("Opción eliminada.");
+                } catch (error) {
+                    alert("Error al eliminar opción: " + error.message);
+                }
+            };
+
+            // --- 4. MANEJADORES DE EVENTOS ---
+            document.getElementById('btn-agregar-producto').addEventListener('click', () => {
+                document.getElementById('modal-titulo').textContent = 'Agregar Producto';
+                formProducto.reset();
+                productoIdInput.value = '';
+                abrirModal(modalProducto);
+            });
+
+            document.getElementById('btn-gestionar-opciones').addEventListener('click', () => {
+                fetchOpcionesPorGrupo(selectGrupoMod.value);
+                abrirModal(modalOpciones);
+            });
+
+            selectGrupoMod.addEventListener('change', (e) => fetchOpcionesPorGrupo(e.target.value));
+
+            formProducto.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const id = productoIdInput.value;
+                const data = {
+                    id: id ? parseInt(id) : null,
+                    nombre_venta: nombreVentaInput.value,
+                    precio_base: parseFloat(precioBaseInput.value),
+                    categoria: categoriaSelect.value,
+                    grupos_modificadores: gruposModificadoresInput.value.trim(),
+                    descripcion: descripcionTextarea.value
+                };
+                if (isNaN(data.precio_base) || data.precio_base < 0) return alert('El precio base debe ser un número positivo.');
+                guardarProducto(data, !!id);
+            });
+
+            formAgregarOpcion.addEventListener('submit', (e) => {
+                e.preventDefault();
+                const data = {
+                    nombre_opcion: selectGrupoMod.value,
+                    valor: document.getElementById('valor-opcion').value,
+                    precio_adicional: parseFloat(document.getElementById('precio-adicional').value)
+                };
+                guardarOpcion(data);
+            });
+
+            tablaBody.addEventListener('click', (e) => {
+                const btn = e.target.closest('.btn');
+                if (!btn) return;
+                const id = btn.dataset.id;
+                if (btn.classList.contains('btn-editar-producto')) {
+                    const producto = productosData.find(p => p.id == id);
+                    if (producto) {
+                        document.getElementById('modal-titulo').textContent = 'Editar Producto';
+                        productoIdInput.value = producto.id;
+                        nombreVentaInput.value = producto.nombre_venta;
+                        precioBaseInput.value = producto.precio_base;
+                        categoriaSelect.value = producto.categoria;
+                        gruposModificadoresInput.value = producto.grupos_modificadores || '';
+                        descripcionTextarea.value = producto.descripcion || '';
+                        abrirModal(modalProducto);
+                    }
+                } else if (btn.classList.contains('btn-eliminar-producto')) {
+                    eliminarProducto(id);
+                }
+            });
+
+            listaOpcionesValores.addEventListener('click', (e) => {
+                const btn = e.target.closest('.btn-eliminar-opcion');
+                if (btn) eliminarOpcion(btn.dataset.id);
+            });
+
+            document.querySelectorAll('.close, .btn-cancelar').forEach(el => el.addEventListener('click', cerrarModales));
+            window.addEventListener('click', (e) => { if (e.target.classList.contains('modal')) cerrarModales(); });
+
+            // --- 5. INICIALIZACIÓN ---
+            fetchProductos();
+        });
+    </script>
+</body>
+</html>

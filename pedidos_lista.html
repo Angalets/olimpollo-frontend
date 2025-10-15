@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Olimpollo - Lista de Pedidos</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <style>
+    /* PEGA AQUÍ LA NUEVA BASE DE ESTILOS UNIFICADA */
+    /* ... (todo el bloque CSS del Paso 1) ... */
+    :root{--bg-main:#ECF0F1;--bg-header:#FFFFFF;--card-bg:#FFFFFF;--primary-text:#502c2c;--secondary-text:#808B96;--accent-color:#db3434;--accent-hover:#b92929;--border-color:#D5D8DC;--shadow-light:0 4px 15px rgba(0, 0, 0, 0.08);--shadow-heavy:0 10px 20px rgba(0, 0, 0, 0.12);}body{margin:0;font-family:'Poppins', sans-serif;background-color:var(--bg-main);color:var(--primary-text);display:flex;flex-direction:column;min-height:100vh;}header{background:var(--bg-header);padding:15px 40px;box-shadow:0 2px 10px rgba(0, 0, 0, 0.05);display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border-color);}header .logo{font-size:24px;font-weight:600;text-decoration:none;color:var(--primary-text);}header nav{display:flex;gap:20px;}header nav a{text-decoration:none;color:var(--secondary-text);font-weight:500;transition:color 0.3s;}header nav a:hover{color:var(--accent-color);}.user-info{display:flex;align-items:center;gap:20px;}#user-identifier{font-weight:500;background-color:var(--bg-main);padding:5px 12px;border-radius:15px;font-size:14px;}.logout{background:var(--accent-color);color:white;border:none;padding:8px 18px;border-radius:20px;cursor:pointer;font-size:14px;font-weight:500;transition:background-color 0.3s;}.logout:hover{background-color:var(--accent-hover);}main{flex:1;padding:40px;max-width:1400px;margin:0 auto;width:100%;box-sizing:border-box;}h1, h2, h3{margin-top:0;}h2.page-title{margin-bottom:30px;font-size:28px;font-weight:600;}.card{background:var(--card-bg);border-radius:12px;padding:25px;box-shadow:var(--shadow-light);margin-bottom:25px;}table{width:100%;border-collapse:collapse;background:var(--card-bg);border-radius:12px;overflow:hidden;box-shadow:var(--shadow-light);}th, td{padding:15px;text-align:left;border-bottom:1px solid var(--bg-main);}th{font-weight:600;font-size:14px;text-transform:uppercase;color:var(--secondary-text);background-color:#F8F9F9;}tr:hover{background-color:#FDF2F2;}.btn{border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:500;font-family:'Poppins', sans-serif;transition:background-color 0.3s, transform 0.2s;}.btn:hover{transform:translateY(-2px);}.btn-primary{background-color:var(--accent-color);color:white;}.btn-primary:hover{background-color:var(--accent-hover);}.btn-secondary{background-color:var(--secondary-text);color:white;}.btn-secondary:hover{background-color:#6C7A89;}.btn-danger{background-color:#E74C3C;color:white;}.btn-success{background-color:#2ECC71;color:white;}label{display:block;margin-bottom:8px;font-weight:500;font-size:14px;}input[type="text"],input[type="password"],input[type="number"],input[type="date"],select,textarea{width:100%;padding:12px;border:1px solid var(--border-color);border-radius:8px;font-family:'Poppins', sans-serif;font-size:14px;box-sizing:border-box;transition:border-color 0.3s, box-shadow 0.3s;}input:focus, select:focus, textarea:focus{outline:none;border-color:var(--accent-color);box-shadow:0 0 0 3px rgba(219, 52, 52, 0.1);}.modal{display:none;position:fixed;z-index:1000;left:0;top:0;width:100%;height:100%;background-color:rgba(0,0,0,0.5);justify-content:center;align-items:center;}.modal-content{background:var(--card-bg);padding:30px;border-radius:12px;box-shadow:var(--shadow-heavy);width:90%;max-width:500px;position:relative;}.close{position:absolute;top:15px;right:20px;font-size:28px;cursor:pointer;color:var(--secondary-text);}footer{text-align:center;padding:20px;font-size:14px;color:var(--secondary-text);}
+
+    /* Estilos específicos para esta página */
+    .layout-container { display: flex; gap: 25px; flex-wrap: wrap; }
+    .pedidos-lista { flex: 3; min-width: 450px; }
+    .detalles { flex: 1; min-width: 300px; align-self: flex-start; } /* align-self para que no se estire */
+    .detalles ul { list-style: none; padding: 0; }
+  </style>
+</head>
+<body>
+    <header>
+        <a href="index.html" class="logo">Olimpollo</a>
+        <nav>
+          <a href="pedidos.html">POS</a>
+          <a href="reportes.html">Reportes</a>
+          <a href="pedidos_lista.html">Pedidos</a>
+          <a href="inventario.html">Inventario</a>
+          <a href="recetas.html">Recetas</a>
+        </nav>
+        <div class="user-info">
+            <span id="user-identifier"></span>
+            <button class="logout" id="btn-logout">Cerrar Sesión</button>
+        </div>
+    </header>
+
+  <main>
+    <h2 class="page-title">Órdenes Activas</h2>
+    
+    <div class="card">
+        <div style="display: flex; gap: 20px; align-items: center;">
+            <div>
+                <label for="filtro-canal">Filtrar por Canal:</label>
+                <select id="filtro-canal">
+                    <option value="Todos">Todos los Canales</option>
+                    <option value="OyR">OyR</option>
+                    <option value="Uber">Uber</option>
+                    <option value="Didi">Didi</option>
+                    <option value="Rappi">Rappi</option>
+                    <option value="Empleado">Empleado</option>
+                </select>
+            </div>
+            <button id="btn-aplicar-filtro" class="btn btn-primary" style="align-self: flex-end;">Aplicar Filtro</button>
+        </div>
+    </div>
+    
+    <div class="layout-container">
+      <div class="pedidos-lista">
+        <table>
+            <thead>
+                <tr><th>ID</th><th>Canal</th><th>Cliente</th><th>Estado</th><th>Total</th><th>Hora</th></tr>
+            </thead>
+            <tbody id="tabla-pedidos-body"></tbody>
+        </table>
+      </div>
+
+      <div class="detalles card">
+          <h3 id="detalle-titulo">Detalles del Pedido</h3>
+          <div id="detalle-contenido"><p>Selecciona un pedido para ver sus detalles.</p></div>
+          <div id="panel-acciones" style="margin-top: 20px;"></div>
+      </div>
+    </div>
+  </main>
+
+  <footer>&copy; 2025 Los Boneless del Olimpo</footer>
+
+<script>
+// pedidos_lista.html (Reemplazar todo el bloque <script>)
+
+document.addEventListener('DOMContentLoaded', () => {
+
+    const API_PEDIDOS_URL = 'https://olimpollo-api.onrender.com';
+    const tablaBody = document.getElementById('tabla-pedidos-body');
+    const detalleContenido = document.getElementById('detalle-contenido');
+    const panelAcciones = document.getElementById('panel-acciones');
+
+    // Elementos de Filtro
+    const filtroCanal = document.getElementById('filtro-canal');
+    const btnAplicarFiltro = document.getElementById('btn-aplicar-filtro');
+
+    let pedidos = []; 
+    let pedidoSeleccionado = null;
+
+    // --- FUNCIONES DE UTILIDAD ---
+    const cerrarSesion = () => {
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('userRole');
+        window.location.href = 'login.html';
+    };
+
+    // --- FUNCIÓN PRINCIPAL DE RENDERIZADO CON FILTROS ---
+    const renderPedidos = async () => {
+        const canal = filtroCanal.value; // Lee el filtro
+        const url = canal === 'Todos' ? API_PEDIDOS_URL : `${API_PEDIDOS_URL}?canal=${encodeURIComponent(canal)}`;
+
+        try {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error('Error al cargar pedidos.');
+
+            pedidos = await response.json();
+            tablaBody.innerHTML = '';
+
+            if (pedidos.length === 0) {
+                 tablaBody.innerHTML = '<tr><td colspan="7">No se encontraron pedidos para este filtro.</td></tr>';
+                 mostrarDetalles(null);
+                 return;
+            }
+
+            pedidos.forEach(pedido => {
+                const tr = document.createElement('tr');
+                tr.dataset.pedidoId = pedido.id;
+
+                let colorEstado = '';
+                if (pedido.estado === 'Entregado') colorEstado = 'style="background-color: #d4edda; font-weight: bold;"';
+                else if (pedido.estado === 'Cancelado') colorEstado = 'style="background-color: #f8d7da; text-decoration: line-through;"';
+
+                const hora = new Date(pedido.fecha_creacion).toLocaleTimeString('es-MX', {hour: '2-digit', minute:'2-digit'});
+                const canal = pedido.canal_venta || 'N/A'; 
+
+                tr.innerHTML = `
+                    <td>${pedido.id.toString().padStart(3, '0')}</td>
+                    <td>${canal}</td>
+                    <td>${pedido.cliente}</td>
+                    <td ${colorEstado}>${pedido.estado}</td>
+                    <td>$${pedido.total.toFixed(2)}</td>
+                    <td>${hora}</td>
+                    <td><button class="btn btn-detalle" data-id="${pedido.id}">Ver Detalles</button></td>
+                `;
+                tablaBody.appendChild(tr);
+            });
+            mostrarDetalles(null); 
+        } catch (error) {
+            console.error('Error al cargar pedidos:', error);
+            tablaBody.innerHTML = '<tr><td colspan="7" style="color:red; font-weight:bold;">Error: No se pudo cargar la lista de pedidos.</td></tr>';
+        }
+    };
+
+    // --- FUNCIÓN DE DETALLES Y ACCIONES ---
+    const mostrarDetalles = (id) => {
+        detalleContenido.innerHTML = '<p>Selecciona un pedido para ver sus detalles y cambiar el estado.</p>';
+        panelAcciones.innerHTML = '';
+
+        if (!id) return;
+
+        pedidoSeleccionado = pedidos.find(p => p.id == id);
+        if (!pedidoSeleccionado) return;
+
+        let itemsHTML = '';
+        pedidoSeleccionado.items.forEach(item => {
+            const subtotal = item.cantidad * item.precio;
+            itemsHTML += `<li>${item.cantidad}x ${item.nombre} ($${subtotal.toFixed(2)})</li>`;
+        });
+
+        detalleContenido.innerHTML = `
+            <p><strong>Cliente:</strong> ${pedidoSeleccionado.cliente}</p>
+            <p><strong>Canal:</strong> ${pedidoSeleccionado.canal_venta || 'N/A'}</p>
+            <p><strong>Estado:</strong> ${pedidoSeleccionado.estado}</p>
+            <p><strong>Total:</strong> $${pedidoSeleccionado.total.toFixed(2)}</p>
+            <hr>
+            <h4>Productos:</h4>
+            <ul>${itemsHTML}</ul>
+        `;
+
+        // Renderizar botones de acción
+        if (pedidoSeleccionado.estado === 'Pendiente') {
+            panelAcciones.innerHTML = `
+                <button id="btn-marcar-entregado" class="btn btn-estado" data-id="${id}">Marcar como Entregado</button>
+                <button id="btn-marcar-cancelado" class="btn btn-cancelar" data-id="${id}">Marcar como Cancelado</button>
+                <button id="btn-eliminar-pedido" class="btn btn-eliminar" data-id="${id}" style="background-color: #343A40;">Eliminar Pedido</button>
+            `;
+        } else {
+             panelAcciones.innerHTML = `<p style="color:gray;">Acciones limitadas: Pedido ya ${pedidoSeleccionado.estado}.</p>
+             <button id="btn-eliminar-pedido" class="btn btn-eliminar" data-id="${id}" style="background-color: #343A40;">Eliminar Pedido</button>`;
+        }
+    };
+
+    // --- FUNCIÓN DE CAMBIO DE ESTADO Y ELIMINACIÓN ---
+    const cambiarEstado = async (id, nuevoEstado) => {
+        try {
+            const response = await fetch(`${API_PEDIDOS_URL}/${id}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ estado: nuevoEstado }) 
+            });
+
+            if (!response.ok) throw new Error('Error al actualizar estado.');
+
+            alert(`Pedido #${id} actualizado a ${nuevoEstado} con éxito.`);
+            renderPedidos(); 
+        } catch (error) {
+            console.error('Error al cambiar estado:', error);
+            alert('Fallo al cambiar el estado: ' + error.message);
+        }
+    };
+
+    const eliminarPedido = async (id) => {
+        if (!confirm(`¿Estás seguro de eliminar el Pedido #${id} permanentemente?`)) return;
+        try {
+            const response = await fetch(`${API_PEDIDOS_URL}/${id}`, { method: 'DELETE' });
+            if (!response.ok) throw new Error('Error al eliminar pedido.');
+
+            alert(`Pedido #${id} eliminado con éxito.`);
+            renderPedidos();
+        } catch (error) {
+            console.error('Error al eliminar:', error);
+            alert('Fallo al eliminar el pedido: ' + error.message);
+        }
+    };
+
+
+    // --- EVENT LISTENERS ---
+
+    // 1. Cierre de Sesión
+    document.getElementById('btn-logout').addEventListener('click', cerrarSesion);
+
+    // 2. Aplicar Filtro
+    btnAplicarFiltro.addEventListener('click', renderPedidos);
+
+    // 3. Click en la lista de pedidos (Ver detalles)
+    tablaBody.addEventListener('click', (e) => {
+        const fila = e.target.closest('tr');
+        if (fila && fila.dataset.pedidoId) {
+            mostrarDetalles(fila.dataset.pedidoId);
+        }
+    });
+
+    // 4. Click en los botones de acción (Marcar Entregado/Cancelado/Eliminar)
+    panelAcciones.addEventListener('click', (e) => {
+        const id = pedidoSeleccionado?.id;
+        if (!id) return;
+
+        if (e.target.id === 'btn-marcar-entregado') {
+            if (confirm(`¿Confirmas marcar el Pedido #${id} como ENTREGADO? Esto descontará el inventario.`)) {
+                cambiarEstado(id, 'Entregado');
+            }
+        } else if (e.target.id === 'btn-marcar-cancelado') {
+            if (confirm(`¿Confirmas marcar el Pedido #${id} como CANCELADO?`)) {
+                 cambiarEstado(id, 'Cancelado');
+            }
+        } else if (e.target.id === 'btn-eliminar-pedido') {
+            eliminarPedido(id);
+        }
+    });
+
+    // 5. Inicialización
+    renderPedidos();
+});
+</script>
+</body>
+</html>

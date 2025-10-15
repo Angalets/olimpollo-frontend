@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Olimpollo - Punto de Venta</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+  
+    <style>
+        /* ==========================================================================
+           BASE DE ESTILOS UNIFICADA PARA OLIMPOLLO
+           ========================================================================== */
+        :root{--bg-main:#ECF0F1;--bg-header:#FFFFFF;--card-bg:#FFFFFF;--primary-text:#502c2c;--secondary-text:#808B96;--accent-color:#db3434;--accent-hover:#b92929;--border-color:#D5D8DC;--shadow-light:0 4px 15px rgba(0, 0, 0, 0.08);--shadow-heavy:0 10px 20px rgba(0, 0, 0, 0.12);}body{margin:0;font-family:'Poppins', sans-serif;background-color:var(--bg-main);color:var(--primary-text);display:flex;flex-direction:column;min-height:100vh;}header{background:var(--bg-header);padding:15px 40px;box-shadow:0 2px 10px rgba(0, 0, 0, 0.05);display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border-color);}header .logo{font-size:24px;font-weight:600;text-decoration:none;color:var(--primary-text);}header nav{display:flex;gap:20px;}header nav a{text-decoration:none;color:var(--secondary-text);font-weight:500;transition:color 0.3s;}header nav a:hover{color:var(--accent-color);}.user-info{display:flex;align-items:center;gap:20px;}#user-identifier{font-weight:500;background-color:var(--bg-main);padding:5px 12px;border-radius:15px;font-size:14px;}.logout{background:var(--accent-color);color:white;border:none;padding:8px 18px;border-radius:20px;cursor:pointer;font-size:14px;font-weight:500;transition:background-color 0.3s;}.logout:hover{background-color:var(--accent-hover);}main{flex:1;padding:40px;max-width:1400px;margin:0 auto;width:100%;box-sizing:border-box;}h1, h2, h3{margin-top:0;}h2.page-title{margin-bottom:30px;font-size:28px;font-weight:600;}.card{background:var(--card-bg);border-radius:12px;padding:25px;box-shadow:var(--shadow-light);margin-bottom:25px;}table{width:100%;border-collapse:collapse;background:var(--card-bg);border-radius:12px;overflow:hidden;box-shadow:var(--shadow-light);}th, td{padding:15px;text-align:left;border-bottom:1px solid var(--bg-main);}th{font-weight:600;font-size:14px;text-transform:uppercase;color:var(--secondary-text);background-color:#F8F9F9;}tr:hover{background-color:#FDF2F2;}.btn{border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:500;font-family:'Poppins', sans-serif;transition:background-color 0.3s, transform 0.2s;}.btn:hover{transform:translateY(-2px);}.btn-primary{background-color:var(--accent-color);color:white;}.btn-primary:hover{background-color:var(--accent-hover);}.btn-secondary{background-color:var(--secondary-text);color:white;}.btn-secondary:hover{background-color:#6C7A89;}.btn-danger{background-color:#E74C3C;color:white;}.btn-success{background-color:#2ECC71;color:white;}label{display:block;margin-bottom:8px;font-weight:500;font-size:14px;}input[type="text"],input[type="password"],input[type="number"],input[type="date"],select,textarea{width:100%;padding:12px;border:1px solid var(--border-color);border-radius:8px;font-family:'Poppins', sans-serif;font-size:14px;box-sizing:border-box;transition:border-color 0.3s, box-shadow 0.3s;}input:focus, select:focus, textarea:focus{outline:none;border-color:var(--accent-color);box-shadow:0 0 0 3px rgba(219, 52, 52, 0.1);}.modal{display:none;position:fixed;z-index:1000;left:0;top:0;width:100%;height:100%;background-color:rgba(0,0,0,0.5);justify-content:center;align-items:center;}.modal-content{background:var(--card-bg);padding:30px;border-radius:12px;box-shadow:var(--shadow-heavy);width:90%;max-width:500px;position:relative;}.close{position:absolute;top:15px;right:20px;font-size:28px;cursor:pointer;color:var(--secondary-text);}footer{text-align:center;padding:20px;font-size:14px;color:var(--secondary-text);}
+
+        /* ==========================================================================
+           ESTILOS ESPECÍFICOS PARA LA PÁGINA DE POS
+           ========================================================================== */
+        .pos-container {
+            display: flex;
+            gap: 25px;
+            align-items: flex-start;
+        }
+        .menu-area {
+            flex: 2;
+        }
+        .carrito-card {
+            flex: 1;
+            position: sticky; /* Para que el carrito se quede fijo al hacer scroll */
+            top: 40px;
+        }
+        .productos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 15px;
+        }
+        .btn-producto {
+            width: 100%;
+            aspect-ratio: 1 / 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            border: 1px solid var(--border-color);
+            padding: 10px;
+            color: var(--primary-text);
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 14px;
+            transition: background 0.2s, transform 0.2s;
+            word-wrap: break-word;
+        }
+        .btn-producto:hover {
+            transform: translateY(-4px);
+        }
+        .carrito-list {
+            list-style: none;
+            padding: 0;
+            margin: 0 0 20px 0;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .carrito-list li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--bg-main);
+        }
+        .btn-modificador {
+            width: 100%; padding: 15px; font-size: 16px; font-weight: bold; cursor: pointer; border: 1px solid #ddd; background: #f9f9f9; border-radius: 5px; transition: background 0.2s;
+        }
+        .btn-modificador:hover { background: #FCF3CF; }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="index.html" class="logo">Olimpollo</a>
+        <nav>
+          <a href="pedidos.html">POS</a>
+          <a href="reportes.html">Reportes</a>
+          <a href="pedidos_lista.html">Pedidos</a>
+          <a href="inventario.html">Inventario</a>
+          <a href="recetas.html">Recetas</a>
+        </nav>
+        <div class="user-info">
+            <span id="user-identifier"></span>
+            <button class="logout" id="btn-logout">Cerrar Sesión</button>
+        </div>
+    </header>
+
+    <main>
+        <h2 class="page-title">Punto de Venta (POS)</h2>
+        <div class="pos-container">
+            <div class="menu-area">
+                <div id="productos-container" class="productos-grid card">
+                    <p>Cargando menú...</p>
+                </div>
+            </div>
+
+            <div class="carrito-card card">
+                <h3>Carrito de Pedido</h3>
+                <ul id="lista-carrito" class="carrito-list">
+                    <li style="color: var(--secondary-text);">Aún no hay productos.</li>
+                </ul>
+                <div style="font-size: 20px; font-weight: bold; border-top: 2px solid var(--accent-color); padding-top: 15px; margin-bottom: 20px;">
+                    Total: <span id="total-pedido">$0.00</span>
+                </div>
+                
+                <form id="form-finalizar-pedido">
+                    <div style="margin-bottom: 15px;">
+                        <label for="canal-venta">Canal de Venta:</label>
+                        <select id="canal-venta" required>
+                            <option value="OyR">OyR</option>
+                            <option value="Uber">Uber</option>
+                            <option value="Didi">Didi</option>
+                            <option value="Rappi">Rappi</option>
+                            <option value="Empleado">Empleado</option>
+                        </select>
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <label for="cliente-nombre">Nombre del Cliente:</label>
+                        <input type="text" id="cliente-nombre" placeholder="Nombre del cliente" required>
+                    </div>
+                    <div style="margin-bottom: 20px;">
+                        <label for="ajuste-total" style="color: var(--accent-color);">Total Recibido/Ajustado ($):</label>
+                        <input type="number" id="ajuste-total" placeholder="Opcional: Sobrescribir Total" min="0" step="0.01">
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%; padding: 15px; font-size: 16px;">
+                        FINALIZAR PEDIDO
+                    </button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <div id="modalModificadores" class="modal">
+        <div class="modal-content">
+            <h3 id="modal-mod-titulo">Seleccionar Opción</h3>
+            <div id="modal-mod-opciones" style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;"></div>
+            <button id="btn-cancelar-mod" class="btn btn-secondary" style="margin-top: 20px;">Cancelar</button>
+        </div>
+    </div>
+
+    <footer>&copy; 2025 Los Boneless del Olimpo</footer>
+
+    <script>
+document.addEventListener('DOMContentLoaded', () => {
+
+    // --- 1. CONFIGURACIÓN Y ESTADO ---
+    const API_MENU_URL = 'https://olimpollo-api.onrender.com';
+    const API_PEDIDOS_URL = 'https://olimpollo-api.onrender.com';
+    let menuData = { productos: [], opciones: {} }; 
+    let carrito = []; 
+
+    // --- 2. ELEMENTOS DEL DOM ---
+    const menuContainer = document.getElementById('productos-container');
+    const listaCarrito = document.getElementById('lista-carrito');
+    const totalPedidoSpan = document.getElementById('total-pedido');
+    const formFinalizarPedido = document.getElementById('form-finalizar-pedido');
+    const inputClienteNombre = document.getElementById('cliente-nombre');
+    const selectCanalVenta = document.getElementById('canal-venta');
+    const inputAjusteTotal = document.getElementById('ajuste-total');
+    // Modal de Modificadores
+    const modalModificadores = document.getElementById('modalModificadores');
+    const modalModTitulo = document.getElementById('modal-mod-titulo');
+    const modalModOpciones = document.getElementById('modal-mod-opciones');
+    const btnCancelarMod = document.getElementById('btn-cancelar-mod');
+    
+    // --- 3. LÓGICA DEL MODAL DE MODIFICADORES ---
+    
+    /**
+     * Muestra el modal con opciones y espera la selección del usuario.
+     * @param {string} titulo - El título para el modal.
+     * @param {Array} opciones - Array de objetos de modificadores.
+     * @returns {Promise<object>} - Promesa que se resuelve con la opción seleccionada.
+     */
+    const solicitarOpcion = (titulo, opciones) => {
+        return new Promise((resolve, reject) => {
+            modalModTitulo.textContent = titulo;
+            modalModOpciones.innerHTML = ''; // Limpiar opciones anteriores
+
+            // Función para limpiar y cerrar
+            const cleanup = () => {
+                modalModificadores.style.display = 'none';
+                modalModOpciones.innerHTML = ''; // Asegurar que los listeners se eliminen
+            };
+
+            // Crear botón para cada opción
+            opciones.forEach(opcion => {
+                const btn = document.createElement('button');
+                btn.className = 'btn-modificador';
+                btn.textContent = `${opcion.valor} ${opcion.precio_adicional > 0 ? `(+$${opcion.precio_adicional.toFixed(2)})` : ''}`;
+                btn.onclick = () => {
+                    cleanup();
+                    resolve(opcion);
+                };
+                modalModOpciones.appendChild(btn);
+            });
+
+            // Botón de cancelar
+            btnCancelarMod.onclick = () => {
+                cleanup();
+                reject(new Error('Selección cancelada por el usuario.'));
+            };
+            
+            modalModificadores.style.display = 'flex';
+        });
+    };
+
+
+    // --- 4. MANEJO DE EVENTOS (CLICK EN PRODUCTO) - VERSIÓN CON MODAL ---
+
+    const manejarClickProducto = async (e) => {
+        const target = e.target.closest('.btn-producto');
+        if (!target) return;
+        
+        const productoSeleccionado = target.dataset; 
+        const gruposModificadoresStr = productoSeleccionado.gruposModificadores || '';
+        const gruposAplicables = gruposModificadoresStr.split(',').map(g => g.trim()).filter(Boolean);
+            
+        let modificadoresAcumulados = [];
+        let precioAdicionalTotal = 0;
+
+        try {
+            for (const nombreGrupo of gruposAplicables) {
+                const opciones = menuData.opciones[nombreGrupo] || [];
+                if (opciones.length === 0) continue;
+                
+                const titulo = `Selecciona ${nombreGrupo} para ${productoSeleccionado.nombre}`;
+                const seleccion = await solicitarOpcion(titulo, opciones);
+                
+                modificadoresAcumulados.push(seleccion);
+                precioAdicionalTotal += seleccion.precio_adicional;
+            }
+
+            // Si el bucle termina (no se canceló), agregar al carrito
+            agregarItemAlCarrito(productoSeleccionado, modificadoresAcumulados, precioAdicionalTotal);
+
+        } catch (error) {
+            console.log(error.message); // El usuario canceló, no hacemos nada.
+        }
+    };
+
+
+    // --- 5. LÓGICA DEL CARRITO Y FINALIZACIÓN ---
+    const agregarItemAlCarrito = (producto, modificadoresAcumulados, precioAdicionalTotal) => {
+        const item = {
+            menu_producto_id: parseInt(producto.id), 
+            nombre_venta: producto.nombre,
+            precio_unitario: parseFloat(producto.precio) + precioAdicionalTotal,
+            cantidad: 1,
+            modificadores: modificadoresAcumulados.map(m => m.valor).join(', ')
+        };
+        carrito.push(item);
+        renderCarrito();
+    };
+
+    const finalizarPedido = async (e) => {
+        e.preventDefault();
+        if (carrito.length === 0) {
+            alert('El carrito está vacío.');
+            return;
+        }
+
+        const totalCalculado = calcularTotal();
+        let totalFinal = totalCalculado;
+        if (inputAjusteTotal.value) {
+            totalFinal = parseFloat(inputAjusteTotal.value);
+            if (isNaN(totalFinal) || totalFinal < 0) {
+                alert('El total ajustado no es válido.');
+                return;
+            }
+        }
+
+        const pedidoData = {
+            cliente: inputClienteNombre.value.trim(),
+            canal_venta: selectCanalVenta.value, 
+            total_ajustado: totalFinal,
+            items: carrito.map(item => ({
+                menu_producto_id: item.menu_producto_id,
+                nombre_producto_completo: item.nombre_venta + (item.modificadores ? ` (${item.modificadores})` : ''),
+                cantidad: item.cantidad,
+                precio_unitario: item.precio_unitario
+            }))
+        };
+
+        try {
+            const response = await fetch(API_PEDIDOS_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(pedidoData)
+            });
+            if (!response.ok) throw new Error('Error al guardar el pedido.');
+            const data = await response.json();
+            alert(`✅ Pedido #${data.id} guardado con éxito.`);
+            carrito = [];
+            formFinalizarPedido.reset();
+            inputAjusteTotal.value = '';
+            renderCarrito();
+        } catch (error) {
+            alert(`❌ Fallo al finalizar el pedido: ${error.message}`);
+        }
+    };
+
+
+    // --- 6. FUNCIONES DE RENDERIZADO Y CARGA INICIAL ---
+    const calcularTotal = () => {
+        const total = carrito.reduce((sum, item) => sum + (item.precio_unitario * item.cantidad), 0);
+        totalPedidoSpan.textContent = `$${total.toFixed(2)}`;
+        return total;
+    };
+
+    const cerrarSesion = () => {
+        localStorage.removeItem('authToken');
+        localStorage.removeItem('userRole');
+        window.location.href = 'login.html';
+    };
+
+    const renderCarrito = () => {
+        listaCarrito.innerHTML = '';
+        if (carrito.length === 0) {
+            listaCarrito.innerHTML = '<li style="color: gray;">Aún no hay productos.</li>';
+            calcularTotal();
+            return;
+        }
+        carrito.forEach((item, index) => {
+            const li = document.createElement('li');
+            const mods = item.modificadores ? ` (${item.modificadores})` : '';
+            li.innerHTML = `
+                <div>
+                    <strong>${item.cantidad}x ${item.nombre_venta}</strong>
+                    <span style="font-size: 14px;">${mods}</span>
+                </div>
+                <div>
+                    <span>$${(item.precio_unitario * item.cantidad).toFixed(2)}</span>
+                    <button class="btn btn-eliminar-item" data-index="${index}" style="background:gray;color:white;border:none;padding:3px 8px;margin-left:10px;">X</button>
+                </div>`;
+            listaCarrito.appendChild(li);
+        });
+        calcularTotal();
+    };
+    
+// pedidos.html (Reemplazar la función renderProductos en el script)
+
+const renderProductos = (productos) => {
+    // 1. Definimos nuestro mapa de colores por categoría
+    const categoryColors = {
+        'Platos Fuertes': '#F8D9D9',  // Rojo claro
+        'Sides': '#FCF3CF',          // Amarillo claro
+        'Bebidas': '#DDDDDD',          // Gris claro
+        'Promos': '#11D160',          // Verde claro
+        'Aderezos': '#E5E7E9',       // Gris azulado
+        'default': '#F2F3F4'         // Color por defecto si no hay categoría
+    };
+
+    menuContainer.innerHTML = '';
+    productos.forEach(producto => {
+        const btn = document.createElement('button');
+        btn.className = 'btn-producto';
+        btn.dataset.id = producto.id;
+        btn.dataset.precio = producto.precio_base;
+        btn.dataset.nombre = producto.nombre_venta;
+        btn.dataset.gruposModificadores = producto.grupos_modificadores || '';
+        btn.textContent = `${producto.nombre_venta} ($${producto.precio_base.toFixed(2)})`;
+
+        // 2. Asignamos el color basado en la categoría del producto
+        const color = categoryColors[producto.categoria] || categoryColors['default'];
+        btn.style.backgroundColor = color;
+
+        if (producto.grupos_modificadores) {
+            btn.style.border = '3px solid #007bff'; // Borde azul para modificadores
+        }
+        
+        menuContainer.appendChild(btn);
+    });
+};
+
+    const cargarMenuPOS = async () => {
+        try {
+            const response = await fetch(API_MENU_URL);
+            if (!response.ok) throw new Error('Error al cargar el menú');
+            menuData = await response.json();
+            renderProductos(menuData.productos);
+        } catch (error) {
+            menuContainer.innerHTML = `<p style="color:red;">Error: ${error.message}</p>`;
+        }
+    };
+
+
+    // --- 7. INICIALIZACIÓN Y LISTENERS ---
+    document.getElementById('btn-logout').addEventListener('click', cerrarSesion);
+    menuContainer.addEventListener('click', manejarClickProducto);
+    listaCarrito.addEventListener('click', (e) => {
+        if (e.target.classList.contains('btn-eliminar-item')) {
+            carrito.splice(e.target.dataset.index, 1);
+            renderCarrito();
+        }
+    });
+    formFinalizarPedido.addEventListener('submit', finalizarPedido);
+    
+    cargarMenuPOS();
+    renderCarrito(); 
+});
+</script>
+</body>
+</html>
