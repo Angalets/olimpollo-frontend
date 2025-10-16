@@ -29,7 +29,6 @@
         .btn-item-action { background: #007bff; color: white; border: none; padding: 3px 8px; font-size: 14px; cursor: pointer; border-radius: 4px; }
         .btn-item-action:hover { opacity: 0.8; }
         
-        /* --- 🚨 NUEVOS ESTILOS PARA BOTONES DE CANAL --- */
         .canal-botones-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; }
         .btn-canal { padding: 12px 5px; border: 2px solid var(--border-color); background-color: transparent; color: var(--secondary-text); border-radius: 8px; cursor: pointer; font-weight: 500; font-size: 14px; transition: all 0.2s ease-in-out; }
         .btn-canal.active { background-color: var(--accent-color); color: white; border-color: var(--accent-color); transform: scale(1.05); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
@@ -114,27 +113,65 @@
             const API_PEDIDOS_URL = 'https://olimpollo-api.onrender.com/api/pedidos';
             let menuData = { productos: [], opciones: {} };
             let carrito = [];
-            let selectedCanal = 'OyR'; // 🚨 CAMBIO: Variable para guardar el canal
+            let selectedCanal = 'OyR';
 
             const menuContainer = document.getElementById('productos-container');
             const listaCarrito = document.getElementById('lista-carrito');
             const totalPedidoSpan = document.getElementById('total-pedido');
             const formFinalizarPedido = document.getElementById('form-finalizar-pedido');
             const inputClienteNombre = document.getElementById('cliente-nombre');
-            const canalBotonesContainer = document.getElementById('canal-venta-botones'); // 🚨 CAMBIO: Apunta al contenedor de botones
+            const canalBotonesContainer = document.getElementById('canal-venta-botones');
             const inputAjusteTotal = document.getElementById('ajuste-total');
             const modalModificadores = document.getElementById('modalModificadores');
             const modalModTitulo = document.getElementById('modal-mod-titulo');
             const modalModOpciones = document.getElementById('modal-mod-opciones');
             const btnCancelarMod = document.getElementById('btn-cancelar-mod');
 
-            const solicitarOpcion = (titulo, opciones) => { /* ... (código sin cambios) ... */ };
-            const manejarClickProducto = async (e) => { /* ... (código sin cambios) ... */ };
-            const agregarItemAlCarrito = (producto, modificadoresAcumulados, precioAdicionalTotal) => { /* ... (código sin cambios) ... */ };
-            const calcularTotal = () => { /* ... (código sin cambios) ... */ };
-            const cerrarSesion = () => { /* ... (código sin cambios) ... */ };
-            const renderProductos = (productos) => { /* ... (código sin cambios) ... */ };
-            const cargarMenuPOS = async () => { /* ... (código sin cambios) ... */ };
+            const solicitarOpcion = (titulo, opciones) => {
+                return new Promise((resolve, reject) => {
+                    modalModTitulo.textContent = titulo;
+                    modalModOpciones.innerHTML = '';
+                    const cleanup = () => { modalModificadores.style.display = 'none'; modalModOpciones.innerHTML = ''; };
+                    opciones.forEach(opcion => {
+                        const btn = document.createElement('button');
+                        btn.className = 'btn-modificador';
+                        btn.textContent = `${opcion.valor} ${opcion.precio_adicional > 0 ? `(+$${opcion.precio_adicional.toFixed(2)})` : ''}`;
+                        btn.onclick = () => { cleanup(); resolve(opcion); };
+                        modalModOpciones.appendChild(btn);
+                    });
+                    btnCancelarMod.onclick = () => { cleanup(); reject(new Error('Selección cancelada.')); };
+                    modalModificadores.style.display = 'flex';
+                });
+            };
+
+            const manejarClickProducto = async (e) => {
+                const target = e.target.closest('.btn-producto');
+                if (!target) return;
+                const productoSeleccionado = target.dataset;
+                const gruposModificadoresStr = productoSeleccionado.gruposModificadores || '';
+                const gruposAplicables = gruposModificadoresStr.split(',').map(g => g.trim()).filter(Boolean);
+                let modificadoresAcumulados = [];
+                let precioAdicionalTotal = 0;
+                try {
+                    for (const nombreGrupo of gruposAplicables) {
+                        const opciones = menuData.opciones[nombreGrupo] || [];
+                        if (opciones.length === 0) continue;
+                        const titulo = `Selecciona ${nombreGrupo} para ${productoSeleccionado.nombre}`;
+                        const seleccion = await solicitarOpcion(titulo, opciones);
+                        modificadoresAcumulados.push(seleccion);
+                        precioAdicionalTotal += seleccion.precio_adicional;
+                    }
+                    agregarItemAlCarrito(productoSeleccionado, modificadoresAcumulados, precioAdicionalTotal);
+                } catch (error) {
+                    console.log(error.message);
+                }
+            };
+
+            const agregarItemAlCarrito = (producto, modificadoresAcumulados, precioAdicionalTotal) => {
+                const item = { menu_producto_id: parseInt(producto.id), nombre_venta: producto.nombre, precio_unitario: parseFloat(producto.precio) + precioAdicionalTotal, cantidad: 1, modificadores: modificadoresAcumulados.map(m => m.valor).join(', ') };
+                carrito.push(item);
+                renderCarrito();
+            };
 
             const finalizarPedido = async (e) => {
                 e.preventDefault();
@@ -160,7 +197,6 @@
                     formFinalizarPedido.reset();
                     inputAjusteTotal.value = '';
                     
-                    // 🚨 CAMBIO: Resetear los botones al estado inicial
                     canalBotonesContainer.querySelectorAll('.btn-canal').forEach(btn => {
                         btn.classList.remove('active');
                         if (btn.dataset.canal === 'OyR') btn.classList.add('active');
@@ -172,18 +208,81 @@
                     alert(`❌ Fallo al finalizar el pedido: ${error.message}`);
                 }
             };
-            
-            const renderCarrito = () => { /* ... (código sin cambios) ... */ };
 
-            // --- PEGAR CÓDIGO COMPLETO DE FUNCIONES (para brevedad) ---
-            const solicitarOpcion=async(t,e)=>new Promise((o,n)=>{modalModTitulo.textContent=t,modalModOpciones.innerHTML="";const a=()=>{modalModificadores.style.display="none",modalModOpciones.innerHTML=""};e.forEach(t=>{const e=document.createElement("button");e.className="btn-modificador",e.textContent=`${t.valor} ${t.precio_adicional>0?`(+$${t.precio_adicional.toFixed(2)})`:""}`,e.onclick=()=>{a(),o(t)},modalModOpciones.appendChild(e)}),btnCancelarMod.onclick=()=>{a(),n(new Error("Selección cancelada."))},modalModificadores.style.display="flex"});
-            const manejarClickProducto=async t=>{const e=t.target.closest(".btn-producto");if(!e)return;const o=e.dataset,n=o.gruposModificadores||"",a=n.split(",").map(t=>t.trim()).filter(Boolean);let d=[],i=0;try{for(const t of a){const e=menuData.opciones[t]||[];if(0===e.length)continue;const n=`Selecciona ${t} para ${o.nombre}`,l=await solicitarOpcion(n,e);d.push(l),i+=l.precio_adicional}agregarItemAlCarrito(o,d,i)}catch(t){console.log(t.message)}};
-            const agregarItemAlCarrito=(t,e,o)=>{const n={menu_producto_id:parseInt(t.id),nombre_venta:t.nombre,precio_unitario:parseFloat(t.precio)+o,cantidad:1,modificadores:e.map(t=>t.valor).join(", ")};carrito.push(n),renderCarrito()};
-            const calcularTotal=()=>{const t=carrito.reduce((t,e)=>t+e.precio_unitario*e.cantidad,0);return totalPedidoSpan.textContent=`$${t.toFixed(2)}`,t};
-            const cerrarSesion=()=>{localStorage.removeItem("authToken"),localStorage.removeItem("userRole"),window.location.href="login.html"};
-            const renderProductos=t=>{const e={"Platos Fuertes":"#F8D9D9",Sides:"#FCF3CF",Bebidas:"#DDDDDD",PROMOS:"#D5F5E3",Aderezos:"#E5E7E9",default:"#F2F3F4"};menuContainer.innerHTML="",t.forEach(t=>{const o=document.createElement("button");o.className="btn-producto",o.dataset.id=t.id,o.dataset.precio=t.precio_base,o.dataset.nombre=t.nombre_venta,o.dataset.gruposModificadores=t.grupos_modificadores||"",o.textContent=`${t.nombre_venta} ($${t.precio_base.toFixed(2)})`;const n=e[t.categoria]||e.default;o.style.backgroundColor=n,t.grupos_modificadores&&(o.style.border="3px solid #007bff"),menuContainer.appendChild(o)})};
-            const cargarMenuPOS=async()=>{try{const t=await fetch(API_MENU_URL);if(!t.ok)throw new Error("Error al cargar el menú.");menuData=await t.json(),renderProductos(menuData.productos)}catch(t){menuContainer.innerHTML=`<p style="color:red;">Error: ${t.message}</p>`}};
-            const renderCarrito=()=>{listaCarrito.innerHTML="",0===carrito.length?(listaCarrito.innerHTML='<li style="color: var(--secondary-text);">Aún no hay productos.</li>',calcularTotal()):(carrito.forEach((t,e)=>{const o=document.createElement("li"),n=t.modificadores?`(${t.modificadores})`:"";o.innerHTML=`<div><strong>${t.cantidad}x ${t.nombre_venta}</strong><span style="font-size: 14px; display: block; color: var(--secondary-text);">${n}</span></div><div style="display: flex; align-items: center; gap: 8px;"><span>$${(t.precio_unitario*t.cantidad).toFixed(2)}</span><button class="btn-item-action btn-duplicar-item" data-index="${e}" title="Duplicar Item" style="background-color: #007bff;">&#10133;</button><button class="btn-item-action btn-eliminar-item" data-index="${e}" title="Eliminar Item" style="background-color: var(--secondary-text);">&times;</button></div>`,listaCarrito.appendChild(o)}),calcularTotal())};
+            const calcularTotal = () => {
+                const total = carrito.reduce((sum, item) => sum + (item.precio_unitario * item.cantidad), 0);
+                totalPedidoSpan.textContent = `$${total.toFixed(2)}`;
+                return total;
+            };
+
+            const cerrarSesion = () => {
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('userRole');
+                window.location.href = 'login.html';
+            };
+
+            const renderCarrito = () => {
+                listaCarrito.innerHTML = '';
+                if (carrito.length === 0) {
+                    listaCarrito.innerHTML = '<li style="color: var(--secondary-text);">Aún no hay productos.</li>';
+                    calcularTotal();
+                    return;
+                }
+                carrito.forEach((item, index) => {
+                    const li = document.createElement('li');
+                    const mods = item.modificadores ? `(${item.modificadores})` : '';
+                    li.innerHTML = `
+                        <div>
+                            <strong>${item.cantidad}x ${item.nombre_venta}</strong>
+                            <span style="font-size: 14px; display: block; color: var(--secondary-text);">${mods}</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span>$${(item.precio_unitario * item.cantidad).toFixed(2)}</span>
+                            <button class="btn-item-action btn-duplicar-item" data-index="${index}" title="Duplicar Item" style="background-color: #007bff;">&#10133;</button>
+                            <button class="btn-item-action btn-eliminar-item" data-index="${index}" title="Eliminar Item" style="background-color: var(--secondary-text);">&times;</button>
+                        </div>`;
+                    listaCarrito.appendChild(li);
+                });
+                calcularTotal();
+            };
+
+            const renderProductos = (productos) => {
+                const categoryColors = {
+                    'Platos Fuertes': '#F8D9D9',
+                    'Sides': '#FCF3CF',
+                    'Bebidas': '#DDDDDD',
+                    'PROMOS': '#D5F5E3',
+                    'Aderezos': '#E5E7E9',
+                    'default': '#F2F3F4'
+                };
+                menuContainer.innerHTML = '';
+                productos.forEach(producto => {
+                    const btn = document.createElement('button');
+                    btn.className = 'btn-producto';
+                    btn.dataset.id = producto.id;
+                    btn.dataset.precio = producto.precio_base;
+                    btn.dataset.nombre = producto.nombre_venta;
+                    btn.dataset.gruposModificadores = producto.grupos_modificadores || '';
+                    btn.textContent = `${producto.nombre_venta} ($${producto.precio_base.toFixed(2)})`;
+                    const color = categoryColors[producto.categoria] || categoryColors['default'];
+                    btn.style.backgroundColor = color;
+                    if (producto.grupos_modificadores) {
+                        btn.style.border = '3px solid #007bff';
+                    }
+                    menuContainer.appendChild(btn);
+                });
+            };
+            
+            const cargarMenuPOS = async () => {
+                try {
+                    const response = await fetch(API_MENU_URL);
+                    if (!response.ok) throw new Error('Error al cargar el menú');
+                    menuData = await response.json();
+                    renderProductos(menuData.productos);
+                } catch (error) {
+                    menuContainer.innerHTML = `<p style="color:red;">Error: ${error.message}</p>`;
+                }
+            };
 
             // --- INICIALIZACIÓN Y LISTENERS ---
             const token = localStorage.getItem('authToken');
@@ -197,7 +296,6 @@
             document.getElementById('btn-logout').addEventListener('click', cerrarSesion);
             menuContainer.addEventListener('click', manejarClickProducto);
             
-            // 🚨 CAMBIO: Listener para los botones de canal
             canalBotonesContainer.addEventListener('click', (e) => {
                 const target = e.target.closest('.btn-canal');
                 if (!target) return;
