@@ -105,10 +105,10 @@
             <h3>Editar Insumo</h3>
             <form id="form-editar" style="display: grid; gap: 15px;">
                 <input type="hidden" id="edit-id">
-                <div><label>ID Producto:</label><input type="text" id="edit-id-display" readonly disabled></div>
-                <div><label for="edit-nombre">Nombre:</label><input type="text" id="edit-nombre" required></div>
-                <div><label for="edit-categoria">Categoría:</label><select id="edit-categoria" required><option value="Materia Prima">Materia Prima</option><option value="Salsas">Salsas</option><option value="Aderezos">Aderezos</option><option value="Aceite">Aceite</option><option value="Bebidas">Bebidas</option><option value="Empacado">Empacado</option><option value="Gases">Gas</option><option value="Otros">Otros</option></select></div>
                 <div><label for="edit-cantidad">Cantidad:</label><input type="number" id="edit-cantidad" min="0" step="0.01" required></div>
+                <div><label for="edit-categoria">Categoría:</label><select id="edit-categoria" required><option value="Materia Prima">Materia Prima</option><option value="Salsas">Salsas</option><option value="Aderezos">Aderezos</option><option value="Aceite">Aceite</option><option value="Bebidas">Bebidas</option><option value="Empacado">Empacado</option><option value="Gases">Gas</option><option value="Otros">Otros</option></select></div>
+                <div><label for="edit-nombre">Nombre:</label><input type="text" id="edit-nombre" required></div>
+                <div><label>ID Producto:</label><input type="text" id="edit-id-display" readonly disabled></div>
                 <div><label for="edit-unidad">Unidad de Medida:</label><input type="text" id="edit-unidad" required></div>
                 <div><label for="edit-stock-minimo">Stock Mínimo (Alerta):</label><input type="number" id="edit-stock-minimo" min="0" step="1" required></div>
                 <button type="submit" class="btn btn-primary">Guardar Cambios</button>
@@ -400,3 +400,4 @@
     </script>
 </body>
 </html>
+
