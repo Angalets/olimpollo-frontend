@@ -21,11 +21,11 @@
     <header>
         <a href="index.html" class="logo">Olimpollo</a>
         <nav>
-          <a href="pedidos.html">POS</a>
-          <a href="reportes.html">Reportes</a>
-          <a href="pedidos_lista.html">Pedidos</a>
-          <a href="inventario.html">Inventario</a>
-          <a href="recetas.html">Recetas</a>
+            <a href="pedidos.html">POS</a>
+            <a href="reportes.html">Reportes</a>
+            <a href="pedidos_lista.html">Pedidos</a>
+            <a href="inventario.html">Inventario</a>
+            <a href="recetas.html">Recetas</a>
         </nav>
         <div class="user-info">
             <span id="user-identifier"></span>
@@ -93,148 +93,148 @@
     <footer>&copy; 2025 Los Boneless del Olimpo</footer>
 
     <script>
-document.addEventListener('DOMContentLoaded', () => {
-
-    const API_URL = 'https://olimpollo-api.onrender.com';
-    const tablaBody = document.getElementById('tabla-usuarios-body');
-    const modalUsuario = document.getElementById('modalUsuario');
-    const modalEliminar = document.getElementById('modalEliminar');
-    const formAgregar = document.getElementById('form-agregar');
-    let usuarioIdActual = null; // Para guardar el ID del usuario a eliminar
-
-    // --- 1. Control de Acceso y Log Out ---
-
-    const verificarPermisos = () => {
-        const token = localStorage.getItem('authToken');
-        const role = localStorage.getItem('userRole');
-        if (!token || role !== 'Administrador') {
-            alert('Acceso denegado. Solo Administradores.');
-            window.location.href = 'index.html';
-        }
-    };
-    
-    document.getElementById('btn-logout').addEventListener('click', () => { 
-        localStorage.removeItem('authToken');
-        localStorage.removeItem('userRole');
-        window.location.href = 'login.html'; 
-    });
-
-    // --- 2. Funciones de Renderizado y FETCH ---
-
-    const fetchUsuarios = async () => {
-        try {
-            const response = await fetch(API_URL);
-            if (!response.ok) throw new Error('Error al cargar los usuarios');
-            const usuarios = await response.json();
-            renderUsuarios(usuarios);
-        } catch (error) {
-            console.error('Error:', error);
-            alert('No se pudo cargar la lista de usuarios.');
-        }
-    };
-
-    const renderUsuarios = (usuarios) => {
-        tablaBody.innerHTML = '';
-        usuarios.forEach(usuario => {
-            const row = tablaBody.insertRow();
-            row.innerHTML = `
-                <td>${usuario.id}</td>
-                <td>${usuario.username}</td>
-                <td>${usuario.rol}</td>
-                <td>
-                    <button class="btn btn-eliminar" data-id="${usuario.id}" data-username="${usuario.username}">Eliminar</button>
-                    </td>
-            `;
-        });
-    };
-
-    // --- 3. Lógica para Agregar Usuario (POST) ---
-
-    document.getElementById('btn-agregar-usuario').addEventListener('click', () => {
-        modalUsuario.style.display = 'flex';
-        formAgregar.reset(); // Limpia el formulario
-        document.getElementById('password-agregar').required = true;
-    });
-
-    formAgregar.addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        const username = document.getElementById('username-agregar').value.trim();
-        const password = document.getElementById('password-agregar').value;
-        const rol = document.getElementById('rol-agregar').value;
-        
-        try {
-            const response = await fetch(API_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, password, rol })
-            });
-
-            const data = await response.json();
-
-            if (!response.ok) throw new Error(data.error || 'Error al crear el usuario.');
-
-            alert(`Usuario ${username} creado exitosamente.`);
-            cerrarModales();
-            fetchUsuarios(); // Recargar la lista
-            
-        } catch (error) {
-            console.error('Error:', error);
-            alert('Error al crear el usuario: ' + error.message);
-        }
-    });
-
-
-    // --- 4. Lógica para Eliminar Usuario (DELETE) ---
-
-    tablaBody.addEventListener('click', (e) => {
-        if (e.target.classList.contains('btn-eliminar')) {
-            usuarioIdActual = e.target.dataset.id;
-            const username = e.target.dataset.username;
-            
-            document.getElementById('mensaje-eliminar').innerHTML = `¿Está seguro de eliminar a <strong>${username}</strong> (ID: ${usuarioIdActual})?`;
-            modalEliminar.style.display = 'flex';
-        }
-    });
-
-    document.getElementById('btn-confirmar-eliminar').addEventListener('click', async () => {
-        try {
-            const response = await fetch(`${API_URL}/${usuarioIdActual}`, {
-                method: 'DELETE'
-            });
-
-            if (response.status === 403) {
-                const data = await response.json();
-                throw new Error(data.error);
+        // Función para decodificar JWT
+        function parseJwt(token) {
+            try {
+                const base64Url = token.split('.')[1];
+                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+                return JSON.parse(jsonPayload);
+            } catch (e) {
+                return null;
             }
-            if (!response.ok) throw new Error('Error al eliminar el usuario.');
-            
-            alert(`Usuario (ID: ${usuarioIdActual}) eliminado exitosamente.`);
-            cerrarModales();
-            fetchUsuarios(); // Recargar la lista
-
-        } catch (error) {
-            console.error('Error:', error);
-            alert('Error al eliminar: ' + error.message);
         }
-    });
 
-    // --- 5. Lógica de Modales ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // 🚨 CORRECCIÓN AQUÍ: Añadido el endpoint /api/usuarios
+            const API_URL = 'https://olimpollo-api.onrender.com/api/usuarios';
+            const tablaBody = document.getElementById('tabla-usuarios-body');
+            const modalUsuario = document.getElementById('modalUsuario');
+            const modalEliminar = document.getElementById('modalEliminar');
+            const formAgregar = document.getElementById('form-agregar');
+            let usuarioIdActual = null;
 
-    const cerrarModales = () => {
-        modalUsuario.style.display = 'none';
-        modalEliminar.style.display = 'none';
-    };
+            // --- 1. Control de Acceso y Sesión ---
+            const token = localStorage.getItem('authToken');
+            const role = localStorage.getItem('userRole');
+            if (!token || role !== 'Administrador') {
+                alert('Acceso denegado. Solo Administradores.');
+                window.location.href = 'index.html';
+                return;
+            }
+            
+            const userData = parseJwt(token);
+            if (userData && userData.username) {
+                document.getElementById('user-identifier').textContent = userData.username;
+            }
+            
+            document.getElementById('btn-logout').addEventListener('click', () => { 
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('userRole');
+                window.location.href = 'login.html'; 
+            });
 
-    document.querySelectorAll('.close, .btn-cancelar').forEach(el => el.addEventListener('click', cerrarModales));
-    window.addEventListener('click', (e) => {
-        if (e.target.classList.contains('modal')) cerrarModales();
-    });
+            // --- 2. Funciones de Renderizado y FETCH ---
+            const fetchUsuarios = async () => {
+                try {
+                    const response = await fetch(API_URL);
+                    if (!response.ok) throw new Error('Error al cargar los usuarios');
+                    const usuarios = await response.json();
+                    renderUsuarios(usuarios);
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('No se pudo cargar la lista de usuarios.');
+                }
+            };
 
-    // --- 6. INICIALIZACIÓN ---
-    verificarPermisos();
-    fetchUsuarios();
-});
-</script>
+            const renderUsuarios = (usuarios) => {
+                tablaBody.innerHTML = '';
+                usuarios.forEach(usuario => {
+                    const row = tablaBody.insertRow();
+                    row.innerHTML = `
+                        <td>${usuario.id}</td>
+                        <td>${usuario.username}</td>
+                        <td>${usuario.rol}</td>
+                        <td>
+                            <button class="btn btn-danger btn-eliminar" data-id="${usuario.id}" data-username="${usuario.username}">Eliminar</button>
+                        </td>
+                    `;
+                });
+            };
+
+            // --- 3. Lógica para Agregar Usuario (POST) ---
+            document.getElementById('btn-agregar-usuario').addEventListener('click', () => {
+                modalUsuario.style.display = 'flex';
+                formAgregar.reset();
+            });
+
+            formAgregar.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const username = document.getElementById('username-agregar').value.trim();
+                const password = document.getElementById('password-agregar').value;
+                const rol = document.getElementById('rol-agregar').value;
+                
+                try {
+                    const response = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ username, password, rol })
+                    });
+                    const data = await response.json();
+                    if (!response.ok) throw new Error(data.error || 'Error al crear el usuario.');
+
+                    alert(`Usuario ${username} creado exitosamente.`);
+                    cerrarModales();
+                    fetchUsuarios();
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Error al crear el usuario: ' + error.message);
+                }
+            });
+
+            // --- 4. Lógica para Eliminar Usuario (DELETE) ---
+            tablaBody.addEventListener('click', (e) => {
+                if (e.target.classList.contains('btn-eliminar')) {
+                    usuarioIdActual = e.target.dataset.id;
+                    const username = e.target.dataset.username;
+                    document.getElementById('mensaje-eliminar').innerHTML = `¿Está seguro de eliminar a <strong>${username}</strong> (ID: ${usuarioIdActual})?`;
+                    modalEliminar.style.display = 'flex';
+                }
+            });
+
+            document.getElementById('btn-confirmar-eliminar').addEventListener('click', async () => {
+                try {
+                    const response = await fetch(`${API_URL}/${usuarioIdActual}`, {
+                        method: 'DELETE'
+                    });
+                    if (response.status === 403) {
+                        const data = await response.json();
+                        throw new Error(data.error);
+                    }
+                    if (!response.ok) throw new Error('Error al eliminar el usuario.');
+                    
+                    alert(`Usuario (ID: ${usuarioIdActual}) eliminado exitosamente.`);
+                    cerrarModales();
+                    fetchUsuarios();
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Error al eliminar: ' + error.message);
+                }
+            });
+
+            // --- 5. Lógica de Modales ---
+            const cerrarModales = () => {
+                modalUsuario.style.display = 'none';
+                modalEliminar.style.display = 'none';
+            };
+            document.querySelectorAll('.close, .btn-cancelar').forEach(el => el.addEventListener('click', cerrarModales));
+            window.addEventListener('click', (e) => {
+                if (e.target.classList.contains('modal')) cerrarModales();
+            });
+
+            // --- 6. INICIALIZACIÓN ---
+            fetchUsuarios();
+        });
+    </script>
 </body>
 </html>
