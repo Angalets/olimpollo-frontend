@@ -78,7 +78,9 @@
                     <th>ID</th><th>Nombre</th><th>Categoría</th><th>Cantidad</th><th>Unidad</th><th>Estado</th><th>Acciones</th>
                 </tr>
             </thead>    
-            <tbody></tbody>
+            <tbody>
+                <tr><td colspan="7" style="text-align: center;">Cargando inventario...</td></tr>
+            </tbody>
         </table>
     </main>
 
@@ -89,7 +91,7 @@
             <form id="form-agregar" style="display: grid; gap: 15px;">
                 <div><label for="nombre-agregar">Nombre del Insumo:</label><input type="text" id="nombre-agregar" required></div>
                 <div><label for="categoria-agregar">Categoría:</label><select id="categoria-agregar" required><option value="Materia Prima">Materia Prima</option><option value="Salsas">Salsas</option><option value="Aderezos">Aderezos</option><option value="Aceite">Aceite</option><option value="Bebidas">Bebidas</option><option value="Empacado">Empacado</option><option value="Gases">Gas</option><option value="Otros">Otros</option></select></div>
-                <div><label for="cantidad-agregar">Cantidad Inicial:</label><input type="number" id="cantidad-agregar" min="0" value="0" required></div>
+                <div><label for="cantidad-agregar">Cantidad Inicial:</label><input type="number" id="cantidad-agregar" min="0" value="0" step="0.01" required></div>
                 <div><label for="unidad-agregar">Unidad de Medida (Ej: Kg, Pz, L):</label><input type="text" id="unidad-agregar" value="Unidad" required></div>
                 <div><label for="stock-minimo-agregar">Stock Mínimo (Alerta):</label><input type="number" id="stock-minimo-agregar" min="0" value="10" required></div>
                 <button type="submit" class="btn btn-primary">Guardar Insumo</button>
@@ -176,22 +178,136 @@
             };
 
             // --- 3. FUNCIONES DE API (CRUD) ---
-            const renderInventario = async () => { /* ... (código sin cambios) ... */ };
-            const agregarProducto = async (data) => { /* ... (código sin cambios) ... */ };
-            const editarProducto = async (id, data) => { /* ... (código sin cambios) ... */ };
-            const eliminarProducto = async (id) => { /* ... (código sin cambios) ... */ };
-            const guardarInventarioFisico = async () => { /* ... (código sin cambios) ... */ };
+            const renderInventario = async () => {
+                try {
+                    const categoria = filtroCategoria.value;
+                    const estado = filtroEstado.value;
+
+                    let url = API_URL + '?';
+                    if (categoria) url += `categoria=${encodeURIComponent(categoria)}&`;
+                    if (estado) url += `estado=${encodeURIComponent(estado)}&`;
+                    url = url.endsWith('&') ? url.slice(0, -1) : url;
+                    url = url.endsWith('?') ? url.slice(0, -1) : url;
+
+                    const response = await fetch(url, {
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+
+                    if (!response.ok) {
+                        if (response.status === 401 || response.status === 403) {
+                            alert('Sesión expirada o no autorizado. Inicia sesión de nuevo.');
+                            window.location.href = 'login.html';
+                            return;
+                        }
+                        const errorData = await response.json();
+                        throw new Error(errorData.error || 'Error al obtener el inventario');
+                    }
+                    const inventario = await response.json();
+                    tablaBody.innerHTML = '';
+                    if (inventario.length === 0) {
+                        tablaBody.innerHTML = '<tr><td colspan="7" style="text-align: center;">No se encontraron insumos.</td></tr>';
+                        return;
+                    }
+                    inventario.forEach(producto => {
+                        const tr = document.createElement('tr');
+                        let color = '';
+                        if (producto.estado === 'Agotado') color = 'background-color: #ffcccc;'; 
+                        else if (producto.estado === 'Requiere re-stock') color = 'background-color: #ffebcc;';
+                        tr.style = color;
+                        tr.innerHTML = `
+                            <td>${producto.id}</td>
+                            <td>${producto.nombre}</td>
+                            <td>${producto.categoria}</td>
+                            <td>${producto.cantidad}</td>
+                            <td>${producto.unidad}</td>
+                            <td><span style="font-weight: bold;">${producto.estado}</span></td>
+                            <td>
+                                <button class="btn btn-secondary btn-edit" data-id="${producto.id}" data-nombre="${producto.nombre}" data-cantidad="${producto.cantidad}" data-unidad="${producto.unidad}" data-stock-minimo="${producto.stock_minimo}" data-categoria="${producto.categoria}">Editar</button>
+                                <button class="btn btn-danger btn-eliminar" data-id="${producto.id}">Eliminar</button>
+                            </td>`;
+                        tablaBody.appendChild(tr);
+                    });
+                } catch (error) {
+                    console.error('Error al cargar el inventario:', error);
+                    mostrarNotificacion('Error: ' + error.message);
+                }
+            };
+
+            const agregarProducto = async (data) => {
+                try {
+                    const response = await fetch(API_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                        body: JSON.stringify(data)
+                    });
+                    if (!response.ok) throw new Error('Error al agregar el insumo');
+                    await response.json();
+                    renderInventario();
+                    cerrarModales();
+                    mostrarNotificacion(`Insumo "${data.nombre}" agregado exitosamente.`);
+                } catch (error) {
+                    console.error('Error al agregar:', error);
+                    mostrarNotificacion('Error al agregar el insumo.');
+                }
+            };
+
+            const editarProducto = async (id, data) => {
+                try {
+                    const response = await fetch(`${API_URL}/${id}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                        body: JSON.stringify(data)
+                    });
+                    if (!response.ok) throw new Error('Error al editar el insumo');
+                    await response.json();
+                    renderInventario();
+                    cerrarModales();
+                    mostrarNotificacion(`Insumo "${data.nombre}" actualizado exitosamente.`);
+                } catch (error) {
+                    console.error('Error al editar:', error);
+                    mostrarNotificacion('Error al editar el insumo.');
+                }
+            };
+
+            const eliminarProducto = async (id) => {
+                try {
+                    const response = await fetch(`${API_URL}/${id}`, {
+                        method: 'DELETE',
+                        headers: { 'Authorization': `Bearer ${token}` }
+                    });
+                    if (response.status === 409) {
+                        const data = await response.json();
+                        throw new Error(data.mensaje);
+                    }
+                    if (!response.ok) throw new Error('Error al eliminar el insumo.');
+                    renderInventario();
+                    cerrarModales();
+                    mostrarNotificacion('Insumo eliminado exitosamente.');
+                } catch (error) {
+                    console.error('Error al eliminar:', error);
+                    mostrarNotificacion('Error: ' + error.message);
+                }
+            };
             
-            // --- PEGAR CÓDIGO COMPLETO DE FUNCIONES CRUD ---
-            const renderInventario=async()=>{try{const t=filtroCategoria.value,e=filtroEstado.value;let n=API_URL+"?";t&&(n+=`categoria=${encodeURIComponent(t)}&`),e&&(n+=`estado=${encodeURIComponent(e)}&`),n=n.endsWith("&")?n.slice(0,-1):n,n=n.endsWith("?")?n.slice(0,-1):n;const o=localStorage.getItem("authToken"),a=await fetch(n,{headers:{Authorization:`Bearer ${o}`}});if(!a.ok){if(401===a.status||403===a.status)return alert("Sesión expirada o no autorizado. Por favor, inicia sesión de nuevo."),void(window.location.href="login.html");const t=await a.json();throw new Error(t.error||"Error al obtener el inventario")}const d=await a.json();tablaBody.innerHTML="",d.forEach(t=>{const e=document.createElement("tr");let n="";"Agotado"===t.estado?n="background-color: #ffcccc;":"Requiere re-stock"===t.estado&&(n="background-color: #ffebcc;"),e.style=n,e.innerHTML=`<td>${t.id}</td><td>${t.nombre}</td><td>${t.categoria}</td><td>${t.cantidad}</td><td>${t.unidad}</td><td><span style="font-weight: bold;">${t.estado}</span></td><td><button class="btn btn-secondary btn-edit" data-id="${t.id}" data-nombre="${t.nombre}" data-cantidad="${t.cantidad}" data-unidad="${t.unidad}" data-stock-minimo="${t.stock_minimo}" data-categoria="${t.categoria}">Editar</button> <button class="btn btn-danger btn-eliminar" data-id="${t.id}">Eliminar</button></td>`,tablaBody.appendChild(e)})}catch(t){console.error("Error al cargar el inventario:",t),mostrarNotificacion("Error: "+t.message)}};
-            const agregarProducto=async t=>{try{const e=localStorage.getItem("authToken"),n=await fetch(API_URL,{method:"POST",headers:{"Content-Type":"application/json",Authorization:`Bearer ${e}`},body:JSON.stringify(t)});if(!n.ok)throw new Error("Error al agregar el insumo");await n.json(),renderInventario(),cerrarModales(),mostrarNotificacion(`Insumo "${t.nombre}" agregado exitosamente.`)}catch(t){console.error("Error al agregar:",t),mostrarNotificacion("Error al agregar el insumo.")}};
-            const editarProducto=async(t,e)=>{try{const n=localStorage.getItem("authToken"),o=await fetch(`${API_URL}/${t}`,{method:"PUT",headers:{"Content-Type":"application/json",Authorization:`Bearer ${n}`},body:JSON.stringify(e)});if(!o.ok)throw new Error("Error al editar el insumo");await o.json(),renderInventario(),cerrarModales(),mostrarNotificacion(`Insumo "${e.nombre}" actualizado exitosamente.`)}catch(t){console.error("Error al editar:",t),mostrarNotificacion("Error al editar el insumo.")}};
-            const eliminarProducto=async t=>{try{const e=localStorage.getItem("authToken"),n=await fetch(`${API_URL}/${t}`,{method:"DELETE",headers:{Authorization:`Bearer ${e}`}});if(409===n.status){const t=await n.json();throw new Error(t.mensaje)}if(!n.ok)throw new Error("Error al eliminar el insumo");renderInventario(),cerrarModales(),mostrarNotificacion("Insumo eliminado exitosamente.")}catch(t){console.error("Error al eliminar:",t),mostrarNotificacion("Error: "+t.message)}};
-            const guardarInventarioFisico=async()=>{if(!confirm("¿Estás seguro de que deseas guardar un registro del inventario físico actual?"))return;try{const t=localStorage.getItem("authToken"),e=await fetch(`${API_URL}/guardar`,{method:"POST",headers:{Authorization:`Bearer ${t}`,"Content-Type":"application/json"}});const n=await e.json();if(!e.ok)throw new Error(n.error||"Error al guardar el inventario físico.");mostrarNotificacion(n.mensaje)}catch(t){console.error("Error al guardar corte:",t),mostrarNotificacion("Error: "+t.message)}};
+            const guardarInventarioFisico = async () => {
+                if (!confirm("¿Estás seguro de que deseas guardar un registro del inventario físico actual?")) return;
+                try {
+                    const response = await fetch(`${API_URL}/guardar`, {
+                        method: 'POST',
+                        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+                    });
+                    const data = await response.json();
+                    if (!response.ok) throw new Error(data.error || 'Error al guardar el inventario físico.');
+                    mostrarNotificacion(data.mensaje);
+                } catch (error) {
+                    console.error('Error al guardar corte:', error);
+                    mostrarNotificacion('Error: ' + error.message);
+                }
+            };
 
             // --- 4. MANEJADORES DE EVENTOS ---
             document.getElementById('btn-agregar').addEventListener('click', () => {
-                formAgregar.reset(); 
+                formAgregar.reset();
                 abrirModal(modalProducto);
             });
             btnAplicarFiltro.addEventListener('click', renderInventario);
@@ -201,37 +317,33 @@
                 const id = e.target.dataset.id;
                 
                 if (e.target.classList.contains('btn-edit')) {
-                    // --- 🚨 LÓGICA DE ROLES PARA EDICIÓN ---
                     const editNombre = document.getElementById('edit-nombre');
                     const editCategoria = document.getElementById('edit-categoria');
                     const editCantidad = document.getElementById('edit-cantidad');
                     const editUnidad = document.getElementById('edit-unidad');
                     const editStockMinimo = document.getElementById('edit-stock-minimo');
                     
-                    // Llenar datos en el modal
                     document.getElementById('edit-id').value = id;
                     document.getElementById('edit-id-display').value = id;
                     editNombre.value = e.target.dataset.nombre;
-                    editCategoria.value = e.target.dataset.categoria; 
+                    editCategoria.value = e.target.dataset.categoria;
                     editCantidad.value = e.target.dataset.cantidad;
                     editUnidad.value = e.target.dataset.unidad;
                     editStockMinimo.value = e.target.dataset.stockMinimo;
 
-                    // Aplicar restricciones según el rol
                     if (role === 'Gerente') {
                         editNombre.disabled = true;
                         editCategoria.disabled = true;
                         editUnidad.disabled = true;
                         editStockMinimo.disabled = true;
-                        editCantidad.disabled = false; // El único campo editable
-                    } else { // Administrador (o cualquier otro) puede editar todo
+                        editCantidad.disabled = false;
+                    } else {
                         editNombre.disabled = false;
                         editCategoria.disabled = false;
                         editUnidad.disabled = false;
                         editStockMinimo.disabled = false;
                         editCantidad.disabled = false;
                     }
-                    
                     abrirModal(modalEditar);
                     
                 } else if (e.target.classList.contains('btn-eliminar')) {
@@ -254,7 +366,7 @@
                 if (!data.nombre || isNaN(data.cantidad) || data.cantidad < 0 || isNaN(data.stock_minimo) || data.stock_minimo < 0) {
                     return alert('Por favor, ingresa un nombre válido y cantidades positivas.');
                 }
-                agregarProducto(data); 
+                agregarProducto(data);
             });
             
             formEditar.addEventListener('submit', (e) => {
