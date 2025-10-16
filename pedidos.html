@@ -16,63 +16,18 @@
         /* ==========================================================================
            ESTILOS ESPECÍFICOS PARA LA PÁGINA DE POS
            ========================================================================== */
-        .pos-container {
-            display: flex;
-            gap: 25px;
-            align-items: flex-start;
-        }
-        .menu-area {
-            flex: 2;
-        }
-        .carrito-card {
-            flex: 1;
-            position: sticky; /* Para que el carrito se quede fijo al hacer scroll */
-            top: 40px;
-        }
-        .productos-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-            gap: 15px;
-        }
-        .btn-producto {
-            width: 100%;
-            aspect-ratio: 1 / 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            border: 1px solid var(--border-color);
-            padding: 10px;
-            color: var(--primary-text);
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: bold;
-            font-size: 14px;
-            transition: background 0.2s, transform 0.2s;
-            word-wrap: break-word;
-        }
-        .btn-producto:hover {
-            transform: translateY(-4px);
-        }
-        .carrito-list {
-            list-style: none;
-            padding: 0;
-            margin: 0 0 20px 0;
-            max-height: 300px;
-            overflow-y: auto;
-        }
-        .carrito-list li {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 10px 0;
-            border-bottom: 1px solid var(--bg-main);
-        }
-        .btn-modificador {
-            width: 100%; padding: 15px; font-size: 16px; font-weight: bold; cursor: pointer; border: 1px solid #ddd; background: #f9f9f9; border-radius: 5px; transition: background 0.2s;
-        }
+        .pos-container { display: flex; gap: 25px; align-items: flex-start; }
+        .menu-area { flex: 2; }
+        .carrito-card { flex: 1; position: sticky; top: 40px; }
+        .productos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 15px; }
+        .btn-producto { width: 100%; aspect-ratio: 1 / 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; border: 1px solid var(--border-color); padding: 10px; color: var(--primary-text); border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 14px; transition: background 0.2s, transform 0.2s; word-wrap: break-word; }
+        .btn-producto:hover { transform: translateY(-4px); }
+        .carrito-list { list-style: none; padding: 0; margin: 0 0 20px 0; max-height: 300px; overflow-y: auto; }
+        .carrito-list li { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--bg-main); }
+        .btn-modificador { width: 100%; padding: 15px; font-size: 16px; font-weight: bold; cursor: pointer; border: 1px solid #ddd; background: #f9f9f9; border-radius: 5px; transition: background 0.2s; }
         .btn-modificador:hover { background: #FCF3CF; }
+        .btn-item-action { background: #007bff; color: white; border: none; padding: 3px 8px; font-size: 14px; cursor: pointer; border-radius: 4px; }
+        .btn-item-action:hover { opacity: 0.8; }
     </style>
 </head>
 <body>
@@ -126,7 +81,7 @@
                     </div>
                     <div style="margin-bottom: 20px;">
                         <label for="ajuste-total" style="color: var(--accent-color);">Total Recibido/Ajustado ($):</label>
-                        <input type="number" id="ajuste-total" placeholder="Opcional: Sobrescribir Total" min="0" step="0.01">
+                        <input type="number" id="ajuste-total" placeholder="Opcional para OyR" min="0" step="0.01">
                     </div>
                     <button type="submit" class="btn btn-primary" style="width: 100%; padding: 15px; font-size: 16px;">
                         FINALIZAR PEDIDO
@@ -147,264 +102,187 @@
     <footer>&copy; 2025 Los Boneless del Olimpo</footer>
 
     <script>
-document.addEventListener('DOMContentLoaded', () => {
+        function parseJwt(token) { try { const base64Url = token.split('.')[1]; const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/'); const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join('')); return JSON.parse(jsonPayload); } catch (e) { return null; } }
 
-    // --- 1. CONFIGURACIÓN Y ESTADO ---
-const API_MENU_URL = 'https://olimpollo-api.onrender.com/api/menu/pos';
-const API_PEDIDOS_URL = 'https://olimpollo-api.onrender.com/api/pedidos';
-    let menuData = { productos: [], opciones: {} }; 
-    let carrito = []; 
+        document.addEventListener('DOMContentLoaded', () => {
 
-    // --- 2. ELEMENTOS DEL DOM ---
-    const menuContainer = document.getElementById('productos-container');
-    const listaCarrito = document.getElementById('lista-carrito');
-    const totalPedidoSpan = document.getElementById('total-pedido');
-    const formFinalizarPedido = document.getElementById('form-finalizar-pedido');
-    const inputClienteNombre = document.getElementById('cliente-nombre');
-    const selectCanalVenta = document.getElementById('canal-venta');
-    const inputAjusteTotal = document.getElementById('ajuste-total');
-    // Modal de Modificadores
-    const modalModificadores = document.getElementById('modalModificadores');
-    const modalModTitulo = document.getElementById('modal-mod-titulo');
-    const modalModOpciones = document.getElementById('modal-mod-opciones');
-    const btnCancelarMod = document.getElementById('btn-cancelar-mod');
-    
-    // --- 3. LÓGICA DEL MODAL DE MODIFICADORES ---
-    
-    /**
-     * Muestra el modal con opciones y espera la selección del usuario.
-     * @param {string} titulo - El título para el modal.
-     * @param {Array} opciones - Array de objetos de modificadores.
-     * @returns {Promise<object>} - Promesa que se resuelve con la opción seleccionada.
-     */
-    const solicitarOpcion = (titulo, opciones) => {
-        return new Promise((resolve, reject) => {
-            modalModTitulo.textContent = titulo;
-            modalModOpciones.innerHTML = ''; // Limpiar opciones anteriores
+            // --- 1. CONFIGURACIÓN Y ESTADO ---
+            const API_MENU_URL = 'https://olimpollo-api.onrender.com/api/menu/pos';
+            const API_PEDIDOS_URL = 'https://olimpollo-api.onrender.com/api/pedidos';
+            let menuData = { productos: [], opciones: {} }; 
+            let carrito = []; 
 
-            // Función para limpiar y cerrar
-            const cleanup = () => {
-                modalModificadores.style.display = 'none';
-                modalModOpciones.innerHTML = ''; // Asegurar que los listeners se eliminen
+            // --- 2. ELEMENTOS DEL DOM ---
+            const menuContainer = document.getElementById('productos-container');
+            const listaCarrito = document.getElementById('lista-carrito');
+            const totalPedidoSpan = document.getElementById('total-pedido');
+            const formFinalizarPedido = document.getElementById('form-finalizar-pedido');
+            const inputClienteNombre = document.getElementById('cliente-nombre');
+            const selectCanalVenta = document.getElementById('canal-venta');
+            const inputAjusteTotal = document.getElementById('ajuste-total');
+            const modalModificadores = document.getElementById('modalModificadores');
+            const modalModTitulo = document.getElementById('modal-mod-titulo');
+            const modalModOpciones = document.getElementById('modal-mod-opciones');
+            const btnCancelarMod = document.getElementById('btn-cancelar-mod');
+
+            // --- 3. LÓGICA DEL MODAL DE MODIFICADORES ---
+            const solicitarOpcion = (titulo, opciones) => {
+                return new Promise((resolve, reject) => {
+                    modalModTitulo.textContent = titulo;
+                    modalModOpciones.innerHTML = '';
+                    const cleanup = () => { modalModificadores.style.display = 'none'; modalModOpciones.innerHTML = ''; };
+                    opciones.forEach(opcion => {
+                        const btn = document.createElement('button');
+                        btn.className = 'btn-modificador';
+                        btn.textContent = `${opcion.valor} ${opcion.precio_adicional > 0 ? `(+$${opcion.precio_adicional.toFixed(2)})` : ''}`;
+                        btn.onclick = () => { cleanup(); resolve(opcion); };
+                        modalModOpciones.appendChild(btn);
+                    });
+                    btnCancelarMod.onclick = () => { cleanup(); reject(new Error('Selección cancelada por el usuario.')); };
+                    modalModificadores.style.display = 'flex';
+                });
             };
 
-            // Crear botón para cada opción
-            opciones.forEach(opcion => {
-                const btn = document.createElement('button');
-                btn.className = 'btn-modificador';
-                btn.textContent = `${opcion.valor} ${opcion.precio_adicional > 0 ? `(+$${opcion.precio_adicional.toFixed(2)})` : ''}`;
-                btn.onclick = () => {
-                    cleanup();
-                    resolve(opcion);
-                };
-                modalModOpciones.appendChild(btn);
-            });
+            // --- 4. MANEJO DE EVENTOS (CLICK EN PRODUCTO) ---
+            const manejarClickProducto = async (e) => {
+                const target = e.target.closest('.btn-producto');
+                if (!target) return;
+                
+                const productoSeleccionado = target.dataset; 
+                const gruposModificadoresStr = productoSeleccionado.gruposModificadores || '';
+                const gruposAplicables = gruposModificadoresStr.split(',').map(g => g.trim()).filter(Boolean);
+                let modificadoresAcumulados = [];
+                let precioAdicionalTotal = 0;
 
-            // Botón de cancelar
-            btnCancelarMod.onclick = () => {
-                cleanup();
-                reject(new Error('Selección cancelada por el usuario.'));
+                try {
+                    for (const nombreGrupo of gruposAplicables) {
+                        const opciones = menuData.opciones[nombreGrupo] || [];
+                        if (opciones.length === 0) continue;
+                        const titulo = `Selecciona ${nombreGrupo} para ${productoSeleccionado.nombre}`;
+                        const seleccion = await solicitarOpcion(titulo, opciones);
+                        modificadoresAcumulados.push(seleccion);
+                        precioAdicionalTotal += seleccion.precio_adicional;
+                    }
+                    agregarItemAlCarrito(productoSeleccionado, modificadoresAcumulados, precioAdicionalTotal);
+                } catch (error) {
+                    console.log(error.message); // El usuario canceló, no hacemos nada.
+                }
+            };
+
+            // --- 5. LÓGICA DEL CARRITO Y FINALIZACIÓN ---
+            const agregarItemAlCarrito = (producto, modificadoresAcumulados, precioAdicionalTotal) => {
+                const item = { menu_producto_id: parseInt(producto.id), nombre_venta: producto.nombre, precio_unitario: parseFloat(producto.precio) + precioAdicionalTotal, cantidad: 1, modificadores: modificadoresAcumulados.map(m => m.valor).join(', ') };
+                carrito.push(item);
+                renderCarrito();
+            };
+
+            const finalizarPedido = async (e) => {
+                e.preventDefault();
+                if (carrito.length === 0) return alert('El carrito está vacío.');
+
+                // --- 🚨 NUEVA VALIDACIÓN PARA CANAL DE VENTA ---
+                const canal = selectCanalVenta.value;
+                const totalAjustado = inputAjusteTotal.value;
+
+                if (canal !== 'OyR' && !totalAjustado) {
+                    alert('Para canales como Uber, Didi o Rappi, es obligatorio ingresar el "Total Recibido/Ajustado".');
+                    inputAjusteTotal.focus();
+                    return; // Detener la ejecución
+                }
+                // --- FIN DE LA VALIDACIÓN ---
+
+                const totalCalculado = calcularTotal();
+                let totalFinal = inputAjusteTotal.value ? parseFloat(inputAjusteTotal.value) : totalCalculado;
+                if (isNaN(totalFinal) || totalFinal < 0) return alert('El total ajustado no es válido.');
+
+                const pedidoData = { cliente: inputClienteNombre.value.trim(), canal_venta: canal, total_ajustado: totalFinal, items: carrito.map(item => ({ menu_producto_id: item.menu_producto_id, nombre_producto_completo: item.nombre_venta + (item.modificadores ? ` (${item.modificadores})` : ''), cantidad: item.cantidad, precio_unitario: item.precio_unitario })) };
+
+                try {
+                    const response = await fetch(API_PEDIDOS_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(pedidoData) });
+                    if (!response.ok) throw new Error('Error al guardar el pedido.');
+                    const data = await response.json();
+                    alert(`✅ Pedido #${data.id} guardado con éxito.`);
+                    carrito = [];
+                    formFinalizarPedido.reset();
+                    inputAjusteTotal.value = '';
+                    renderCarrito();
+                } catch (error) {
+                    alert(`❌ Fallo al finalizar el pedido: ${error.message}`);
+                }
+            };
+
+            // --- 6. FUNCIONES DE RENDERIZADO Y CARGA INICIAL ---
+            const calcularTotal = () => { const total = carrito.reduce((sum, item) => sum + (item.precio_unitario * item.cantidad), 0); totalPedidoSpan.textContent = `$${total.toFixed(2)}`; return total; };
+            const cerrarSesion = () => { localStorage.removeItem('authToken'); localStorage.removeItem('userRole'); window.location.href = 'login.html'; };
+
+            const renderCarrito = () => {
+                listaCarrito.innerHTML = '';
+                if (carrito.length === 0) {
+                    listaCarrito.innerHTML = '<li style="color: var(--secondary-text);">Aún no hay productos.</li>';
+                    calcularTotal();
+                    return;
+                }
+                carrito.forEach((item, index) => {
+                    const li = document.createElement('li');
+                    const mods = item.modificadores ? `(${item.modificadores})` : '';
+                    li.innerHTML = `
+                        <div>
+                            <strong>${item.cantidad}x ${item.nombre_venta}</strong>
+                            <span style="font-size: 14px; display: block; color: var(--secondary-text);">${mods}</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span>$${(item.precio_unitario * item.cantidad).toFixed(2)}</span>
+                            <button class="btn-item-action btn-duplicar-item" data-index="${index}" title="Duplicar Item" style="background-color: #007bff;">&#10133;</button>
+                            <button class="btn-item-action btn-eliminar-item" data-index="${index}" title="Eliminar Item" style="background-color: var(--secondary-text);">&times;</button>
+                        </div>`;
+                    listaCarrito.appendChild(li);
+                });
+                calcularTotal();
             };
             
-            modalModificadores.style.display = 'flex';
-        });
-    };
+            const renderProductos = (productos) => { /* ... (código sin cambios, ya está bien) ... */ };
+            const cargarMenuPOS = async () => { /* ... (código sin cambios, ya está bien) ... */ };
+            // Pegar aquí las funciones completas de la versión anterior
+            const renderProductos = (productos) => { const categoryColors = { 'Platos Fuertes': '#F8D9D9', 'Sides': '#FCF3CF', 'Bebidas': '#DDDDDD', 'PROMOS': '#D5F5E3', 'Aderezos': '#E5E7E9', 'default': '#F2F3F4' }; menuContainer.innerHTML = ''; productos.forEach(producto => { const btn = document.createElement('button'); btn.className = 'btn-producto'; btn.dataset.id = producto.id; btn.dataset.precio = producto.precio_base; btn.dataset.nombre = producto.nombre_venta; btn.dataset.gruposModificadores = producto.grupos_modificadores || ''; btn.textContent = `${producto.nombre_venta} ($${producto.precio_base.toFixed(2)})`; const color = categoryColors[producto.categoria] || categoryColors['default']; btn.style.backgroundColor = color; if (producto.grupos_modificadores) { btn.style.border = '3px solid #007bff'; } menuContainer.appendChild(btn); }); };
+            const cargarMenuPOS = async () => { try { const response = await fetch(API_MENU_URL); if (!response.ok) throw new Error('Error al cargar el menú'); menuData = await response.json(); renderProductos(menuData.productos); } catch (error) { menuContainer.innerHTML = `<p style="color:red;">Error: ${error.message}</p>`; } };
 
-
-    // --- 4. MANEJO DE EVENTOS (CLICK EN PRODUCTO) - VERSIÓN CON MODAL ---
-
-    const manejarClickProducto = async (e) => {
-        const target = e.target.closest('.btn-producto');
-        if (!target) return;
-        
-        const productoSeleccionado = target.dataset; 
-        const gruposModificadoresStr = productoSeleccionado.gruposModificadores || '';
-        const gruposAplicables = gruposModificadoresStr.split(',').map(g => g.trim()).filter(Boolean);
+            // --- 7. INICIALIZACIÓN Y LISTENERS ---
+            document.getElementById('btn-logout').addEventListener('click', cerrarSesion);
+            menuContainer.addEventListener('click', manejarClickProducto);
             
-        let modificadoresAcumulados = [];
-        let precioAdicionalTotal = 0;
+            listaCarrito.addEventListener('click', (e) => {
+                const target = e.target.closest('button');
+                if (!target) return;
 
-        try {
-            for (const nombreGrupo of gruposAplicables) {
-                const opciones = menuData.opciones[nombreGrupo] || [];
-                if (opciones.length === 0) continue;
-                
-                const titulo = `Selecciona ${nombreGrupo} para ${productoSeleccionado.nombre}`;
-                const seleccion = await solicitarOpcion(titulo, opciones);
-                
-                modificadoresAcumulados.push(seleccion);
-                precioAdicionalTotal += seleccion.precio_adicional;
-            }
+                const index = parseInt(target.dataset.index, 10);
 
-            // Si el bucle termina (no se canceló), agregar al carrito
-            agregarItemAlCarrito(productoSeleccionado, modificadoresAcumulados, precioAdicionalTotal);
-
-        } catch (error) {
-            console.log(error.message); // El usuario canceló, no hacemos nada.
-        }
-    };
-
-
-    // --- 5. LÓGICA DEL CARRITO Y FINALIZACIÓN ---
-    const agregarItemAlCarrito = (producto, modificadoresAcumulados, precioAdicionalTotal) => {
-        const item = {
-            menu_producto_id: parseInt(producto.id), 
-            nombre_venta: producto.nombre,
-            precio_unitario: parseFloat(producto.precio) + precioAdicionalTotal,
-            cantidad: 1,
-            modificadores: modificadoresAcumulados.map(m => m.valor).join(', ')
-        };
-        carrito.push(item);
-        renderCarrito();
-    };
-
-    const finalizarPedido = async (e) => {
-        e.preventDefault();
-        if (carrito.length === 0) {
-            alert('El carrito está vacío.');
-            return;
-        }
-
-        const totalCalculado = calcularTotal();
-        let totalFinal = totalCalculado;
-        if (inputAjusteTotal.value) {
-            totalFinal = parseFloat(inputAjusteTotal.value);
-            if (isNaN(totalFinal) || totalFinal < 0) {
-                alert('El total ajustado no es válido.');
-                return;
-            }
-        }
-
-        const pedidoData = {
-            cliente: inputClienteNombre.value.trim(),
-            canal_venta: selectCanalVenta.value, 
-            total_ajustado: totalFinal,
-            items: carrito.map(item => ({
-                menu_producto_id: item.menu_producto_id,
-                nombre_producto_completo: item.nombre_venta + (item.modificadores ? ` (${item.modificadores})` : ''),
-                cantidad: item.cantidad,
-                precio_unitario: item.precio_unitario
-            }))
-        };
-
-        try {
-            const response = await fetch(API_PEDIDOS_URL, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(pedidoData)
+                if (target.classList.contains('btn-eliminar-item')) {
+                    carrito.splice(index, 1);
+                    renderCarrito();
+                } else if (target.classList.contains('btn-duplicar-item')) {
+                    // 🚨 NUEVO: Lógica para duplicar
+                    const itemToDuplicate = carrito[index];
+                    const newItem = JSON.parse(JSON.stringify(itemToDuplicate)); // Crear una copia
+                    carrito.splice(index + 1, 0, newItem); // Insertar la copia después del original
+                    renderCarrito();
+                }
             });
-            if (!response.ok) throw new Error('Error al guardar el pedido.');
-            const data = await response.json();
-            alert(`✅ Pedido #${data.id} guardado con éxito.`);
-            carrito = [];
-            formFinalizarPedido.reset();
-            inputAjusteTotal.value = '';
-            renderCarrito();
-        } catch (error) {
-            alert(`❌ Fallo al finalizar el pedido: ${error.message}`);
-        }
-    };
-
-
-    // --- 6. FUNCIONES DE RENDERIZADO Y CARGA INICIAL ---
-    const calcularTotal = () => {
-        const total = carrito.reduce((sum, item) => sum + (item.precio_unitario * item.cantidad), 0);
-        totalPedidoSpan.textContent = `$${total.toFixed(2)}`;
-        return total;
-    };
-
-    const cerrarSesion = () => {
-        localStorage.removeItem('authToken');
-        localStorage.removeItem('userRole');
-        window.location.href = 'login.html';
-    };
-
-    const renderCarrito = () => {
-        listaCarrito.innerHTML = '';
-        if (carrito.length === 0) {
-            listaCarrito.innerHTML = '<li style="color: gray;">Aún no hay productos.</li>';
-            calcularTotal();
-            return;
-        }
-        carrito.forEach((item, index) => {
-            const li = document.createElement('li');
-            const mods = item.modificadores ? ` (${item.modificadores})` : '';
-            li.innerHTML = `
-                <div>
-                    <strong>${item.cantidad}x ${item.nombre_venta}</strong>
-                    <span style="font-size: 14px;">${mods}</span>
-                </div>
-                <div>
-                    <span>$${(item.precio_unitario * item.cantidad).toFixed(2)}</span>
-                    <button class="btn btn-eliminar-item" data-index="${index}" style="background:gray;color:white;border:none;padding:3px 8px;margin-left:10px;">X</button>
-                </div>`;
-            listaCarrito.appendChild(li);
+            
+            formFinalizarPedido.addEventListener('submit', finalizarPedido);
+            
+            // Cargar datos iniciales y mostrar el estado del usuario
+            const token = localStorage.getItem('authToken');
+            if(token) {
+                const userData = parseJwt(token);
+                if (userData && userData.username) {
+                    document.getElementById('user-identifier').textContent = userData.username;
+                }
+            } else {
+                window.location.href = 'login.html';
+            }
+            cargarMenuPOS();
+            renderCarrito(); 
         });
-        calcularTotal();
-    };
-    
-// pedidos.html (Reemplazar la función renderProductos en el script)
-
-const renderProductos = (productos) => {
-    // 1. Definimos nuestro mapa de colores por categoría
-    const categoryColors = {
-        'Platos Fuertes': '#F8D9D9',  // Rojo claro
-        'Sides': '#FCF3CF',          // Amarillo claro
-        'Bebidas': '#DDDDDD',          // Gris claro
-        'Promos': '#11D160',          // Verde claro
-        'Aderezos': '#E5E7E9',       // Gris azulado
-        'default': '#F2F3F4'         // Color por defecto si no hay categoría
-    };
-
-    menuContainer.innerHTML = '';
-    productos.forEach(producto => {
-        const btn = document.createElement('button');
-        btn.className = 'btn-producto';
-        btn.dataset.id = producto.id;
-        btn.dataset.precio = producto.precio_base;
-        btn.dataset.nombre = producto.nombre_venta;
-        btn.dataset.gruposModificadores = producto.grupos_modificadores || '';
-        btn.textContent = `${producto.nombre_venta} ($${producto.precio_base.toFixed(2)})`;
-
-        // 2. Asignamos el color basado en la categoría del producto
-        const color = categoryColors[producto.categoria] || categoryColors['default'];
-        btn.style.backgroundColor = color;
-
-        if (producto.grupos_modificadores) {
-            btn.style.border = '3px solid #007bff'; // Borde azul para modificadores
-        }
-        
-        menuContainer.appendChild(btn);
-    });
-};
-
-    const cargarMenuPOS = async () => {
-        try {
-            const response = await fetch(API_MENU_URL);
-            if (!response.ok) throw new Error('Error al cargar el menú');
-            menuData = await response.json();
-            renderProductos(menuData.productos);
-        } catch (error) {
-            menuContainer.innerHTML = `<p style="color:red;">Error: ${error.message}</p>`;
-        }
-    };
-
-
-    // --- 7. INICIALIZACIÓN Y LISTENERS ---
-    document.getElementById('btn-logout').addEventListener('click', cerrarSesion);
-    menuContainer.addEventListener('click', manejarClickProducto);
-    listaCarrito.addEventListener('click', (e) => {
-        if (e.target.classList.contains('btn-eliminar-item')) {
-            carrito.splice(e.target.dataset.index, 1);
-            renderCarrito();
-        }
-    });
-    formFinalizarPedido.addEventListener('submit', finalizarPedido);
-    
-    cargarMenuPOS();
-    renderCarrito(); 
-});
-</script>
+    </script>
 </body>
-
 </html>
