@@ -212,7 +212,7 @@ const API_URL = 'https://olimpollo-api.onrender.com/api/inventario';
 
         // --- 1. FUNCIONES DE UTILIDAD (Modales y Notificación) ---
 
-        const abrirModal = (modal) => { modal.style.display = 'block'; };
+        const abrirModal = (modal) => { modal.style.display = 'flex'; };
         const cerrarModales = () => {
             modalProducto.style.display = 'none';
             modalEditar.style.display = 'none';
@@ -368,26 +368,29 @@ const API_URL = 'https://olimpollo-api.onrender.com/api/inventario';
         };
         
         // --- FUNCIÓN DE GUARDADO FÍSICO ---
-        const guardarInventarioFisico = async () => {
-            try {
-                const token = localStorage.getItem('authToken');
-const response = await fetch(`${API_URL}/guardar`, { ... });
-                    method: 'POST',
-                    headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
-                });
+            const guardarInventarioFisico = async () => {
+                if (!confirm("¿Estás seguro de que deseas guardar un registro del inventario físico actual?")) return;
+                try {
+                    const token = localStorage.getItem('authToken');
+                    const response = await fetch(`${API_URL}/guardar`, { // La URL correcta se construye aquí
+                        method: 'POST',
+                        headers: { 
+                            'Authorization': `Bearer ${token}`,
+                            'Content-Type': 'application/json' 
+                        }
+                    });
 
-                const data = await response.json();
+                    const data = await response.json();
+                    if (!response.ok) {
+                        throw new Error(data.error || 'Error al guardar el inventario físico.');
+                    }
 
-                if (!response.ok) {
-                    throw new Error(data.error || 'Error al guardar el inventario físico.');
+                    mostrarNotificacion(data.mensaje);
+                } catch (error) {
+                    console.error('Error al guardar corte:', error);
+                    mostrarNotificacion('Error: ' + error.message);
                 }
-
-                mostrarNotificacion(data.mensaje);
-            } catch (error) {
-                console.error('Error al guardar corte:', error);
-                mostrarNotificacion('Error: ' + error.message);
-            }
-        };
+            };
 
         // --- 3. MANEJADORES DE EVENTOS ---
 
