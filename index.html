@@ -186,10 +186,13 @@
 
         const panel = document.getElementById('panel-modulos');
         
-        const modulos = [
+const modulos = [
             { text: 'Reportes', href: 'reportes.html', roles: ['Administrador', 'Gerente'], icon: 'fa-chart-line' },
             { text: 'POS', href: 'pedidos.html', roles: ['Administrador', 'Gerente', 'Empleado'], icon: 'fa-cash-register' },
             { text: 'Lista de Pedidos', href: 'pedidos_lista.html', roles: ['Administrador', 'Gerente'], icon: 'fa-clipboard-list' },
+            // --- Nueva Entrada ---
+            { text: 'Comanda Cocina', href: 'comanda.html', roles: ['Administrador', 'Gerente', 'Empleado'], icon: 'fa-receipt' },
+            // --- Fin Nueva Entrada ---
             { text: 'Inventario', href: 'inventario.html', roles: ['Administrador', 'Gerente'], icon: 'fa-boxes-stacked' },
             { text: 'Recetas', href: 'recetas.html', roles: ['Administrador'], icon: 'fa-book-open' },
             { text: 'Gestión de Menú', href: 'menu_gestion.html', roles: ['Administrador'], icon: 'fa-utensils' },
@@ -223,4 +226,5 @@
     });
 </script>
 </body>
+
 </html>
