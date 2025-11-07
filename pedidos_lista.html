@@ -8,15 +8,17 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
   
   <style>
-    /* PEGA AQUÍ LA NUEVA BASE DE ESTILOS UNIFICADA */
-    /* ... (todo el bloque CSS del Paso 1) ... */
+    /* ==========================================================================
+       BASE DE ESTILOS UNIFICADA PARA OLIMPOLLO
+       ========================================================================== */
     :root{--bg-main:#ECF0F1;--bg-header:#FFFFFF;--card-bg:#FFFFFF;--primary-text:#502c2c;--secondary-text:#808B96;--accent-color:#db3434;--accent-hover:#b92929;--border-color:#D5D8DC;--shadow-light:0 4px 15px rgba(0, 0, 0, 0.08);--shadow-heavy:0 10px 20px rgba(0, 0, 0, 0.12);}body{margin:0;font-family:'Poppins', sans-serif;background-color:var(--bg-main);color:var(--primary-text);display:flex;flex-direction:column;min-height:100vh;}header{background:var(--bg-header);padding:15px 40px;box-shadow:0 2px 10px rgba(0, 0, 0, 0.05);display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border-color);}header .logo{font-size:24px;font-weight:600;text-decoration:none;color:var(--primary-text);}header nav{display:flex;gap:20px;}header nav a{text-decoration:none;color:var(--secondary-text);font-weight:500;transition:color 0.3s;}header nav a:hover{color:var(--accent-color);}.user-info{display:flex;align-items:center;gap:20px;}#user-identifier{font-weight:500;background-color:var(--bg-main);padding:5px 12px;border-radius:15px;font-size:14px;}.logout{background:var(--accent-color);color:white;border:none;padding:8px 18px;border-radius:20px;cursor:pointer;font-size:14px;font-weight:500;transition:background-color 0.3s;}.logout:hover{background-color:var(--accent-hover);}main{flex:1;padding:40px;max-width:1400px;margin:0 auto;width:100%;box-sizing:border-box;}h1, h2, h3{margin-top:0;}h2.page-title{margin-bottom:30px;font-size:28px;font-weight:600;}.card{background:var(--card-bg);border-radius:12px;padding:25px;box-shadow:var(--shadow-light);margin-bottom:25px;}table{width:100%;border-collapse:collapse;background:var(--card-bg);border-radius:12px;overflow:hidden;box-shadow:var(--shadow-light);}th, td{padding:15px;text-align:left;border-bottom:1px solid var(--bg-main);}th{font-weight:600;font-size:14px;text-transform:uppercase;color:var(--secondary-text);background-color:#F8F9F9;}tr:hover{background-color:#FDF2F2;}.btn{border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:500;font-family:'Poppins', sans-serif;transition:background-color 0.3s, transform 0.2s;}.btn:hover{transform:translateY(-2px);}.btn-primary{background-color:var(--accent-color);color:white;}.btn-primary:hover{background-color:var(--accent-hover);}.btn-secondary{background-color:var(--secondary-text);color:white;}.btn-secondary:hover{background-color:#6C7A89;}.btn-danger{background-color:#E74C3C;color:white;}.btn-success{background-color:#2ECC71;color:white;}label{display:block;margin-bottom:8px;font-weight:500;font-size:14px;}input[type="text"],input[type="password"],input[type="number"],input[type="date"],select,textarea{width:100%;padding:12px;border:1px solid var(--border-color);border-radius:8px;font-family:'Poppins', sans-serif;font-size:14px;box-sizing:border-box;transition:border-color 0.3s, box-shadow 0.3s;}input:focus, select:focus, textarea:focus{outline:none;border-color:var(--accent-color);box-shadow:0 0 0 3px rgba(219, 52, 52, 0.1);}.modal{display:none;position:fixed;z-index:1000;left:0;top:0;width:100%;height:100%;background-color:rgba(0,0,0,0.5);justify-content:center;align-items:center;}.modal-content{background:var(--card-bg);padding:30px;border-radius:12px;box-shadow:var(--shadow-heavy);width:90%;max-width:500px;position:relative;}.close{position:absolute;top:15px;right:20px;font-size:28px;cursor:pointer;color:var(--secondary-text);}footer{text-align:center;padding:20px;font-size:14px;color:var(--secondary-text);}
 
     /* Estilos específicos para esta página */
     .layout-container { display: flex; gap: 25px; flex-wrap: wrap; }
     .pedidos-lista { flex: 3; min-width: 450px; }
-    .detalles { flex: 1; min-width: 300px; align-self: flex-start; } /* align-self para que no se estire */
+    .detalles { flex: 1; min-width: 300px; align-self: flex-start; }
     .detalles ul { list-style: none; padding: 0; }
+    .filtros-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; align-items: flex-end; }
   </style>
 </head>
 <body>
@@ -36,10 +38,10 @@
     </header>
 
   <main>
-    <h2 class="page-title">Órdenes Activas</h2>
+    <h2 class="page-title">Historial de Órdenes</h2>
     
     <div class="card">
-        <div style="display: flex; gap: 20px; align-items: center;">
+        <div class="filtros-grid">
             <div>
                 <label for="filtro-canal">Filtrar por Canal:</label>
                 <select id="filtro-canal">
@@ -51,7 +53,15 @@
                     <option value="Empleado">Empleado</option>
                 </select>
             </div>
-            <button id="btn-aplicar-filtro" class="btn btn-primary" style="align-self: flex-end;">Aplicar Filtro</button>
+            <div>
+                <label for="filtro-fecha-inicio">Desde:</label>
+                <input type="date" id="filtro-fecha-inicio">
+            </div>
+            <div>
+                <label for="filtro-fecha-fin">Hasta:</label>
+                <input type="date" id="filtro-fecha-fin">
+            </div>
+            <button id="btn-aplicar-filtro" class="btn btn-primary">Aplicar Filtro</button>
         </div>
     </div>
     
@@ -59,7 +69,14 @@
       <div class="pedidos-lista">
         <table>
             <thead>
-                <tr><th>ID</th><th>Canal</th><th>Cliente</th><th>Estado</th><th>Total</th><th>Hora</th></tr>
+                <tr>
+                    <th>ID</th>
+                    <th>Canal</th>
+                    <th>Cliente</th>
+                    <th>Estado</th>
+                    <th>Total</th>
+                    <th>Fecha</th> <th>Hora</th>
+                    <th>Acciones</th> </tr>
             </thead>
             <tbody id="tabla-pedidos-body"></tbody>
         </table>
@@ -76,33 +93,55 @@
   <footer>&copy; 2025 Los Boneless del Olimpo</footer>
 
 <script>
-// pedidos_lista.html (Reemplazar todo el bloque <script>)
+// Función para decodificar JWT
+function parseJwt(token) { try { const base64Url = token.split('.')[1]; const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/'); const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join('')); return JSON.parse(jsonPayload); } catch (e) { return null; } }
 
 document.addEventListener('DOMContentLoaded', () => {
 
-  const API_PEDIDOS_URL = 'https://olimpollo-api.onrender.com/api/pedidos';
+    const API_PEDIDOS_URL = 'https://olimpollo-api.onrender.com/api/pedidos';
     const tablaBody = document.getElementById('tabla-pedidos-body');
     const detalleContenido = document.getElementById('detalle-contenido');
     const panelAcciones = document.getElementById('panel-acciones');
 
-    // Elementos de Filtro
+    // --- 🚨 CAMBIO: Nuevos elementos de filtro ---
     const filtroCanal = document.getElementById('filtro-canal');
+    const filtroFechaInicio = document.getElementById('filtro-fecha-inicio');
+    const filtroFechaFin = document.getElementById('filtro-fecha-fin');
     const btnAplicarFiltro = document.getElementById('btn-aplicar-filtro');
 
     let pedidos = []; 
     let pedidoSeleccionado = null;
 
-    // --- FUNCIONES DE UTILIDAD ---
+    // --- 1. VERIFICACIÓN Y SESIÓN ---
+    const token = localStorage.getItem('authToken');
+    if(token) {
+        const userData = parseJwt(token);
+        if (userData && userData.username) document.getElementById('user-identifier').textContent = userData.username;
+    } else {
+        window.location.href = 'login.html';
+    }
     const cerrarSesion = () => {
         localStorage.removeItem('authToken');
         localStorage.removeItem('userRole');
         window.location.href = 'login.html';
     };
+    document.getElementById('btn-logout').addEventListener('click', cerrarSesion);
 
-    // --- FUNCIÓN PRINCIPAL DE RENDERIZADO CON FILTROS ---
+    // --- 2. FUNCIÓN PRINCIPAL DE RENDERIZADO CON FILTROS ---
     const renderPedidos = async () => {
-        const canal = filtroCanal.value; // Lee el filtro
-        const url = canal === 'Todos' ? API_PEDIDOS_URL : `${API_PEDIDOS_URL}?canal=${encodeURIComponent(canal)}`;
+        // --- 🚨 CAMBIO: Leer todos los filtros ---
+        const canal = filtroCanal.value;
+        const fechaInicio = filtroFechaInicio.value;
+        const fechaFin = filtroFechaFin.value;
+
+        // Construir URL con parámetros de forma segura
+        let params = new URLSearchParams();
+        if (canal && canal !== 'Todos') params.append('canal', canal);
+        if (fechaInicio) params.append('fechaInicio', fechaInicio);
+        if (fechaFin) params.append('fechaFin', fechaFin);
+        
+        const queryString = params.toString();
+        const url = queryString ? `${API_PEDIDOS_URL}?${queryString}` : API_PEDIDOS_URL;
 
         try {
             const response = await fetch(url);
@@ -112,7 +151,8 @@ document.addEventListener('DOMContentLoaded', () => {
             tablaBody.innerHTML = '';
 
             if (pedidos.length === 0) {
-                 tablaBody.innerHTML = '<tr><td colspan="7">No se encontraron pedidos para este filtro.</td></tr>';
+                 // --- 🚨 CAMBIO: Colspan actualizado a 8 ---
+                 tablaBody.innerHTML = '<tr><td colspan="8" style="text-align: center;">No se encontraron pedidos para este filtro.</td></tr>';
                  mostrarDetalles(null);
                  return;
             }
@@ -125,7 +165,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (pedido.estado === 'Entregado') colorEstado = 'style="background-color: #d4edda; font-weight: bold;"';
                 else if (pedido.estado === 'Cancelado') colorEstado = 'style="background-color: #f8d7da; text-decoration: line-through;"';
 
-                const hora = new Date(pedido.fecha_creacion).toLocaleTimeString('es-MX', {hour: '2-digit', minute:'2-digit'});
+                // --- 🚨 CAMBIO: Formatear fecha y hora ---
+                const fechaObj = new Date(pedido.fecha_creacion);
+                const fecha = fechaObj.toLocaleDateString('es-MX', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                const hora = fechaObj.toLocaleTimeString('es-MX', {hour: '2-digit', minute:'2-digit'});
                 const canal = pedido.canal_venta || 'N/A'; 
 
                 tr.innerHTML = `
@@ -134,32 +177,33 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td>${pedido.cliente}</td>
                     <td ${colorEstado}>${pedido.estado}</td>
                     <td>$${pedido.total.toFixed(2)}</td>
+                    <td>${fecha}</td>
                     <td>${hora}</td>
-                    <td><button class="btn btn-detalle" data-id="${pedido.id}">Ver Detalles</button></td>
+                    <td><button class="btn btn-secondary btn-detalle" data-id="${pedido.id}">Ver</button></td>
                 `;
                 tablaBody.appendChild(tr);
             });
             mostrarDetalles(null); 
         } catch (error) {
             console.error('Error al cargar pedidos:', error);
-            tablaBody.innerHTML = '<tr><td colspan="7" style="color:red; font-weight:bold;">Error: No se pudo cargar la lista de pedidos.</td></tr>';
+            tablaBody.innerHTML = '<tr><td colspan="8" style="color:red; font-weight:bold;">Error: No se pudo cargar la lista de pedidos.</td></tr>';
         }
     };
 
-    // --- FUNCIÓN DE DETALLES Y ACCIONES ---
+    // --- 3. FUNCIÓN DE DETALLES Y ACCIONES ---
     const mostrarDetalles = (id) => {
-        detalleContenido.innerHTML = '<p>Selecciona un pedido para ver sus detalles y cambiar el estado.</p>';
+        detalleContenido.innerHTML = '<p>Selecciona un pedido de la lista para ver sus detalles.</p>';
         panelAcciones.innerHTML = '';
 
         if (!id) return;
-
         pedidoSeleccionado = pedidos.find(p => p.id == id);
         if (!pedidoSeleccionado) return;
 
         let itemsHTML = '';
+        // --- 🚨 CORRECCIÓN DE BUG: Usar nombre_producto y precio_unitario ---
         pedidoSeleccionado.items.forEach(item => {
-            const subtotal = item.cantidad * item.precio;
-            itemsHTML += `<li>${item.cantidad}x ${item.nombre} ($${subtotal.toFixed(2)})</li>`;
+            const subtotal = item.cantidad * item.precio_unitario;
+            itemsHTML += `<li>${item.cantidad}x ${item.nombre_producto} ($${subtotal.toFixed(2)})</li>`;
         });
 
         detalleContenido.innerHTML = `
@@ -172,20 +216,17 @@ document.addEventListener('DOMContentLoaded', () => {
             <ul>${itemsHTML}</ul>
         `;
 
-        // Renderizar botones de acción
         if (pedidoSeleccionado.estado === 'Pendiente') {
             panelAcciones.innerHTML = `
-                <button id="btn-marcar-entregado" class="btn btn-estado" data-id="${id}">Marcar como Entregado</button>
-                <button id="btn-marcar-cancelado" class="btn btn-cancelar" data-id="${id}">Marcar como Cancelado</button>
-                <button id="btn-eliminar-pedido" class="btn btn-eliminar" data-id="${id}" style="background-color: #343A40;">Eliminar Pedido</button>
+                <button id="btn-marcar-entregado" class="btn btn-success" data-id="${id}">Marcar Entregado</button>
+                <button id="btn-marcar-cancelado" class="btn btn-danger" data-id="${id}">Marcar Cancelado</button>
             `;
         } else {
-             panelAcciones.innerHTML = `<p style="color:gray;">Acciones limitadas: Pedido ya ${pedidoSeleccionado.estado}.</p>
-             <button id="btn-eliminar-pedido" class="btn btn-eliminar" data-id="${id}" style="background-color: #343A40;">Eliminar Pedido</button>`;
+             panelAcciones.innerHTML = `<p style="color:gray;">Este pedido ya fue ${pedidoSeleccionado.estado}.</p>`;
         }
     };
 
-    // --- FUNCIÓN DE CAMBIO DE ESTADO Y ELIMINACIÓN ---
+    // --- 4. FUNCIÓN DE CAMBIO DE ESTADO ---
     const cambiarEstado = async (id, nuevoEstado) => {
         try {
             const response = await fetch(`${API_PEDIDOS_URL}/${id}`, {
@@ -193,9 +234,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ estado: nuevoEstado }) 
             });
-
             if (!response.ok) throw new Error('Error al actualizar estado.');
-
             alert(`Pedido #${id} actualizado a ${nuevoEstado} con éxito.`);
             renderPedidos(); 
         } catch (error) {
@@ -204,42 +243,20 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    const eliminarPedido = async (id) => {
-        if (!confirm(`¿Estás seguro de eliminar el Pedido #${id} permanentemente?`)) return;
-        try {
-            const response = await fetch(`${API_PEDIDOS_URL}/${id}`, { method: 'DELETE' });
-            if (!response.ok) throw new Error('Error al eliminar pedido.');
-
-            alert(`Pedido #${id} eliminado con éxito.`);
-            renderPedidos();
-        } catch (error) {
-            console.error('Error al eliminar:', error);
-            alert('Fallo al eliminar el pedido: ' + error.message);
-        }
-    };
-
-
-    // --- EVENT LISTENERS ---
-
-    // 1. Cierre de Sesión
-    document.getElementById('btn-logout').addEventListener('click', cerrarSesion);
-
-    // 2. Aplicar Filtro
+    // --- 5. EVENT LISTENERS ---
     btnAplicarFiltro.addEventListener('click', renderPedidos);
 
-    // 3. Click en la lista de pedidos (Ver detalles)
     tablaBody.addEventListener('click', (e) => {
-        const fila = e.target.closest('tr');
-        if (fila && fila.dataset.pedidoId) {
-            mostrarDetalles(fila.dataset.pedidoId);
+        // --- 🚨 CORRECCIÓN DE BUG: Escuchar clic en el botón, no en la fila ---
+        const detalleBtn = e.target.closest('.btn-detalle');
+        if (detalleBtn) {
+            mostrarDetalles(detalleBtn.dataset.id);
         }
     });
 
-    // 4. Click en los botones de acción (Marcar Entregado/Cancelado/Eliminar)
     panelAcciones.addEventListener('click', (e) => {
         const id = pedidoSeleccionado?.id;
         if (!id) return;
-
         if (e.target.id === 'btn-marcar-entregado') {
             if (confirm(`¿Confirmas marcar el Pedido #${id} como ENTREGADO? Esto descontará el inventario.`)) {
                 cambiarEstado(id, 'Entregado');
@@ -248,14 +265,13 @@ document.addEventListener('DOMContentLoaded', () => {
             if (confirm(`¿Confirmas marcar el Pedido #${id} como CANCELADO?`)) {
                  cambiarEstado(id, 'Cancelado');
             }
-        } else if (e.target.id === 'btn-eliminar-pedido') {
-            eliminarPedido(id);
         }
     });
 
-    // 5. Inicialización
-    renderPedidos();
+    // --- 6. INICIALIZACIÓN ---
+    renderPedidos(); // Carga inicial al abrir la página
 });
 </script>
 </body>
 </html>
+
