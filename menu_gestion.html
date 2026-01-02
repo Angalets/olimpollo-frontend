@@ -138,7 +138,7 @@
     
     <footer>&copy; 2025 Los Boneless del Olimpo</footer>
 
-    <script>
+<script>
         // Función para decodificar JWT
         function parseJwt(token) {
             try {
@@ -171,18 +171,29 @@
             });
 
             const API_MENU_PRODUCTOS_URL = 'https://olimpollo-api.onrender.com/api/menu/productos';
-const API_MENU_OPCIONES_URL = 'https://olimpollo-api.onrender.com/api/menu/opciones';
+            const API_MENU_OPCIONES_URL = 'https://olimpollo-api.onrender.com/api/menu/opciones';
+            const API_MENU_POS_URL = 'https://olimpollo-api.onrender.com/api/menu/pos'; // Para obtener grupos
 
             // --- 2. ELEMENTOS DEL DOM ---
             const tablaBody = document.getElementById('tabla-productos-body');
             const modalProducto = document.getElementById('modalProducto');
             const modalOpciones = document.getElementById('modalOpciones');
             const listaOpcionesValores = document.getElementById('lista-opciones-valores');
+            
+            // Formularios
             const formProducto = document.getElementById('form-producto');
             const formAgregarOpcion = document.getElementById('form-agregar-opcion');
-            const selectGrupoMod = document.getElementById('select-grupo-mod');
+            
+            // Inputs y Selects
+            const selectGrupoMod = document.getElementById('mod-grupo-select'); // ID CORREGIDO
+            const inputGrupoNew = document.getElementById('mod-grupo-input');   // NUEVO INPUT
+            const btnToggleGroup = document.getElementById('btn-toggle-grupo'); // BOTON +
+            const btnDeleteGroup = document.getElementById('btn-delete-grupo'); // BOTON BASURA
+            
             const nombreGrupoActual = document.getElementById('nombre-grupo-actual');
             const nombreGrupoForm = document.getElementById('nombre-grupo-form');
+            
+            // Campos de Producto
             const productoIdInput = document.getElementById('producto-id');
             const nombreVentaInput = document.getElementById('nombre-venta');
             const precioBaseInput = document.getElementById('precio-base');
@@ -190,15 +201,54 @@ const API_MENU_OPCIONES_URL = 'https://olimpollo-api.onrender.com/api/menu/opcio
             const gruposModificadoresInput = document.getElementById('grupos-modificadores');
             const descripcionTextarea = document.getElementById('descripcion');
             
+            // Variables de Estado
             let opcionesData = []; 
             let productosData = [];     
+            let modoNuevoGrupo = false; // Estado para saber si estamos creando grupo
 
             // --- 3. FUNCIONES ---
             const abrirModal = (modal) => modal.style.display = 'flex';
             const cerrarModales = () => { modalProducto.style.display = 'none'; modalOpciones.style.display = 'none'; };
 
+            // Cargar Grupos para el Dropdown
+            const cargarGruposModificadores = async () => {
+                try {
+                    // Usamos el endpoint POS porque ya trae todo organizado
+                    const response = await fetch(API_MENU_POS_URL);
+                    const data = await response.json();
+                    
+                    // data.opciones es un objeto { "Salsas": [...], "Aderezo": [...] }
+                    const grupos = Object.keys(data.opciones);
+                    
+                    selectGrupoMod.innerHTML = ''; // Limpiar
+                    
+                    if (grupos.length > 0) {
+                        grupos.forEach(grupo => {
+                            const option = document.createElement('option');
+                            option.value = grupo;
+                            option.textContent = grupo;
+                            selectGrupoMod.appendChild(option);
+                        });
+                        // Cargar valores del primer grupo por defecto
+                        fetchOpcionesPorGrupo(selectGrupoMod.value);
+                    } else {
+                        const option = document.createElement('option');
+                        option.textContent = "Sin grupos creados";
+                        selectGrupoMod.appendChild(option);
+                    }
+                } catch (error) {
+                    console.error("Error cargando grupos:", error);
+                }
+            };
+
             const renderOpcionesValores = () => {
                 listaOpcionesValores.innerHTML = '';
+                
+                if (modoNuevoGrupo) {
+                     listaOpcionesValores.innerHTML = '<li class="option-item" style="color:gray;">Añade un valor abajo para crear este nuevo grupo.</li>';
+                     return;
+                }
+
                 if (opcionesData.length === 0) {
                     listaOpcionesValores.innerHTML = '<li class="option-item">No hay valores para este grupo.</li>';
                 } else {
@@ -234,8 +284,16 @@ const API_MENU_OPCIONES_URL = 'https://olimpollo-api.onrender.com/api/menu/opcio
             };
 
             const fetchOpcionesPorGrupo = async (grupo) => {
+                if (!grupo) return;
                 nombreGrupoActual.textContent = grupo;
                 nombreGrupoForm.textContent = grupo;
+                
+                // Si estamos en modo nuevo grupo, no buscamos en el server
+                if(modoNuevoGrupo) {
+                    renderOpcionesValores();
+                    return;
+                }
+
                 try {
                     const response = await fetch(API_MENU_OPCIONES_URL + `?nombre_opcion=${encodeURIComponent(grupo)}`);
                     if (!response.ok) throw new Error(`No se pudo cargar las opciones para ${grupo}.`);
@@ -277,7 +335,26 @@ const API_MENU_OPCIONES_URL = 'https://olimpollo-api.onrender.com/api/menu/opcio
                 }
             };
 
-            const guardarOpcion = async (data) => {
+            // --- LOGICA NUEVA: GUARDAR OPCIÓN (SOPORTA NUEVO GRUPO) ---
+            const guardarOpcion = async () => {
+                const valorInput = document.getElementById('valor-opcion');
+                const precioInput = document.getElementById('precio-adicional');
+                
+                // Determinar el nombre del grupo
+                let nombreGrupoFinal;
+                if (modoNuevoGrupo) {
+                    nombreGrupoFinal = inputGrupoNew.value.trim();
+                    if (!nombreGrupoFinal) return alert("Escribe el nombre del nuevo grupo.");
+                } else {
+                    nombreGrupoFinal = selectGrupoMod.value;
+                }
+
+                const data = {
+                    nombre_opcion: nombreGrupoFinal,
+                    valor: valorInput.value,
+                    precio_adicional: parseFloat(precioInput.value)
+                };
+
                 try {
                     const response = await fetch(API_MENU_OPCIONES_URL, {
                         method: "POST",
@@ -285,9 +362,26 @@ const API_MENU_OPCIONES_URL = 'https://olimpollo-api.onrender.com/api/menu/opcio
                         body: JSON.stringify(data)
                     });
                     if (!response.ok) throw new Error("Error al añadir opción.");
+                    
                     formAgregarOpcion.reset();
-                    fetchOpcionesPorGrupo(selectGrupoMod.value);
-                    alert("Opción añadida con éxito.");
+                    document.getElementById('precio-adicional').value = "0.00"; // Reset manual
+                    
+                    // Si creamos un grupo nuevo, recargamos la lista de grupos y salimos del modo creación
+                    if (modoNuevoGrupo) {
+                        alert(`Grupo "${nombreGrupoFinal}" creado exitosamente.`);
+                        modoNuevoGrupo = false;
+                        // Resetear UI
+                        selectGrupoMod.style.display = 'block';
+                        inputGrupoNew.style.display = 'none';
+                        btnToggleGroup.textContent = '+';
+                        btnDeleteGroup.style.display = 'block';
+                        
+                        await cargarGruposModificadores(); // Recargar el dropdown
+                        selectGrupoMod.value = nombreGrupoFinal; // Seleccionarlo
+                    }
+
+                    fetchOpcionesPorGrupo(nombreGrupoFinal);
+                    
                 } catch (error) {
                     alert("Error al añadir opción: " + error.message);
                 }
@@ -299,13 +393,67 @@ const API_MENU_OPCIONES_URL = 'https://olimpollo-api.onrender.com/api/menu/opcio
                     const response = await fetch(`${API_MENU_OPCIONES_URL}/${id}`, { method: "DELETE" });
                     if (!response.ok) throw new Error("Error al eliminar opción.");
                     fetchOpcionesPorGrupo(selectGrupoMod.value);
-                    alert("Opción eliminada.");
                 } catch (error) {
                     alert("Error al eliminar opción: " + error.message);
                 }
             };
 
             // --- 4. MANEJADORES DE EVENTOS ---
+
+            // Toggle botón + (Nuevo Grupo)
+            btnToggleGroup.addEventListener('click', () => {
+                modoNuevoGrupo = !modoNuevoGrupo;
+
+                if (modoNuevoGrupo) {
+                    // Modo Creación
+                    selectGrupoMod.style.display = 'none';
+                    inputGrupoNew.style.display = 'block';
+                    inputGrupoNew.value = '';
+                    inputGrupoNew.focus();
+                    btnToggleGroup.textContent = 'Cancelar';
+                    btnToggleGroup.classList.replace('btn-secondary', 'btn-danger'); // Cambio visual
+                    btnDeleteGroup.style.display = 'none';
+                    
+                    nombreGrupoActual.textContent = "NUEVO GRUPO";
+                    nombreGrupoForm.textContent = "NUEVO GRUPO";
+                    listaOpcionesValores.innerHTML = '<li class="option-item" style="color:gray;">Define el nombre arriba y agrega un valor abajo.</li>';
+                } else {
+                    // Modo Selección
+                    selectGrupoMod.style.display = 'block';
+                    inputGrupoNew.style.display = 'none';
+                    btnToggleGroup.textContent = '+';
+                    btnToggleGroup.classList.replace('btn-danger', 'btn-secondary');
+                    btnDeleteGroup.style.display = 'block';
+                    
+                    // Recargar lo que estaba en el select
+                    fetchOpcionesPorGrupo(selectGrupoMod.value);
+                }
+            });
+
+            // Botón Eliminar Grupo Completo
+            btnDeleteGroup.addEventListener('click', async () => {
+                const grupo = selectGrupoMod.value;
+                if (!grupo) return;
+
+                if (confirm(`⚠️ PELIGRO ⚠️\n¿Estás seguro de ELIMINAR todo el grupo "${grupo}" y todas sus opciones?\n\nEsta acción borrará todas las variantes (salsas, aderezos, etc) asociadas a este grupo.`)) {
+                    try {
+                        const response = await fetch(`https://olimpollo-api.onrender.com/api/menu/opciones/grupo/${encodeURIComponent(grupo)}`, {
+                            method: 'DELETE'
+                        });
+
+                        if (response.ok) {
+                            alert('Grupo eliminado.');
+                            await cargarGruposModificadores(); // Recargar dropdown
+                        } else {
+                            alert('Error al eliminar grupo.');
+                        }
+                    } catch (error) {
+                        console.error(error);
+                        alert('Error de conexión.');
+                    }
+                }
+            });
+
             document.getElementById('btn-agregar-producto').addEventListener('click', () => {
                 document.getElementById('modal-titulo').textContent = 'Agregar Producto';
                 formProducto.reset();
@@ -313,8 +461,8 @@ const API_MENU_OPCIONES_URL = 'https://olimpollo-api.onrender.com/api/menu/opcio
                 abrirModal(modalProducto);
             });
 
-            document.getElementById('btn-gestionar-opciones').addEventListener('click', () => {
-                fetchOpcionesPorGrupo(selectGrupoMod.value);
+            document.getElementById('btn-gestionar-opciones').addEventListener('click', async () => {
+                await cargarGruposModificadores(); // Cargar grupos al abrir modal
                 abrirModal(modalOpciones);
             });
 
@@ -337,12 +485,7 @@ const API_MENU_OPCIONES_URL = 'https://olimpollo-api.onrender.com/api/menu/opcio
 
             formAgregarOpcion.addEventListener('submit', (e) => {
                 e.preventDefault();
-                const data = {
-                    nombre_opcion: selectGrupoMod.value,
-                    valor: document.getElementById('valor-opcion').value,
-                    precio_adicional: parseFloat(document.getElementById('precio-adicional').value)
-                };
-                guardarOpcion(data);
+                guardarOpcion(); // Llamada simplificada
             });
 
             tablaBody.addEventListener('click', (e) => {
