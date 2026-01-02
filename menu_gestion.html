@@ -99,13 +99,21 @@
             <span class="close">&times;</span>
             <h3>Gestionar Modificadores</h3>
             <div style="margin-top: 20px;">
-                <label for="select-grupo-mod">Seleccionar Grupo:</label>
-                <select id="select-grupo-mod">
-                    <option value="Salsa">Salsa</option>
-                    <option value="Aderezo">Aderezo</option>
-                    <option value="Acompañamiento">Acompañamiento</option>
-                </select>
-            </div>
+<label>Seleccionar Grupo:</label>
+<div style="display: flex; gap: 10px; align-items: center; margin-bottom: 20px;">
+    <select id="mod-grupo-select">
+        </select>
+
+    <input type="text" id="mod-grupo-input" placeholder="Nombre del nuevo grupo" style="display: none; flex: 1;">
+
+    <button id="btn-toggle-grupo" class="btn btn-secondary" title="Crear Nuevo Grupo" style="padding: 10px 15px;">
+        +
+    </button>
+
+    <button id="btn-delete-grupo" class="btn btn-danger" title="Eliminar Grupo Actual" style="padding: 10px 15px;">
+        🗑️
+    </button>
+</div>
             <div style="margin-top: 20px;">
                 <h4>Valores para "<strong id="nombre-grupo-actual">Salsa</strong>"</h4>
                 <ul id="lista-opciones-valores" class="option-list"></ul>
