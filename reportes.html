@@ -48,6 +48,7 @@
                         <option value="">Seleccionar Tipo</option>
                         <option value="ventas">Reporte de Ventas</option>
                         <option value="historico_inventario">Inventario Histórico</option>
+                        <option value="platillos">Conteo de Platillos</option>
                     </select>
                 </div>
                 <div>
@@ -73,7 +74,7 @@
         &copy; 2025 Los Boneless del Olimpo
     </footer>
 
-    <script>
+   <script>
         // Función para decodificar el token JWT
         function parseJwt(token) {
             try {
@@ -87,9 +88,9 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-const API_URL = 'https://olimpollo-api.onrender.com/api/reportes';
+            const API_URL = 'https://olimpollo-api.onrender.com/api/reportes';
             
-            // --- VERIFICACIÓN DE LOGIN Y USUARIO ---
+            // --- 1. VERIFICACIÓN DE LOGIN Y USUARIO ---
             const token = localStorage.getItem('authToken');
             const role = localStorage.getItem('userRole');
 
@@ -98,6 +99,7 @@ const API_URL = 'https://olimpollo-api.onrender.com/api/reportes';
                 return;
             }
 
+            // Permitir acceso a Administradores y Gerentes
             if (role !== 'Administrador' && role !== 'Gerente') {
                 alert('Acceso denegado: No tiene permisos para ver reportes.');
                 window.location.href = 'index.html';
@@ -114,21 +116,23 @@ const API_URL = 'https://olimpollo-api.onrender.com/api/reportes';
                 window.location.href = 'login.html';
             });
             
-            // --- ELEMENTOS DEL DOM ---
+            // --- 2. ELEMENTOS DEL DOM ---
             const botonGenerar = document.getElementById('btn-generar');
             const mensajeElemento = document.getElementById('mensaje-reporte');
             const inputFechaInicio = document.getElementById('fechaInicio');
             const inputFechaFin = document.getElementById('fechaFin');
             const selectTipoReporte = document.getElementById('select-tipo-reporte');
-            const resultadosDiv = document.getElementById('resultados-reporte'); // El div ya existe
+            const resultadosDiv = document.getElementById('resultados-reporte'); 
             
-            // --- LÓGICA DE REPORTES (sin cambios funcionales) ---
+            // --- 3. FUNCIONES DE REPORTES ---
+
+            // A. REPORTE HISTÓRICO DE INVENTARIO
             const generarReporteHistorico = async (fecha) => {
                 resultadosDiv.innerHTML = '<h4>Cargando registros...</h4>';
                 resultadosDiv.style.display = 'block';
                 
                 try {
-const url = `${API_URL}/inventario?fecha=${fecha}`;
+                    const url = `${API_URL}/inventario?fecha=${fecha}`;
                     const response = await fetch(url);
                     const data = await response.json();
 
@@ -136,9 +140,27 @@ const url = `${API_URL}/inventario?fecha=${fecha}`;
                         throw new Error(data.mensaje || 'Error al generar reporte histórico');
                     }
                     
-                    let tablaHTML = `<h4>Inventario Registrado el ${fecha}</h4><table><thead><tr><th>Insumo</th><th>Cantidad</th><th>Unidad</th><th>Categoría</th></tr></thead><tbody>`;
+                    let tablaHTML = `
+                        <h4>Inventario Registrado el ${fecha}</h4>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Insumo</th>
+                                    <th>Cantidad</th>
+                                    <th>Unidad</th>
+                                    <th>Categoría</th>
+                                </tr>
+                            </thead>
+                            <tbody>`;
+                    
                     data.forEach(item => {
-                        tablaHTML += `<tr><td>${item.nombre_insumo}</td><td>${item.cantidad_registrada}</td><td>${item.unidad_medida}</td><td>${item.categoria}</td></tr>`;
+                        tablaHTML += `
+                            <tr>
+                                <td>${item.nombre_insumo}</td>
+                                <td>${item.cantidad_registrada}</td>
+                                <td>${item.unidad_medida}</td>
+                                <td>${item.categoria}</td>
+                            </tr>`;
                     });
                     tablaHTML += `</tbody></table>`;
                     
@@ -150,8 +172,9 @@ const url = `${API_URL}/inventario?fecha=${fecha}`;
                 }
             };
             
+            // B. REPORTE DE VENTAS (TOTALES)
             const generarReporteVentas = async (fechaInicio, fechaFin) => {
-                resultadosDiv.innerHTML = '<h4>Cargando registros...</h4>';
+                resultadosDiv.innerHTML = '<h4>Calculando ventas...</h4>';
                 resultadosDiv.style.display = 'block';
 
                 const url = `${API_URL}/ventas?fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`;
@@ -161,14 +184,86 @@ const url = `${API_URL}/inventario?fecha=${fecha}`;
 
                     if (!response.ok) throw new Error(data.error || 'Error desconocido al generar reporte');
                     
-                    resultadosDiv.innerHTML = `<h4>Resultados del Reporte de Ventas</h4><p><strong>Periodo:</strong> ${data.fechaInicio} al ${data.fechaFin}</p><p><strong>Total de Pedidos Entregados:</strong> ${data.total_pedidos}</p><p><strong>Ventas Netas Totales:</strong> <strong style="color: green; font-size: 1.2em;">$${data.ventas_totales}</strong></p>`;
+                    resultadosDiv.innerHTML = `
+                        <h4>Resultados del Reporte de Ventas</h4>
+                        <div style="padding: 20px; background: #f4f6f7; border-radius: 8px;">
+                            <p><strong>Periodo:</strong> ${data.fechaInicio} al ${data.fechaFin}</p>
+                            <p><strong>Total de Pedidos Entregados:</strong> ${data.total_pedidos}</p>
+                            <hr>
+                            <p style="font-size: 1.5em; margin-top: 10px;">
+                                <strong>Ventas Netas Totales:</strong> 
+                                <span style="color: #27AE60;">$${data.ventas_totales}</span>
+                            </p>
+                        </div>`;
                     mensajeElemento.textContent = 'Reporte generado exitosamente.';
                     mensajeElemento.style.color = 'green';
                 } catch (error) {
                     resultadosDiv.innerHTML = `<p style="color:red; font-weight:bold;">${error.message}</p>`;
                 }
             };
+
+            // C. REPORTE DE PLATILLOS (POPULARIDAD) - ¡NUEVO!
+            const generarReportePlatillos = async (fechaInicio, fechaFin) => {
+                resultadosDiv.innerHTML = '<h4>Analizando popularidad...</h4>';
+                resultadosDiv.style.display = 'block';
+
+                const url = `${API_URL}/platillos?fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`;
+                
+                try {
+                    const response = await fetch(url);
+                    const data = await response.json();
+
+                    if (!response.ok) throw new Error(data.error || 'Error al obtener datos');
+
+                    if (data.length === 0) {
+                        resultadosDiv.innerHTML = '<p>No hay ventas registradas en este periodo.</p>';
+                        return;
+                    }
+
+                    let html = `
+                        <h4>Popularidad de Platillos (${fechaInicio} al ${fechaFin})</h4>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="text-align:center">Posición</th>
+                                    <th>Producto Base</th>
+                                    <th>Cantidad Vendida</th>
+                                    <th>Ingresos Generados</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                    `;
+
+                    data.forEach((item, index) => {
+                        let rango = `#${index + 1}`;
+                        let rowStyle = "";
+
+                        // Medallas para el Top 3
+                        if (index === 0) { rango = '🥇'; rowStyle = "background-color: #fff9c4;"; } // Oro
+                        if (index === 1) { rango = '🥈'; rowStyle = "background-color: #f5f5f5;"; } // Plata
+                        if (index === 2) { rango = '🥉'; rowStyle = "background-color: #ffe0b2;"; } // Bronce
+
+                        html += `
+                            <tr style="${rowStyle}">
+                                <td style="font-weight:bold; text-align:center; font-size: 1.2em;">${rango}</td>
+                                <td style="font-weight:500;">${item.producto}</td>
+                                <td style="font-weight:bold; color: var(--accent-color);">${item.cantidad_vendida}</td>
+                                <td>$${parseFloat(item.ingreso_generado).toFixed(2)}</td>
+                            </tr>
+                        `;
+                    });
+
+                    html += '</tbody></table>';
+                    resultadosDiv.innerHTML = html;
+                    mensajeElemento.textContent = 'Reporte de popularidad generado.';
+                    mensajeElemento.style.color = 'green';
+
+                } catch (error) {
+                    resultadosDiv.innerHTML = `<p style="color:red; font-weight:bold;">${error.message}</p>`;
+                }
+            };
             
+            // --- 4. MANEJADOR DE EVENTOS (BOTÓN GENERAR) ---
             botonGenerar.addEventListener('click', () => {
                 const tipoReporte = selectTipoReporte.value;
                 const fechaInicio = inputFechaInicio.value;
@@ -183,21 +278,33 @@ const url = `${API_URL}/inventario?fecha=${fecha}`;
                     return;
                 }
 
+                // Lógica según selección
                 if (tipoReporte === 'ventas') {
                     if (!fechaInicio || !fechaFin) {
-                        mensajeElemento.textContent = 'Para el reporte de ventas, selecciona ambas fechas.';
+                        mensajeElemento.textContent = 'Para ventas, selecciona fecha inicio y fin.';
                         mensajeElemento.style.color = 'red';
                         return;
                     }
                     generarReporteVentas(fechaInicio, fechaFin);
+                
+                } else if (tipoReporte === 'platillos') {
+                    if (!fechaInicio || !fechaFin) {
+                        mensajeElemento.textContent = 'Para conteo de platillos, selecciona fecha inicio y fin.';
+                        mensajeElemento.style.color = 'red';
+                        return;
+                    }
+                    generarReportePlatillos(fechaInicio, fechaFin);
+
                 } else if (tipoReporte === 'historico_inventario') {
                     if (!fechaInicio) {
-                        mensajeElemento.textContent = 'Selecciona la fecha de registro (Fecha inicio).';
+                        mensajeElemento.textContent = 'Selecciona la fecha de registro (Inicio).';
                         mensajeElemento.style.color = 'red';
                         return;
                     }
                     generarReporteHistorico(fechaInicio);
                 }
+                
+                // Limpiar mensaje después de 5 segundos
                 setTimeout(() => { mensajeElemento.textContent = ''; }, 5000);
             });
         });
@@ -205,4 +312,5 @@ const url = `${API_URL}/inventario?fecha=${fecha}`;
 </body>
 
 </html>
+
 
