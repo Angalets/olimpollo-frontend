@@ -75,7 +75,7 @@
         &copy; 2025 Los Boneless del Olimpo
     </footer>
 
-   <script>
+<script>
         // Función para decodificar el token JWT
         function parseJwt(token) {
             try {
@@ -203,7 +203,7 @@
                 }
             };
 
-            // C. REPORTE DE PLATILLOS (POPULARIDAD) - ¡NUEVO!
+            // C. REPORTE DE PLATILLOS (POPULARIDAD)
             const generarReportePlatillos = async (fechaInicio, fechaFin) => {
                 resultadosDiv.innerHTML = '<h4>Analizando popularidad...</h4>';
                 resultadosDiv.style.display = 'block';
@@ -263,6 +263,63 @@
                     resultadosDiv.innerHTML = `<p style="color:red; font-weight:bold;">${error.message}</p>`;
                 }
             };
+
+            // D. REPORTE DE INSUMOS TEÓRICOS (DETECTIVE) - ¡NUEVO!
+            const generarReporteInsumosTeoricos = async (fechaInicio, fechaFin) => {
+                resultadosDiv.innerHTML = '<h4>Calculando consumo de recetas...</h4>';
+                resultadosDiv.style.display = 'block';
+
+                const url = `${API_URL}/insumos-teoricos?fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`;
+                
+                try {
+                    const response = await fetch(url);
+                    const data = await response.json();
+
+                    if (!response.ok) throw new Error(data.error || 'Error al obtener datos');
+
+                    if (data.length === 0) {
+                        resultadosDiv.innerHTML = '<p>No se encontraron datos de consumo para este periodo. Asegúrate de tener pedidos "Entregados" y recetas configuradas.</p>';
+                        return;
+                    }
+
+                    let html = `
+                        <h4>Uso Teórico de Insumos (${fechaInicio} al ${fechaFin})</h4>
+                        <p style="font-size:0.9em; color:gray; margin-bottom:15px;">
+                            * Este reporte muestra cuánto debiste gastar según las recetas de lo vendido.
+                        </p>
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Insumo</th>
+                                    <th>Cantidad Teórica Usada</th>
+                                    <th>Unidad</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                    `;
+
+                    data.forEach(item => {
+                        const cantidad = parseFloat(item.cantidad_total);
+                        const cantidadStr = Number.isInteger(cantidad) ? cantidad : cantidad.toFixed(2);
+
+                        html += `
+                            <tr>
+                                <td style="font-weight:500;">${item.nombre_insumo}</td>
+                                <td style="font-weight:bold; color: #E67E22;">${cantidadStr}</td>
+                                <td>${item.unidad}</td>
+                            </tr>
+                        `;
+                    });
+
+                    html += '</tbody></table>';
+                    resultadosDiv.innerHTML = html;
+                    mensajeElemento.textContent = 'Cálculo de insumos completado.';
+                    mensajeElemento.style.color = 'green';
+
+                } catch (error) {
+                    resultadosDiv.innerHTML = `<p style="color:red; font-weight:bold;">${error.message}</p>`;
+                }
+            };
             
             // --- 4. MANEJADOR DE EVENTOS (BOTÓN GENERAR) ---
             botonGenerar.addEventListener('click', () => {
@@ -296,6 +353,14 @@
                     }
                     generarReportePlatillos(fechaInicio, fechaFin);
 
+                } else if (tipoReporte === 'insumos_teoricos') { // NUEVO
+                    if (!fechaInicio || !fechaFin) {
+                        mensajeElemento.textContent = 'Selecciona fecha inicio y fin.';
+                        mensajeElemento.style.color = 'red';
+                        return;
+                    }
+                    generarReporteInsumosTeoricos(fechaInicio, fechaFin);
+
                 } else if (tipoReporte === 'historico_inventario') {
                     if (!fechaInicio) {
                         mensajeElemento.textContent = 'Selecciona la fecha de registro (Inicio).';
@@ -313,6 +378,7 @@
 </body>
 
 </html>
+
 
 
 
