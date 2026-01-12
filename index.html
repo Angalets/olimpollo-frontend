@@ -18,6 +18,9 @@
       --accent-color: #db3434;
       --card-bg: #FFFFFF;
       --card-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+      --success-color: #27AE60;
+      --warning-color: #F39C12;
+      --danger-color: #E74C3C;
     }
 
     body {
@@ -30,7 +33,7 @@
       min-height: 100vh;
     }
 
-    /* Header rediseñado */
+    /* Header */
     header {
       background: var(--bg-header);
       padding: 15px 40px; 
@@ -40,15 +43,8 @@
       align-items: center;
       border-bottom: 1px solid #EAECEE;
     }
-    .logo {
-      font-size: 24px;
-      font-weight: 600;
-    }
-    .user-info {
-      display: flex;
-      align-items: center;
-      gap: 20px;
-    }
+    .logo { font-size: 24px; font-weight: 600; color: var(--primary-text); }
+    .user-info { display: flex; align-items: center; gap: 20px; }
     #user-identifier {
       font-weight: 500;
       background-color: var(--bg-main);
@@ -67,11 +63,9 @@
       font-weight: 500;
       transition: background-color 0.3s;
     }
-    .logout:hover {
-      background-color: #b92929;
-    }
+    .logout:hover { background-color: #b92929; }
 
-    /* Contenido principal y Dashboard */
+    /* Contenido Principal */
     main {
       flex: 1;
       padding: 40px;
@@ -81,17 +75,68 @@
       box-sizing: border-box;
     }
     .welcome-message {
-      margin-bottom: 30px;
+      margin-bottom: 10px;
       font-size: 28px;
       font-weight: 600;
     }
+    .date-display {
+      margin-bottom: 30px;
+      color: var(--secondary-text);
+      font-size: 14px;
+    }
+
+    /* --- NUEVO: ESTILOS DE MÉTRICAS (WIDGETS) --- */
+    .stats-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 20px;
+        margin-bottom: 40px;
+    }
+    .stat-card {
+        background: white;
+        padding: 25px;
+        border-radius: 12px;
+        box-shadow: var(--card-shadow);
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        transition: transform 0.2s;
+        border-left: 5px solid var(--secondary-text); /* Color por defecto */
+    }
+    .stat-card:hover { transform: translateY(-3px); }
+    
+    /* Variantes de color para las tarjetas */
+    .stat-card.sales { border-left-color: var(--success-color); }
+    .stat-card.orders { border-left-color: var(--warning-color); }
+    .stat-card.stock { border-left-color: var(--danger-color); }
+
+    .stat-icon {
+        font-size: 28px;
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #F4F6F7;
+        color: var(--secondary-text);
+    }
+    .stat-card.sales .stat-icon { background-color: #EAFAF1; color: var(--success-color); }
+    .stat-card.orders .stat-icon { background-color: #FEF9E7; color: var(--warning-color); }
+    .stat-card.stock .stat-icon { background-color: #FADBD8; color: var(--danger-color); }
+
+    .stat-info h3 { margin: 0; font-size: 14px; color: var(--secondary-text); text-transform: uppercase; letter-spacing: 0.5px; }
+    .stat-info p { margin: 5px 0 0; font-size: 26px; font-weight: 700; color: var(--primary-text); }
+    .stat-info small { font-size: 12px; color: var(--secondary-text); }
+
+
+    /* Grid de Módulos (Menu) */
     .dashboard-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
       gap: 25px;
     }
 
-    /* Estilo de las nuevas "Tarjetas" */
     .dashboard-card {
       background: var(--card-bg);
       color: var(--primary-text);
@@ -112,11 +157,11 @@
       box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
     }
     .dashboard-card i {
-      font-size: 48px;
+      font-size: 42px;
       color: var(--accent-color);
     }
     .dashboard-card span {
-      font-size: 18px;
+      font-size: 16px;
       font-weight: 500;
       text-align: center;
     }
@@ -126,6 +171,7 @@
       padding: 20px;
       font-size: 14px;
       color: var(--secondary-text);
+      margin-top: auto;
     }
   </style>
 </head>
@@ -139,9 +185,45 @@
 </header>
 
 <main>
-    <h2 class="welcome-message" id="welcome-title">Cargando...</h2>
+    <div>
+        <h2 class="welcome-message" id="welcome-title">Bienvenido</h2>
+        <p class="date-display" id="current-date">Cargando fecha...</p>
+    </div>
+
+    <div class="stats-container" id="stats-panel" style="display: none;">
+        
+        <div class="stat-card sales">
+            <div class="stat-icon"><i class="fas fa-dollar-sign"></i></div>
+            <div class="stat-info">
+                <h3>Ventas de Hoy</h3>
+                <p id="stat-ventas">Cargando...</p>
+                <small id="stat-pedidos-count">0 pedidos entregados</small>
+            </div>
+        </div>
+
+        <div class="stat-card orders">
+            <div class="stat-icon"><i class="fas fa-clock"></i></div>
+            <div class="stat-info">
+                <h3>Pendientes</h3>
+                <p id="stat-pendientes">Cargando...</p>
+                <small>En cocina o preparación</small>
+            </div>
+        </div>
+
+        <div class="stat-card stock">
+            <div class="stat-icon"><i class="fas fa-exclamation-triangle"></i></div>
+            <div class="stat-info">
+                <h3>Stock Bajo</h3>
+                <p id="stat-stock">Cargando...</p>
+                <small>Insumos críticos</small>
+            </div>
+        </div>
+
+    </div>
+
+    <h3 style="margin-bottom: 20px; font-weight: 500;">Módulos de Gestión</h3>
     <div class="dashboard-grid" id="panel-modulos">
-      </div>
+        </div>
 </main>
 
 <footer>
@@ -149,11 +231,8 @@
 </footer>
 
 <script>
-    /**
-     * 🚨 NUEVO: Función para decodificar el token JWT y obtener los datos del usuario.
-     * @param {string} token El token JWT guardado en localStorage.
-     * @returns {object|null} Un objeto con los datos del usuario o null si el token es inválido.
-     */
+    const API_URL = 'https://olimpollo-api.onrender.com/api';
+
     function parseJwt(token) {
         try {
             const base64Url = token.split('.')[1];
@@ -162,61 +241,61 @@
                 return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
             }).join(''));
             return JSON.parse(jsonPayload);
-        } catch (e) {
-            return null;
-        }
+        } catch (e) { return null; }
     }
 
     document.addEventListener('DOMContentLoaded', () => {
         const token = localStorage.getItem('authToken');
-        const role = localStorage.getItem('userRole'); // Todavía lo necesitamos para los permisos
+        const role = localStorage.getItem('userRole'); 
         
         if (!token || !role) {
             window.location.href = 'login.html';
             return;
         }
 
-        // 🚨 CAMBIO: Usamos la nueva función para obtener el nombre de usuario
         const userData = parseJwt(token);
-        const username = userData ? userData.username : 'Usuario'; // Usamos 'Usuario' como respaldo
+        const username = userData ? userData.username : 'Usuario';
 
-        // Mostrar nombre de usuario en el header y mensaje de bienvenida
         document.getElementById('user-identifier').textContent = username;
-        document.getElementById('welcome-title').textContent = `Bienvenido, ${username}`;
+        document.getElementById('welcome-title').textContent = `Hola, ${username} 👋`;
+
+        // Mostrar fecha actual bonita
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        document.getElementById('current-date').textContent = new Date().toLocaleDateString('es-ES', options);
 
         const panel = document.getElementById('panel-modulos');
         
-const modulos = [
-            { text: 'Reportes', href: 'reportes.html', roles: ['Administrador', 'Gerente'], icon: 'fa-chart-line' },
-            { text: 'POS', href: 'pedidos.html', roles: ['Administrador', 'Gerente', 'Empleado'], icon: 'fa-cash-register' },
-            { text: 'Lista de Pedidos', href: 'pedidos_lista.html', roles: ['Administrador', 'Gerente'], icon: 'fa-clipboard-list' },
-            // --- Nueva Entrada ---
-            { text: 'Comanda Cocina', href: 'comanda.html', roles: ['Administrador', 'Gerente', 'Empleado'], icon: 'fa-receipt' },
-            // --- Fin Nueva Entrada ---
+        // --- 1. DEFINICIÓN DE MÓDULOS (INCLUYENDO COMPRAS) ---
+        const modulos = [
+            { text: 'Nuevo Pedido (POS)', href: 'pedidos.html', roles: ['Administrador', 'Gerente', 'Empleado'], icon: 'fa-cash-register' },
+            { text: 'Cocina (Comanda)', href: 'comanda.html', roles: ['Administrador', 'Gerente', 'Empleado'], icon: 'fa-receipt' },
+            { text: 'Historial Pedidos', href: 'pedidos_lista.html', roles: ['Administrador', 'Gerente'], icon: 'fa-clipboard-list' },
+            // 🚨 NUEVO MÓDULO DE COMPRAS AGREGADO:
+            { text: 'Compras / Re-stock', href: 'compras.html', roles: ['Administrador', 'Gerente'], icon: 'fa-cart-shopping' },
             { text: 'Inventario', href: 'inventario.html', roles: ['Administrador', 'Gerente'], icon: 'fa-boxes-stacked' },
+            { text: 'Reportes', href: 'reportes.html', roles: ['Administrador', 'Gerente'], icon: 'fa-chart-line' },
             { text: 'Recetas', href: 'recetas.html', roles: ['Administrador'], icon: 'fa-book-open' },
-            { text: 'Gestión de Menú', href: 'menu_gestion.html', roles: ['Administrador'], icon: 'fa-utensils' },
+            { text: 'Menú', href: 'menu_gestion.html', roles: ['Administrador'], icon: 'fa-utensils' },
             { text: 'Usuarios', href: 'usuarios.html', roles: ['Administrador'], icon: 'fa-users-cog' }
         ];
         
-        // El resto del código para renderizar las tarjetas no cambia
+        // Renderizar Módulos
         modulos.forEach(mod => {
             if (mod.roles.includes(role)) {
                 const link = document.createElement('a');
                 link.href = mod.href;
                 link.className = 'dashboard-card';
-                
-                const iconElement = document.createElement('i');
-                iconElement.className = `fas ${mod.icon}`;
-                
-                const textElement = document.createElement('span');
-                textElement.textContent = mod.text;
-                
-                link.appendChild(iconElement);
-                link.appendChild(textElement);
+                link.innerHTML = `<i class="fas ${mod.icon}"></i><span>${mod.text}</span>`;
                 panel.appendChild(link);
             }
         });
+
+        // --- 2. LÓGICA DEL DASHBOARD (MÉTRICAS) ---
+        // Solo cargamos métricas si es Admin o Gerente para no saturar al Empleado
+        if (role === 'Administrador' || role === 'Gerente') {
+            document.getElementById('stats-panel').style.display = 'grid';
+            cargarMetricas();
+        }
 
         document.getElementById('btn-logout').addEventListener('click', () => {
             localStorage.removeItem('authToken');
@@ -224,7 +303,50 @@ const modulos = [
             window.location.href = 'login.html';
         });
     });
+
+    async function cargarMetricas() {
+        try {
+            // A. Ventas de Hoy
+            const hoy = new Date().toISOString().split('T')[0];
+            const resVentas = await fetch(`${API_URL}/reportes/ventas?fechaInicio=${hoy}&fechaFin=${hoy}`);
+            const dataVentas = await resVentas.json();
+            
+            document.getElementById('stat-ventas').textContent = `$${dataVentas.ventas_totales || '0.00'}`;
+            document.getElementById('stat-pedidos-count').textContent = `${dataVentas.total_pedidos || 0} pedidos entregados`;
+
+            // B. Pedidos Pendientes (Filtramos manualmente o usamos query si el backend lo soporta)
+            // Asumimos que /pedidos trae los recientes. Filtramos en cliente para asegurar.
+            const resPedidos = await fetch(`${API_URL}/pedidos?estado=Pendiente`); 
+            // Nota: Si tu endpoint filtra, genial. Si devuelve todo, aquí filtramos:
+            let dataPedidos = await resPedidos.json();
+            // Si el backend no filtra por query param, filtramos aquí:
+            if(Array.isArray(dataPedidos)) {
+                const pendientes = dataPedidos.filter(p => p.estado === 'Pendiente' || p.estado === 'En Preparación').length;
+                document.getElementById('stat-pendientes').textContent = pendientes;
+            } else {
+                document.getElementById('stat-pendientes').textContent = '0';
+            }
+
+            // C. Stock Bajo
+            const resStock = await fetch(`${API_URL}/inventario?estado=Requiere re-stock`);
+            const dataStock = await resStock.json();
+            // dataStock debería ser un array con los items bajos de stock
+            const stockBajoCount = Array.isArray(dataStock) ? dataStock.length : 0;
+            
+            const elemStock = document.getElementById('stat-stock');
+            elemStock.textContent = stockBajoCount;
+            if(stockBajoCount > 0) {
+                elemStock.style.color = '#E74C3C'; // Rojo si hay alertas
+            }
+
+        } catch (error) {
+            console.error("Error cargando dashboard:", error);
+            // Fallback silencioso o mostrar '-'
+            document.getElementById('stat-ventas').textContent = '-';
+            document.getElementById('stat-pendientes').textContent = '-';
+            document.getElementById('stat-stock').textContent = '-';
+        }
+    }
 </script>
 </body>
-
 </html>
