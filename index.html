@@ -304,49 +304,57 @@
         });
     });
 
-    async function cargarMetricas() {
+async function cargarMetricas() {
         try {
-            // A. Ventas de Hoy
-            const hoy = new Date().toISOString().split('T')[0];
-            const resVentas = await fetch(`${API_URL}/reportes/ventas?fechaInicio=${hoy}&fechaFin=${hoy}`);
-            const dataVentas = await resVentas.json();
+            // A. VENTAS DE HOY (Usamos new Date().toLocaleDateString('en-CA') para formato YYYY-MM-DD local)
+            const hoy = new Date().toLocaleDateString('en-CA'); // Esto da "2025-01-26" basado en tu PC
             
-            document.getElementById('stat-ventas').textContent = `$${dataVentas.ventas_totales || '0.00'}`;
-            document.getElementById('stat-pedidos-count').textContent = `${dataVentas.total_pedidos || 0} pedidos entregados`;
+            console.log("Consultando ventas para:", hoy); // Para depuración
 
-            // B. Pedidos Pendientes (Filtramos manualmente o usamos query si el backend lo soporta)
-            // Asumimos que /pedidos trae los recientes. Filtramos en cliente para asegurar.
-            const resPedidos = await fetch(`${API_URL}/pedidos?estado=Pendiente`); 
-            // Nota: Si tu endpoint filtra, genial. Si devuelve todo, aquí filtramos:
-            let dataPedidos = await resPedidos.json();
-            // Si el backend no filtra por query param, filtramos aquí:
-            if(Array.isArray(dataPedidos)) {
-                const pendientes = dataPedidos.filter(p => p.estado === 'Pendiente' || p.estado === 'En Preparación').length;
-                document.getElementById('stat-pendientes').textContent = pendientes;
+            const resVentas = await fetch(`${API_URL}/reportes/ventas?fechaInicio=${hoy}&fechaFin=${hoy}`);
+            
+            if (resVentas.ok) {
+                const dataVentas = await resVentas.json();
+                document.getElementById('stat-ventas').textContent = `$${dataVentas.ventas_totales || '0.00'}`;
+                document.getElementById('stat-pedidos-count').textContent = `${dataVentas.total_pedidos || 0} pedidos entregados`;
             } else {
-                document.getElementById('stat-pendientes').textContent = '0';
+                console.error("Error API Ventas:", await resVentas.text());
+                document.getElementById('stat-ventas').textContent = '$0.00';
             }
 
-            // C. Stock Bajo
-            const resStock = await fetch(`${API_URL}/inventario?estado=Requiere re-stock`);
-            const dataStock = await resStock.json();
-            // dataStock debería ser un array con los items bajos de stock
-            const stockBajoCount = Array.isArray(dataStock) ? dataStock.length : 0;
+            // B. PEDIDOS PENDIENTES (Consultamos la lista completa y filtramos en el cliente para asegurar)
+            const resPedidos = await fetch(`${API_URL}/pedidos`); 
             
-            const elemStock = document.getElementById('stat-stock');
-            elemStock.textContent = stockBajoCount;
-            if(stockBajoCount > 0) {
-                elemStock.style.color = '#E74C3C'; // Rojo si hay alertas
+            if (resPedidos.ok) {
+                let dataPedidos = await resPedidos.json();
+                if(Array.isArray(dataPedidos)) {
+                    // Filtramos los que NO están Entregados ni Cancelados
+                    const pendientes = dataPedidos.filter(p => p.estado === 'Pendiente' || p.estado === 'En Preparación').length;
+                    document.getElementById('stat-pendientes').textContent = pendientes;
+                }
+            } else {
+                document.getElementById('stat-pendientes').textContent = '-';
+            }
+
+            // C. STOCK BAJO
+            const resStock = await fetch(`${API_URL}/inventario`); // Traemos todo y filtramos aquí
+            if (resStock.ok) {
+                const dataStock = await resStock.json();
+                if(Array.isArray(dataStock)) {
+                    // Filtramos donde la cantidad sea menor o igual al stock mínimo Y mayor a 0 (o incluye agotados si quieres)
+                    const stockBajoCount = dataStock.filter(i => i.cantidad <= i.stock_minimo).length;
+                    
+                    const elemStock = document.getElementById('stat-stock');
+                    elemStock.textContent = stockBajoCount;
+                    if(stockBajoCount > 0) elemStock.style.color = '#E74C3C';
+                }
             }
 
         } catch (error) {
-            console.error("Error cargando dashboard:", error);
-            // Fallback silencioso o mostrar '-'
-            document.getElementById('stat-ventas').textContent = '-';
-            document.getElementById('stat-pendientes').textContent = '-';
-            document.getElementById('stat-stock').textContent = '-';
+            console.error("Error general cargando dashboard:", error);
         }
     }
 </script>
 </body>
 </html>
+
