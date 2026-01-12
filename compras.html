@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Olimpollo - Compras</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    
+    <style>
+        /* ESTILOS BASE (Mismos de tu sistema) */
+        :root{--bg-main:#ECF0F1;--bg-header:#FFFFFF;--card-bg:#FFFFFF;--primary-text:#502c2c;--secondary-text:#808B96;--accent-color:#db3434;--accent-hover:#b92929;--border-color:#D5D8DC;--shadow-light:0 4px 15px rgba(0, 0, 0, 0.08);}body{margin:0;font-family:'Poppins', sans-serif;background-color:var(--bg-main);color:var(--primary-text);display:flex;flex-direction:column;min-height:100vh;}header{background:var(--bg-header);padding:15px 40px;box-shadow:0 2px 10px rgba(0, 0, 0, 0.05);display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border-color);}header .logo{font-size:24px;font-weight:600;text-decoration:none;color:var(--primary-text);}header nav{display:flex;gap:20px;}header nav a{text-decoration:none;color:var(--secondary-text);font-weight:500;transition:color 0.3s;}header nav a:hover{color:var(--accent-color);}.user-info{display:flex;align-items:center;gap:20px;}#user-identifier{font-weight:500;background-color:var(--bg-main);padding:5px 12px;border-radius:15px;font-size:14px;}.logout{background:var(--accent-color);color:white;border:none;padding:8px 18px;border-radius:20px;cursor:pointer;font-size:14px;font-weight:500;transition:background-color 0.3s;}.logout:hover{background-color:var(--accent-hover);}main{flex:1;padding:40px;max-width:1400px;margin:0 auto;width:100%;box-sizing:border-box;}h2.page-title{margin-bottom:30px;font-size:28px;font-weight:600;}.card{background:var(--card-bg);border-radius:12px;padding:25px;box-shadow:var(--shadow-light);margin-bottom:25px;}table{width:100%;border-collapse:collapse;}th, td{padding:12px;text-align:left;border-bottom:1px solid var(--bg-main);}
+        
+        /* ESTILOS ESPECÍFICOS COMPRAS */
+        .form-row { display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 15px; align-items: end; margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 500; font-size: 14px; }
+        .form-control { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; box-sizing: border-box; }
+        .btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: 500; }
+        .btn-add { background: #27AE60; color: white; }
+        .btn-remove { background: #E74C3C; color: white; padding: 5px 10px; }
+        .btn-save { background: var(--accent-color); color: white; width: 100%; font-size: 16px; margin-top: 20px; }
+        .total-display { text-align: right; font-size: 1.5em; font-weight: bold; margin-top: 20px; color: var(--primary-text); }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="index.html" class="logo">Olimpollo</a>
+        <nav>
+            <a href="pedidos.html">POS</a>
+            <a href="compras.html" style="color: var(--accent-color);">Compras</a> <a href="inventario.html">Inventario</a>
+            <a href="reportes.html">Reportes</a>
+        </nav>
+        <div class="user-info">
+            <span id="user-identifier"></span>
+            <button class="logout" id="btn-logout">Salir</button>
+        </div>
+    </header>
+
+    <main>
+        <h2 class="page-title">Registrar Compra de Insumos</h2>
+
+        <div class="card">
+            <div class="form-group" style="margin-bottom: 20px; max-width: 300px;">
+                <label>Proveedor (Opcional):</label>
+                <input type="text" id="proveedor" class="form-control" placeholder="Ej: Sam's Club, Mercado...">
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Insumo:</label>
+                    <select id="select-insumo" class="form-control">
+                        <option value="">Cargando insumos...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Cantidad a Sumar:</label>
+                    <input type="number" id="cantidad" class="form-control" placeholder="0" min="0.01" step="any">
+                    <small id="unidad-label" style="color:gray; font-size:12px;">Unidad</small>
+                </div>
+                <div class="form-group">
+                    <label>Costo Unitario ($):</label>
+                    <input type="number" id="costo" class="form-control" placeholder="0.00" min="0" step="0.01">
+                </div>
+                <button id="btn-agregar" class="btn btn-add">➕ Agregar</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Resumen de Compra</h3>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Insumo</th>
+                        <th>Cantidad</th>
+                        <th>Costo Unit.</th>
+                        <th>Subtotal</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-compras-body">
+                    </tbody>
+            </table>
+            
+            <div class="total-display">
+                Total: $<span id="total-compra">0.00</span>
+            </div>
+
+            <button id="btn-guardar-compra" class="btn btn-save">💾 Registrar Compra y Actualizar Stock</button>
+        </div>
+    </main>
+
+    <script>
+        // AUTH & UTILS
+        function parseJwt(token) { try { return JSON.parse(decodeURIComponent(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')).split('').map(c=>'%'+('00'+c.charCodeAt(0).toString(16)).slice(-2)).join(''))); } catch(e){return null;} }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const API_URL = 'https://olimpollo-api.onrender.com/api';
+            const token = localStorage.getItem('authToken');
+            
+            if (!token) { window.location.href = 'login.html'; return; }
+            const user = parseJwt(token);
+            if(user) document.getElementById('user-identifier').textContent = user.username;
+            
+            document.getElementById('btn-logout').addEventListener('click', () => {
+                localStorage.removeItem('authToken'); localStorage.removeItem('userRole'); window.location.href = 'login.html';
+            });
+
+            // VARIABLES
+            let carritoCompras = [];
+            let insumosLista = [];
+
+            // ELEMENTOS
+            const selectInsumo = document.getElementById('select-insumo');
+            const inputCantidad = document.getElementById('cantidad');
+            const inputCosto = document.getElementById('costo');
+            const unidadLabel = document.getElementById('unidad-label');
+            const tablaBody = document.getElementById('tabla-compras-body');
+            const totalDisplay = document.getElementById('total-compra');
+            const inputProveedor = document.getElementById('proveedor');
+
+            // 1. CARGAR INSUMOS
+            try {
+                const res = await fetch(`${API_URL}/inventario`); // Reutilizamos endpoint de inventario
+                insumosLista = await res.json();
+                
+                selectInsumo.innerHTML = '<option value="">Selecciona un insumo...</option>';
+                insumosLista.forEach(insumo => {
+                    const opt = document.createElement('option');
+                    opt.value = insumo.id;
+                    opt.textContent = `${insumo.nombre} (${insumo.unidad})`;
+                    opt.dataset.unidad = insumo.unidad;
+                    selectInsumo.appendChild(opt);
+                });
+            } catch (err) { console.error(err); }
+
+            // Listener cambio de insumo para mostrar unidad
+            selectInsumo.addEventListener('change', () => {
+                const selected = selectInsumo.options[selectInsumo.selectedIndex];
+                unidadLabel.textContent = selected.dataset.unidad || 'Unidad';
+            });
+
+            // 2. AGREGAR AL CARRITO
+            document.getElementById('btn-agregar').addEventListener('click', () => {
+                const insumoId = selectInsumo.value;
+                const cantidad = parseFloat(inputCantidad.value);
+                const costo = parseFloat(inputCosto.value);
+
+                if (!insumoId || isNaN(cantidad) || cantidad <= 0 || isNaN(costo) || costo < 0) {
+                    return alert('Por favor completa los datos correctamente.');
+                }
+
+                const insumoNombre = selectInsumo.options[selectInsumo.selectedIndex].text;
+
+                carritoCompras.push({
+                    insumo_id: insumoId,
+                    nombre: insumoNombre,
+                    cantidad: cantidad,
+                    costo_unitario: costo,
+                    subtotal: cantidad * costo
+                });
+
+                renderTabla();
+                inputCantidad.value = '';
+                inputCosto.value = '';
+                selectInsumo.focus();
+            });
+
+            // 3. RENDERIZAR TABLA
+            function renderTabla() {
+                tablaBody.innerHTML = '';
+                let total = 0;
+
+                carritoCompras.forEach((item, index) => {
+                    total += item.subtotal;
+                    const row = `
+                        <tr>
+                            <td>${item.nombre}</td>
+                            <td>${item.cantidad}</td>
+                            <td>$${item.costo_unitario.toFixed(2)}</td>
+                            <td>$${item.subtotal.toFixed(2)}</td>
+                            <td><button class="btn btn-remove" onclick="eliminarItem(${index})">X</button></td>
+                        </tr>
+                    `;
+                    tablaBody.innerHTML += row;
+                });
+
+                totalDisplay.textContent = total.toFixed(2);
+            }
+
+            // Hacer global la funcion eliminar
+            window.eliminarItem = (index) => {
+                carritoCompras.splice(index, 1);
+                renderTabla();
+            };
+
+            // 4. GUARDAR COMPRA
+            document.getElementById('btn-guardar-compra').addEventListener('click', async () => {
+                if (carritoCompras.length === 0) return alert('La lista de compra está vacía.');
+                
+                const btn = document.getElementById('btn-guardar-compra');
+                btn.disabled = true;
+                btn.textContent = "Procesando...";
+
+                const data = {
+                    proveedor: inputProveedor.value.trim() || 'Varios',
+                    total_compra: parseFloat(totalDisplay.textContent),
+                    items: carritoCompras
+                };
+
+                try {
+                    const response = await fetch(`${API_URL}/compras`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(data)
+                    });
+
+                    const result = await response.json();
+
+                    if (response.ok) {
+                        alert('✅ Compra registrada con éxito.\nEl inventario ha sido actualizado.');
+                        carritoCompras = [];
+                        renderTabla();
+                        inputProveedor.value = '';
+                    } else {
+                        alert('Error: ' + (result.error || 'No se pudo guardar'));
+                    }
+                } catch (error) {
+                    alert('Error de conexión.');
+                } finally {
+                    btn.disabled = false;
+                    btn.textContent = "💾 Registrar Compra y Actualizar Stock";
+                }
+            });
+        });
+    </script>
+</body>
+</html>
