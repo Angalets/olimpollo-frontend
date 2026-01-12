@@ -189,7 +189,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // --- 3. FUNCIÓN DE DETALLES Y ACCIONES ---
+    // --- 3. FUNCIÓN DE DETALLES Y ACCIONES (ACTUALIZADA) ---
     const mostrarDetalles = (id) => {
         detalleContenido.innerHTML = '<p>Selecciona un pedido de la lista para ver sus detalles.</p>';
         panelAcciones.innerHTML = '';
@@ -199,7 +199,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!pedidoSeleccionado) return;
 
         let itemsHTML = '';
-        // --- 🚨 CORRECCIÓN DE BUG: Usar nombre_producto y precio_unitario ---
         pedidoSeleccionado.items.forEach(item => {
             const subtotal = item.cantidad * item.precio_unitario;
             itemsHTML += `<li>${item.cantidad}x ${item.nombre_producto} ($${subtotal.toFixed(2)})</li>`;
@@ -215,15 +214,54 @@ document.addEventListener('DOMContentLoaded', () => {
             <ul>${itemsHTML}</ul>
         `;
 
+        // LÓGICA DE BOTONES
         if (pedidoSeleccionado.estado === 'Pendiente') {
             panelAcciones.innerHTML = `
                 <button id="btn-marcar-entregado" class="btn btn-success" data-id="${id}">Marcar Entregado</button>
                 <button id="btn-marcar-cancelado" class="btn btn-danger" data-id="${id}">Marcar Cancelado</button>
             `;
         } else {
-             panelAcciones.innerHTML = `<p style="color:gray;">Este pedido ya fue ${pedidoSeleccionado.estado}.</p>`;
+            // Si ya está entregado o cancelado, mostramos opción de ELIMINAR REGISTRO
+            panelAcciones.innerHTML = `
+                <p style="color:gray; margin-bottom:10px;">Este pedido ya fue ${pedidoSeleccionado.estado}.</p>
+                <button id="btn-eliminar-registro" class="btn btn-danger" style="background-color: #7f8c8d;" data-id="${id}" title="Borrar del historial permanentemente">
+                    🗑️ Eliminar Registro
+                </button>
+            `;
         }
     };
+
+    // --- EN LA SECCIÓN DE EVENT LISTENERS (AGREGAR ESTO) ---
+    panelAcciones.addEventListener('click', async (e) => {
+        const id = pedidoSeleccionado?.id;
+        if (!id) return;
+
+        // Botones existentes
+        if (e.target.id === 'btn-marcar-entregado') {
+            if (confirm(`¿Confirmas marcar el Pedido #${id} como ENTREGADO? Esto descontará el inventario.`)) {
+                cambiarEstado(id, 'Entregado');
+            }
+        } else if (e.target.id === 'btn-marcar-cancelado') {
+            if (confirm(`¿Confirmas marcar el Pedido #${id} como CANCELADO?`)) {
+                 cambiarEstado(id, 'Cancelado');
+            }
+        } 
+        // NUEVO BOTÓN: ELIMINAR REGISTRO
+        else if (e.target.id === 'btn-eliminar-registro') {
+            if (confirm(`⚠️ ¿Estás seguro de ELIMINAR DEFINITIVAMENTE el Pedido #${id} del historial?\n\nEsta acción no se puede deshacer y afectará tus reportes de ventas.`)) {
+                try {
+                    const response = await fetch(`${API_PEDIDOS_URL}/${id}`, { method: 'DELETE' });
+                    if (!response.ok) throw new Error('No se pudo eliminar.');
+                    
+                    alert('Pedido eliminado del historial.');
+                    renderPedidos(); // Recargar lista
+                    mostrarDetalles(null); // Limpiar panel
+                } catch (error) {
+                    alert('Error: ' + error.message);
+                }
+            }
+        }
+    });
 
     // --- 4. FUNCIÓN DE CAMBIO DE ESTADO ---
     const cambiarEstado = async (id, nuevoEstado) => {
