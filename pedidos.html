@@ -11,7 +11,8 @@
         /* ==========================================================================
            BASE DE ESTILOS UNIFICADA PARA OLIMPOLLO
            ========================================================================== */
-        :root{--bg-main:#ECF0F1;--bg-header:#FFFFFF;--card-bg:#FFFFFF;--primary-text:#502c2c;--secondary-text:#808B96;--accent-color:#db3434;--accent-hover:#b92929;--border-color:#D5D8DC;--shadow-light:0 4px 15px rgba(0, 0, 0, 0.08);--shadow-heavy:0 10px 20px rgba(0, 0, 0, 0.12);}body{margin:0;font-family:'Poppins', sans-serif;background-color:var(--bg-main);color:var(--primary-text);display:flex;flex-direction:column;min-height:100vh;}header{background:var(--bg-header);padding:15px 40px;box-shadow:0 2px 10px rgba(0, 0, 0, 0.05);display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border-color);}header .logo{font-size:24px;font-weight:600;text-decoration:none;color:var(--primary-text);}header nav{display:flex;gap:20px;}header nav a{text-decoration:none;color:var(--secondary-text);font-weight:500;transition:color 0.3s;}header nav a:hover{color:var(--accent-color);}.user-info{display:flex;align-items:center;gap:20px;}#user-identifier{font-weight:500;background-color:var(--bg-main);padding:5px 12px;border-radius:15px;font-size:14px;}.logout{background:var(--accent-color);color:white;border:none;padding:8px 18px;border-radius:20px;cursor:pointer;font-size:14px;font-weight:500;transition:background-color 0.3s;}.logout:hover{background-color:var(--accent-hover);}main{flex:1;padding:40px;max-width:1400px;margin:0 auto;width:100%;box-sizing:border-box;}h1, h2, h3{margin-top:0;}h2.page-title{margin-bottom:30px;font-size:28px;font-weight:600;}.card{background:var(--card-bg);border-radius:12px;padding:25px;box-shadow:var(--shadow-light);margin-bottom:25px;}table{width:100%;border-collapse:collapse;background:var(--card-bg);border-radius:12px;overflow:hidden;box-shadow:var(--shadow-light);}th, td{padding:15px;text-align:left;border-bottom:1px solid var(--bg-main);}th{font-weight:600;font-size:14px;text-transform:uppercase;color:var(--secondary-text);background-color:#F8F9F9;}tr:hover{background-color:#FDF2F2;}.btn{border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:500;font-family:'Poppins', sans-serif;transition:background-color 0.3s, transform 0.2s;}.btn:hover{transform:translateY(-2px);}.btn-primary{background-color:var(--accent-color);color:white;}.btn-primary:hover{background-color:var(--accent-hover);}.btn-secondary{background-color:var(--secondary-text);color:white;}.btn-secondary:hover{background-color:#6C7A89;}.btn-danger{background-color:#E74C3C;color:white;}.btn-success{background-color:#2ECC71;color:white;}label{display:block;margin-bottom:8px;font-weight:500;font-size:14px;}input[type="text"],input[type="password"],input[type="number"],input[type="date"],select,textarea{width:100%;padding:12px;border:1px solid var(--border-color);border-radius:8px;font-family:'Poppins', sans-serif;font-size:14px;box-sizing:border-box;transition:border-color 0.3s, box-shadow 0.3s;}input:focus, select:focus, textarea:focus{outline:none;border-color:var(--accent-color);box-shadow:0 0 0 3px rgba(219, 52, 52, 0.1);}.modal{display:none;position:fixed;z-index:1000;left:0;top:0;width:100%;height:100%;background-color:rgba(0,0,0,0.5);justify-content:center;align-items:center;}.modal-content{background:var(--card-bg);padding:30px;border-radius:12px;box-shadow:var(--shadow-heavy);width:90%;max-width:500px;position:relative;}.close{position:absolute;top:15px;right:20px;font-size:28px;cursor:pointer;color:var(--secondary-text);}footer{text-align:center;padding:20px;font-size:14px;color:var(--secondary-text);}
+        :root{--bg-main:#ECF0F1;--bg-header:#FFFFFF;--card-bg:#FFFFFF;--primary-text:#502c2c;--secondary-text:#808B96;--accent-color:#db3434;--accent-hover:#b92929;--border-color:#D5D8DC;--shadow-light:0 4px 15px rgba(0, 0, 0, 0.08);--shadow-heavy:0 10px 20px rgba(0, 0, 0, 0.12);--payment-color:#2980B9;}
+        body{margin:0;font-family:'Poppins', sans-serif;background-color:var(--bg-main);color:var(--primary-text);display:flex;flex-direction:column;min-height:100vh;}header{background:var(--bg-header);padding:15px 40px;box-shadow:0 2px 10px rgba(0, 0, 0, 0.05);display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border-color);}header .logo{font-size:24px;font-weight:600;text-decoration:none;color:var(--primary-text);}header nav{display:flex;gap:20px;}header nav a{text-decoration:none;color:var(--secondary-text);font-weight:500;transition:color 0.3s;}header nav a:hover{color:var(--accent-color);}.user-info{display:flex;align-items:center;gap:20px;}#user-identifier{font-weight:500;background-color:var(--bg-main);padding:5px 12px;border-radius:15px;font-size:14px;}.logout{background:var(--accent-color);color:white;border:none;padding:8px 18px;border-radius:20px;cursor:pointer;font-size:14px;font-weight:500;transition:background-color 0.3s;}.logout:hover{background-color:var(--accent-hover);}main{flex:1;padding:40px;max-width:1400px;margin:0 auto;width:100%;box-sizing:border-box;}h1, h2, h3{margin-top:0;}h2.page-title{margin-bottom:30px;font-size:28px;font-weight:600;}.card{background:var(--card-bg);border-radius:12px;padding:25px;box-shadow:var(--shadow-light);margin-bottom:25px;}table{width:100%;border-collapse:collapse;background:var(--card-bg);border-radius:12px;overflow:hidden;box-shadow:var(--shadow-light);}th, td{padding:15px;text-align:left;border-bottom:1px solid var(--bg-main);}th{font-weight:600;font-size:14px;text-transform:uppercase;color:var(--secondary-text);background-color:#F8F9F9;}tr:hover{background-color:#FDF2F2;}.btn{border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:500;font-family:'Poppins', sans-serif;transition:background-color 0.3s, transform 0.2s;}.btn:hover{transform:translateY(-2px);}.btn-primary{background-color:var(--accent-color);color:white;}.btn-primary:hover{background-color:var(--accent-hover);}.btn-secondary{background-color:var(--secondary-text);color:white;}.btn-secondary:hover{background-color:#6C7A89;}.btn-danger{background-color:#E74C3C;color:white;}.btn-success{background-color:#2ECC71;color:white;}label{display:block;margin-bottom:8px;font-weight:500;font-size:14px;}input[type="text"],input[type="password"],input[type="number"],input[type="date"],select,textarea{width:100%;padding:12px;border:1px solid var(--border-color);border-radius:8px;font-family:'Poppins', sans-serif;font-size:14px;box-sizing:border-box;transition:border-color 0.3s, box-shadow 0.3s;}input:focus, select:focus, textarea:focus{outline:none;border-color:var(--accent-color);box-shadow:0 0 0 3px rgba(219, 52, 52, 0.1);}.modal{display:none;position:fixed;z-index:1000;left:0;top:0;width:100%;height:100%;background-color:rgba(0,0,0,0.5);justify-content:center;align-items:center;}.modal-content{background:var(--card-bg);padding:30px;border-radius:12px;box-shadow:var(--shadow-heavy);width:90%;max-width:500px;position:relative;}.close{position:absolute;top:15px;right:20px;font-size:28px;cursor:pointer;color:var(--secondary-text);}footer{text-align:center;padding:20px;font-size:14px;color:var(--secondary-text);}
 
         /* ==========================================================================
            ESTILOS ESPECÍFICOS PARA LA PÁGINA DE POS
@@ -30,8 +31,38 @@
         .btn-item-action:hover { opacity: 0.8; }
         
         .canal-botones-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; }
-        .btn-canal { padding: 12px 5px; border: 2px solid var(--border-color); background-color: transparent; color: var(--secondary-text); border-radius: 8px; cursor: pointer; font-weight: 500; font-size: 14px; transition: all 0.2s ease-in-out; }
-        .btn-canal.active { background-color: var(--accent-color); color: white; border-color: var(--accent-color); transform: scale(1.05); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        
+        /* Estilos compartidos para botones de Canal y Pago */
+        .btn-selector { 
+            padding: 12px 5px; 
+            border: 2px solid var(--border-color); 
+            background-color: transparent; 
+            color: var(--secondary-text); 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: 500; 
+            font-size: 14px; 
+            transition: all 0.2s ease-in-out; 
+        }
+        
+        /* Botones de Canal activos (Rojo) */
+        .btn-selector.btn-canal.active { 
+            background-color: var(--accent-color); 
+            color: white; 
+            border-color: var(--accent-color); 
+            transform: scale(1.05); 
+            box-shadow: 0 2px 8px rgba(219, 52, 52, 0.2); 
+        }
+
+        /* Botones de Pago activos (Azul) */
+        .btn-selector.btn-pago.active { 
+            background-color: var(--payment-color); 
+            color: white; 
+            border-color: var(--payment-color); 
+            transform: scale(1.05); 
+            box-shadow: 0 2px 8px rgba(41, 128, 185, 0.2); 
+        }
+
     </style>
 </head>
 <body>
@@ -71,13 +102,23 @@
                     <div style="margin-bottom: 15px;">
                         <label>Canal de Venta:</label>
                         <div id="canal-venta-botones" class="canal-botones-container">
-                            <button type="button" class="btn-canal active" data-canal="OyR">OyR</button>
-                            <button type="button" class="btn-canal" data-canal="Uber">Uber</button>
-                            <button type="button" class="btn-canal" data-canal="Didi">Didi</button>
-                            <button type="button" class="btn-canal" data-canal="Rappi">Rappi</button>
-                            <button type="button" class="btn-canal" data-canal="Empleado">Empleado</button>
+                            <button type="button" class="btn-selector btn-canal active" data-canal="OyR">OyR</button>
+                            <button type="button" class="btn-selector btn-canal" data-canal="Uber">Uber</button>
+                            <button type="button" class="btn-selector btn-canal" data-canal="Didi">Didi</button>
+                            <button type="button" class="btn-selector btn-canal" data-canal="Rappi">Rappi</button>
+                            <button type="button" class="btn-selector btn-canal" data-canal="Empleado">Empleado</button>
                         </div>
                     </div>
+
+                    <div style="margin-bottom: 15px;">
+                        <label>Método de Pago:</label>
+                        <div id="metodo-pago-botones" class="canal-botones-container">
+                            <button type="button" class="btn-selector btn-pago active" data-pago="Efectivo">Efectivo</button>
+                            <button type="button" class="btn-selector btn-pago" data-pago="Tarjeta">Tarjeta</button>
+                            <button type="button" class="btn-selector btn-pago" data-pago="Aplicación">Aplicación</button>
+                        </div>
+                    </div>
+
                     <div style="margin-bottom: 15px;">
                         <label for="cliente-nombre">Nombre del Cliente:</label>
                         <input type="text" id="cliente-nombre" placeholder="Nombre del cliente" required>
@@ -110,22 +151,66 @@
         document.addEventListener('DOMContentLoaded', () => {
             const API_MENU_URL = 'https://olimpollo-api.onrender.com/api/menu/pos';
             const API_PEDIDOS_URL = 'https://olimpollo-api.onrender.com/api/pedidos';
+            
             let menuData = { productos: [], opciones: {} };
             let carrito = [];
+            
+            // Estados seleccionados
             let selectedCanal = 'OyR';
+            let selectedPago = 'Efectivo'; // Default
 
             const menuContainer = document.getElementById('productos-container');
             const listaCarrito = document.getElementById('lista-carrito');
             const totalPedidoSpan = document.getElementById('total-pedido');
             const formFinalizarPedido = document.getElementById('form-finalizar-pedido');
             const inputClienteNombre = document.getElementById('cliente-nombre');
+            
             const canalBotonesContainer = document.getElementById('canal-venta-botones');
+            const pagoBotonesContainer = document.getElementById('metodo-pago-botones');
+            
             const inputAjusteTotal = document.getElementById('ajuste-total');
             const modalModificadores = document.getElementById('modalModificadores');
             const modalModTitulo = document.getElementById('modal-mod-titulo');
             const modalModOpciones = document.getElementById('modal-mod-opciones');
             const btnCancelarMod = document.getElementById('btn-cancelar-mod');
 
+            // --- Lógica de Selección de Canal y Pago Inteligente ---
+            canalBotonesContainer.addEventListener('click', (e) => {
+                const target = e.target.closest('.btn-canal');
+                if (!target) return;
+                
+                // Actualizar visualmente canal
+                canalBotonesContainer.querySelectorAll('.btn-canal').forEach(btn => btn.classList.remove('active'));
+                target.classList.add('active');
+                selectedCanal = target.dataset.canal;
+
+                // AUTOMATIZACIÓN DE PAGO
+                // Si el canal es de Apps, forzamos el método "Aplicación"
+                if (['Uber', 'Didi', 'Rappi'].includes(selectedCanal)) {
+                    seleccionarMetodoPago('Aplicación');
+                } else if (selectedCanal === 'OyR' && selectedPago === 'Aplicación') {
+                    // Si regresa a OyR, sugerimos Efectivo (pero el usuario puede cambiar a tarjeta)
+                    seleccionarMetodoPago('Efectivo');
+                }
+            });
+
+            pagoBotonesContainer.addEventListener('click', (e) => {
+                const target = e.target.closest('.btn-pago');
+                if (!target) return;
+                seleccionarMetodoPago(target.dataset.pago);
+            });
+
+            function seleccionarMetodoPago(metodo) {
+                selectedPago = metodo;
+                pagoBotonesContainer.querySelectorAll('.btn-pago').forEach(btn => btn.classList.remove('active'));
+                
+                // Buscar el botón correspondiente y activarlo
+                const btnAActivar = Array.from(pagoBotonesContainer.children).find(btn => btn.dataset.pago === metodo);
+                if (btnAActivar) btnAActivar.classList.add('active');
+            }
+
+
+            // --- Lógica del Carrito y Modificadores (Igual que antes) ---
             const solicitarOpcion = (titulo, opciones) => {
                 return new Promise((resolve, reject) => {
                     modalModTitulo.textContent = titulo;
@@ -172,39 +257,56 @@
                 renderCarrito();
             };
 
+            // --- Finalizar Pedido con Nuevo Campo de Pago ---
             const finalizarPedido = async (e) => {
                 e.preventDefault();
                 if (carrito.length === 0) return alert('El carrito está vacío.');
 
                 const totalAjustado = inputAjusteTotal.value;
                 if (selectedCanal !== 'OyR' && !totalAjustado) {
-                    alert('Para canales como Uber, Didi o Rappi, es obligatorio ingresar el "Total Recibido/Ajustado".');
+                    alert('Para canales de App (Uber/Didi), debes ingresar el total exacto del ticket.');
                     inputAjusteTotal.focus();
                     return;
                 }
                 const totalCalculado = calcularTotal();
                 let totalFinal = inputAjusteTotal.value ? parseFloat(inputAjusteTotal.value) : totalCalculado;
                 if (isNaN(totalFinal) || totalFinal < 0) return alert('El total ajustado no es válido.');
-                const pedidoData = { cliente: inputClienteNombre.value.trim(), canal_venta: selectedCanal, total_ajustado: totalFinal, items: carrito.map(item => ({ menu_producto_id: item.menu_producto_id, nombre_producto_completo: item.nombre_venta + (item.modificadores ? ` (${item.modificadores})` : ''), cantidad: item.cantidad, precio_unitario: item.precio_unitario })) };
+                
+                const pedidoData = { 
+                    cliente: inputClienteNombre.value.trim(), 
+                    canal_venta: selectedCanal, 
+                    metodo_pago: selectedPago,  // ENVIAMOS EL NUEVO DATO
+                    total_ajustado: totalFinal, 
+                    items: carrito.map(item => ({ 
+                        menu_producto_id: item.menu_producto_id, 
+                        nombre_producto_completo: item.nombre_venta + (item.modificadores ? ` (${item.modificadores})` : ''), 
+                        cantidad: item.cantidad, 
+                        precio_unitario: item.precio_unitario 
+                    })) 
+                };
 
                 try {
                     const response = await fetch(API_PEDIDOS_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(pedidoData) });
                     if (!response.ok) throw new Error('Error al guardar el pedido.');
                     const data = await response.json();
-                    alert(`✅ Pedido #${data.id} guardado con éxito.`);
+                    
+                    alert(`✅ Pedido #${data.id} guardado.\nPago: ${data.metodo_pago}`);
+                    
+                    // Resetear formulario
                     carrito = [];
                     formFinalizarPedido.reset();
                     inputAjusteTotal.value = '';
                     
-                    canalBotonesContainer.querySelectorAll('.btn-canal').forEach(btn => {
-                        btn.classList.remove('active');
-                        if (btn.dataset.canal === 'OyR') btn.classList.add('active');
-                    });
+                    // Resetear botones a defaults
+                    canalBotonesContainer.querySelectorAll('.btn-canal').forEach(btn => btn.classList.remove('active'));
+                    canalBotonesContainer.querySelector('[data-canal="OyR"]').classList.add('active');
                     selectedCanal = 'OyR';
                     
+                    seleccionarMetodoPago('Efectivo');
+
                     renderCarrito();
                 } catch (error) {
-                    alert(`❌ Fallo al finalizar el pedido: ${error.message}`);
+                    alert(`❌ Fallo al finalizar: ${error.message}`);
                 }
             };
 
@@ -295,14 +397,6 @@
             document.getElementById('btn-logout').addEventListener('click', cerrarSesion);
             menuContainer.addEventListener('click', manejarClickProducto);
             
-            canalBotonesContainer.addEventListener('click', (e) => {
-                const target = e.target.closest('.btn-canal');
-                if (!target) return;
-                canalBotonesContainer.querySelectorAll('.btn-canal').forEach(btn => btn.classList.remove('active'));
-                target.classList.add('active');
-                selectedCanal = target.dataset.canal;
-            });
-
             listaCarrito.addEventListener('click', (e) => {
                 const target = e.target.closest('button');
                 if (!target) return;
@@ -326,4 +420,3 @@
     </script>
 </body>
 </html>
-
