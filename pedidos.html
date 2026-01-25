@@ -118,6 +118,15 @@
                             <button type="button" class="btn-selector btn-pago" data-pago="Aplicación">Aplicación</button>
                         </div>
                     </div>
+<div style="margin-bottom: 15px; background: #f8f9fa; padding: 10px; border-radius: 8px; border: 1px solid #ddd;">
+                        <label style="color: var(--accent-color); font-weight: bold;">Identificar Cliente (Teléfono):</label>
+                        <div style="display: flex; gap: 10px;">
+                            <input type="text" id="cliente-telefono" placeholder="Ej: 6621234567" style="flex: 1;">
+                            <button type="button" id="btn-buscar-cliente" class="btn btn-secondary" style="padding: 10px;">🔍</button>
+                        </div>
+                        <div id="info-cliente-crm" style="margin-top: 8px; font-size: 13px; color: #27ae60; font-weight: 600; display: none;">
+                            </div>
+                    </div>
 
                     <div style="margin-bottom: 15px;">
                         <label for="cliente-nombre">Nombre del Cliente:</label>
@@ -174,6 +183,36 @@
             const modalModOpciones = document.getElementById('modal-mod-opciones');
             const btnCancelarMod = document.getElementById('btn-cancelar-mod');
 
+            // Elementos del CRM
+            const inputTelefono = document.getElementById('cliente-telefono');
+            const btnBuscarCliente = document.getElementById('btn-buscar-cliente');
+            const infoClienteCRM = document.getElementById('info-cliente-crm');
+
+            // Función buscar cliente
+            btnBuscarCliente.addEventListener('click', async () => {
+                const tel = inputTelefono.value.trim();
+                if (tel.length < 7) return alert("Ingresa un número válido");
+
+                try {
+                    const res = await fetch(`https://olimpollo-api.onrender.com/api/clientes/${tel}`);
+                    if (res.ok) {
+                        const cliente = await res.json();
+                        // Rellenar datos automáticamente
+                        inputClienteNombre.value = cliente.nombre;
+                        infoClienteCRM.style.display = 'block';
+                        infoClienteCRM.innerHTML = `🌟 ¡Cliente Frecuente!<br>Visitas: ${cliente.visitas} | Puntos: ${cliente.puntos}`;
+                        infoClienteCRM.style.color = '#27ae60';
+                    } else {
+                        infoClienteCRM.style.display = 'block';
+                        infoClienteCRM.innerHTML = `🆕 Cliente Nuevo (Se registrará al finalizar)`;
+                        infoClienteCRM.style.color = '#7f8c8d';
+                        inputClienteNombre.focus();
+                    }
+                } catch (e) {
+                    console.error(e);
+                }
+            });
+            
             // --- Lógica de Selección de Canal y Pago Inteligente ---
             canalBotonesContainer.addEventListener('click', (e) => {
                 const target = e.target.closest('.btn-canal');
@@ -272,9 +311,10 @@
                 let totalFinal = inputAjusteTotal.value ? parseFloat(inputAjusteTotal.value) : totalCalculado;
                 if (isNaN(totalFinal) || totalFinal < 0) return alert('El total ajustado no es válido.');
                 
-                const pedidoData = { 
-                    cliente: inputClienteNombre.value.trim(), 
-                    canal_venta: selectedCanal, 
+                    const pedidoData = { 
+                    cliente: inputClienteNombre.value.trim(),
+                    telefono: inputTelefono.value.trim(), // <--- AGREGAR ESTO
+                    canal_venta: selectedCanal,
                     metodo_pago: selectedPago,  // ENVIAMOS EL NUEVO DATO
                     total_ajustado: totalFinal, 
                     items: carrito.map(item => ({ 
@@ -420,3 +460,4 @@
     </script>
 </body>
 </html>
+
