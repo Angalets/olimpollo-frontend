@@ -21,6 +21,8 @@
         .btn-producto:hover { transform: translateY(-4px); }
         .carrito-list { list-style: none; padding: 0; margin: 0 0 20px 0; max-height: 300px; overflow-y: auto; }
         .carrito-list li { display: flex; justify-content: space-between; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid var(--bg-main); }
+        
+        /* Botones de acción del carrito */
         .btn-item-action { border: none; padding: 5px 8px; font-size: 14px; cursor: pointer; border-radius: 4px; margin-left: 3px;}
         .btn-nota { background: #f39c12; color: white; } 
         .btn-duplicar { background: #007bff; color: white; }
@@ -74,8 +76,7 @@
                 </ul>
                 <div style="font-size: 20px; font-weight: bold; border-top: 2px solid var(--accent-color); padding-top: 15px; margin-bottom: 20px;">
                     Total: <span id="total-pedido">$0.00</span>
-                    <div id="info-comision" style="font-size: 14px; color: #7f8c8d; font-weight: normal; margin-top: 5px; display: none;">
-                        Recibes neto: <strong style="color: #27ae60;">$0.00</strong>
+                    <div id="info-comision" style="font-size: 14px; color: #7f8c8d; font-weight: normal; margin-top: 8px; display: none;">
                     </div>
                 </div>
                 
@@ -152,7 +153,7 @@
             const menuContainer = document.getElementById('productos-container');
             const listaCarrito = document.getElementById('lista-carrito');
             const totalPedidoSpan = document.getElementById('total-pedido');
-            const infoComision = document.getElementById('info-comision'); // Elemento nuevo para mostrar neto
+            const infoComision = document.getElementById('info-comision'); 
             const formFinalizarPedido = document.getElementById('form-finalizar-pedido');
             const inputClienteNombre = document.getElementById('cliente-nombre');
             
@@ -303,7 +304,7 @@
                 if (carrito.length === 0) return alert('El carrito está vacío.');
                 const totalAjustado = inputAjusteTotal.value;
                 if (selectedCanal !== 'OyR' && !totalAjustado) { alert('Para Apps, ingresa el total exacto del ticket.'); inputAjusteTotal.focus(); return; }
-                const totalCalculado = calcularTotal(false); // No actualizar DOM, solo calcular
+                const totalCalculado = calcularTotal(false); 
                 let totalFinal = inputAjusteTotal.value ? parseFloat(inputAjusteTotal.value) : totalCalculado;
                 
                 const pedidoData = { cliente: inputClienteNombre.value.trim(), telefono: inputTelefono.value.trim(), canal_venta: selectedCanal, metodo_pago: selectedPago, total_ajustado: totalFinal, items: carrito.map(item => ({ menu_producto_id: item.menu_producto_id, nombre_producto_completo: item.nombre_venta + (item.modificadores ? ` (${item.modificadores})` : ''), cantidad: item.cantidad, precio_unitario: item.precio_unitario, notas: item.notas })) };
@@ -315,7 +316,7 @@
                     
                     let msg = `✅ Pedido #${data.id} guardado.`;
                     if (data.comision && parseFloat(data.comision) > 0) {
-                        msg += `\n(Se descontó comisión de tarjeta: $${data.comision})`;
+                        msg += `\n(Se descontó comisión: $${data.comision})`;
                     }
                     alert(msg);
                     
@@ -325,55 +326,52 @@
                 } catch (error) { alert(`❌ Error: ${error.message}`); }
             });
 
-// --- Cálculos Mejorados ---
+            // --- Cálculos Inteligentes ---
             const calcularTotal = (updateUI = true) => {
-                // 1. Total del carrito (Base)
                 const totalCarrito = carrito.reduce((sum, item) => sum + (item.precio_unitario * item.cantidad), 0);
-                
-                // 2. Total a usar para cálculo (Manual o Carrito)
                 const totalManual = parseFloat(inputAjusteTotal.value);
                 const totalReal = (totalManual && totalManual > 0) ? totalManual : totalCarrito;
 
                 if (updateUI) {
-                    // Si no hay manual, mostramos el del carrito en el total grande
                     if (!totalManual) {
                         totalPedidoSpan.textContent = `$${totalCarrito.toFixed(2)}`;
                     } else {
-                        // Si hay manual, indicamos que es manual
                         totalPedidoSpan.textContent = `$${totalReal.toFixed(2)} (Manual)`;
                     }
                     
-                    // Lógica visual de comisiones
+                    infoComision.style.display = 'block'; 
+
                     if (totalReal > 0) {
-                        infoComision.style.display = 'block';
-                        let neto = totalReal;
-                        let textoDescuento = '';
-
                         if (selectedPago === 'Tarjeta') {
-                            const comision = totalReal * 0.04176; // 3.6% + IVA
-                            neto = totalReal - comision;
-                            textoDescuento = `(-$${comision.toFixed(2)} Terminal)`;
+                            // Tarjeta: Calcula directo (sobre carrito o manual)
+                            const comision = totalReal * 0.04176; 
+                            const neto = totalReal - comision;
+                            infoComision.innerHTML = `Cobras: <strong>$${totalReal.toFixed(2)}</strong> | Recibes: <strong style="color: #27ae60;">$${neto.toFixed(2)}</strong> <span style="font-size:12px; color:#e74c3c;">(-3.6%+IVA)</span>`;
                         } else if (selectedPago === 'Aplicación') {
-                            const comision = totalReal * 0.4213; // 42.13% Apps
-                            neto = totalReal - comision;
-                            textoDescuento = `(-$${comision.toFixed(2)} App)`;
+                            // Apps: Lógica condicional
+                            if (!totalManual) {
+                                // ⚠️ Si es App y NO hay manual: Advertencia
+                                infoComision.innerHTML = `<span style="color: #e67e22; font-weight: 600; background: #fdf2e9; padding: 6px; border-radius: 4px; border: 1px solid #e67e22; display:block; text-align:center;">⚠️ Por favor ingresa el total ajustado del ticket</span>`;
+                            } else {
+                                // ✅ Si es App y HAY manual: Muestra cálculo
+                                const comision = totalReal * 0.4213; 
+                                const neto = totalReal - comision;
+                                infoComision.innerHTML = `Venta App: <strong>$${totalReal.toFixed(2)}</strong> | Recibes: <strong style="color: #27ae60;">$${neto.toFixed(2)}</strong> <span style="font-size:12px; color:#e74c3c;">(-42.13%)</span>`;
+                            }
                         } else {
-                            // Efectivo/Transferencia
+                            // Efectivo / Transferencia
                             infoComision.style.display = 'none';
-                            return totalCarrito; 
                         }
-
-                        infoComision.innerHTML = `
-                            Cobras: <strong>$${totalReal.toFixed(2)}</strong> <br>
-                            Recibes: <strong style="color: #27ae60; font-size:1.2em;">$${neto.toFixed(2)}</strong> 
-                            <span style="font-size:12px; color:#e74c3c;">${textoDescuento}</span>
-                        `;
                     } else {
                         infoComision.style.display = 'none';
                     }
                 }
                 return totalCarrito;
             };
+            
+            // Escuchar cambios en el input manual para recalcular al instante
+            inputAjusteTotal.addEventListener('input', () => calcularTotal(true));
+
             // Modal Helpers
             const modalModTitulo = document.getElementById('modal-mod-titulo');
             const modalModOpciones = document.getElementById('modal-mod-opciones');
@@ -398,13 +396,8 @@
             document.getElementById('btn-logout').addEventListener('click', () => {localStorage.clear(); window.location.href='login.html'});
 
             menuContainer.addEventListener('click', manejarClickProducto);
-            // Actualizar cálculos al escribir en Total Ajustado
-            inputAjusteTotal.addEventListener('input', () => calcularTotal(true));
-            
             cargarMenuPOS();
         });
     </script>
 </body>
 </html>
-
-
