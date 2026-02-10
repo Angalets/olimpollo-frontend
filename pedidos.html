@@ -21,26 +21,22 @@
         .btn-producto:hover { transform: translateY(-4px); }
         .carrito-list { list-style: none; padding: 0; margin: 0 0 20px 0; max-height: 300px; overflow-y: auto; }
         .carrito-list li { display: flex; justify-content: space-between; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid var(--bg-main); }
-        
-        /* Botones de acción del carrito */
         .btn-item-action { border: none; padding: 5px 8px; font-size: 14px; cursor: pointer; border-radius: 4px; margin-left: 3px;}
-        .btn-nota { background: #f39c12; color: white; } /* Botón Naranja para Notas */
+        .btn-nota { background: #f39c12; color: white; } 
         .btn-duplicar { background: #007bff; color: white; }
         .btn-eliminar { background: #e74c3c; color: white; }
-
         .btn-modificador { width: 100%; padding: 15px; font-size: 16px; font-weight: bold; cursor: pointer; border: 1px solid #ddd; background: #f9f9f9; border-radius: 5px; transition: background 0.2s; }
         .btn-modificador:hover { background: #FCF3CF; }
         
-        .canal-botones-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 15px; }
+        /* Estilos Botones Selección */
+        .canal-botones-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 15px; }
         .btn-selector { padding: 12px 5px; border: 2px solid var(--border-color); background-color: transparent; color: var(--secondary-text); border-radius: 8px; cursor: pointer; font-weight: 500; font-size: 14px; transition: all 0.2s ease-in-out; }
         
         .btn-selector.btn-canal.active { background-color: var(--accent-color); color: white; border-color: var(--accent-color); transform: scale(1.05); }
         .btn-selector.btn-pago.active { background-color: var(--payment-color); color: white; border-color: var(--payment-color); transform: scale(1.05); }
 
-        /* Estilo para la nota visible en el carrito */
         .item-nota { display: block; font-size: 12px; color: #e67e22; font-style: italic; margin-top: 2px; font-weight: 600; border-left: 2px solid #e67e22; padding-left: 5px; }
         
-        /* Modal, Footer, etc */
         .modal{display:none;position:fixed;z-index:1000;left:0;top:0;width:100%;height:100%;background-color:rgba(0,0,0,0.5);justify-content:center;align-items:center;}.modal-content{background:var(--card-bg);padding:30px;border-radius:12px;box-shadow:var(--shadow-heavy);width:90%;max-width:500px;position:relative;}.close{position:absolute;top:15px;right:20px;font-size:28px;cursor:pointer;color:var(--secondary-text);}
         footer{text-align:center;padding:20px;font-size:14px;color:var(--secondary-text);}
         .btn-primary { background: var(--accent-color); color: white; border: none; border-radius: 8px; cursor: pointer;}
@@ -78,11 +74,14 @@
                 </ul>
                 <div style="font-size: 20px; font-weight: bold; border-top: 2px solid var(--accent-color); padding-top: 15px; margin-bottom: 20px;">
                     Total: <span id="total-pedido">$0.00</span>
+                    <div id="info-comision" style="font-size: 14px; color: #7f8c8d; font-weight: normal; margin-top: 5px; display: none;">
+                        Recibes neto: <strong style="color: #27ae60;">$0.00</strong>
+                    </div>
                 </div>
                 
                 <form id="form-finalizar-pedido">
                     <div style="margin-bottom: 15px; background: #f8f9fa; padding: 10px; border-radius: 8px; border: 1px solid #ddd;">
-                        <label style="color: var(--accent-color); font-weight: bold;">Identificar Cliente (Teléfono):</label>
+                        <label style="color: var(--accent-color); font-weight: bold;">Cliente (Teléfono):</label>
                         <div style="display: flex; gap: 10px;">
                             <input type="text" id="cliente-telefono" placeholder="Ej: 6621234567" style="flex: 1; padding: 8px; border-radius: 6px; border: 1px solid #ccc;">
                             <button type="button" id="btn-buscar-cliente" class="btn btn-secondary" style="padding: 10px;">🔍</button>
@@ -92,7 +91,7 @@
 
                     <div style="margin-bottom: 15px;">
                         <label>Canal de Venta:</label>
-                        <div id="canal-venta-botones" class="canal-botones-container">
+                        <div id="canal-venta-botones" class="canal-botones-container" style="grid-template-columns: repeat(3, 1fr);">
                             <button type="button" class="btn-selector btn-canal active" data-canal="OyR">OyR</button>
                             <button type="button" class="btn-selector btn-canal" data-canal="Uber">Uber</button>
                             <button type="button" class="btn-selector btn-canal" data-canal="Didi">Didi</button>
@@ -106,6 +105,7 @@
                         <div id="metodo-pago-botones" class="canal-botones-container">
                             <button type="button" class="btn-selector btn-pago active" data-pago="Efectivo">Efectivo</button>
                             <button type="button" class="btn-selector btn-pago" data-pago="Tarjeta">Tarjeta</button>
+                            <button type="button" class="btn-selector btn-pago" data-pago="Transferencia">Transferencia</button>
                             <button type="button" class="btn-selector btn-pago" data-pago="Aplicación">Aplicación</button>
                         </div>
                     </div>
@@ -145,8 +145,6 @@
             
             let menuData = { productos: [], opciones: {} };
             let carrito = [];
-            
-            // Estados seleccionados
             let selectedCanal = 'OyR';
             let selectedPago = 'Efectivo'; 
 
@@ -154,6 +152,7 @@
             const menuContainer = document.getElementById('productos-container');
             const listaCarrito = document.getElementById('lista-carrito');
             const totalPedidoSpan = document.getElementById('total-pedido');
+            const infoComision = document.getElementById('info-comision'); // Elemento nuevo para mostrar neto
             const formFinalizarPedido = document.getElementById('form-finalizar-pedido');
             const inputClienteNombre = document.getElementById('cliente-nombre');
             
@@ -161,12 +160,11 @@
             const pagoBotonesContainer = document.getElementById('metodo-pago-botones');
             const inputAjusteTotal = document.getElementById('ajuste-total');
             
-            // CRM Elements
             const inputTelefono = document.getElementById('cliente-telefono');
             const btnBuscarCliente = document.getElementById('btn-buscar-cliente');
             const infoClienteCRM = document.getElementById('info-cliente-crm');
 
-            // --- 1. Lógica CRM (Buscar Cliente) ---
+            // --- CRM ---
             btnBuscarCliente.addEventListener('click', async () => {
                 const tel = inputTelefono.value.trim();
                 if (tel.length < 7) return alert("Ingresa un número válido");
@@ -174,7 +172,6 @@
                     const res = await fetch(`https://olimpollo-api.onrender.com/api/clientes/${tel}`);
                     if (res.ok) {
                         const cliente = await res.json();
-                        // Rellenar datos
                         inputClienteNombre.value = cliente.nombre;
                         infoClienteCRM.style.display = 'block';
                         infoClienteCRM.innerHTML = `🌟 ¡Cliente Frecuente!<br>Visitas: ${cliente.visitas} | Puntos: ${cliente.puntos}`;
@@ -188,7 +185,7 @@
                 } catch (e) { console.error(e); }
             });
 
-            // --- 2. Selectores Inteligentes (Canal y Pago) ---
+            // --- Selectores ---
             canalBotonesContainer.addEventListener('click', (e) => {
                 const target = e.target.closest('.btn-selector');
                 if (!target) return;
@@ -196,7 +193,6 @@
                 target.classList.add('active');
                 selectedCanal = target.dataset.canal;
 
-                // Automatización: Si es App, poner pago en Aplicación
                 if (['Uber', 'Didi', 'Rappi'].includes(selectedCanal)) {
                     seleccionarMetodoPago('Aplicación');
                 } else if (selectedCanal === 'OyR' && selectedPago === 'Aplicación') {
@@ -215,20 +211,14 @@
                 pagoBotonesContainer.querySelectorAll('.btn-selector').forEach(btn => btn.classList.remove('active'));
                 const btnAActivar = Array.from(pagoBotonesContainer.children).find(btn => btn.dataset.pago === metodo);
                 if (btnAActivar) btnAActivar.classList.add('active');
+                
+                // Recalcular para mostrar/ocultar info de comisión
+                calcularTotal();
             }
 
-            // --- 3. Lógica Carrito y Notas ---
-            
-            // Renderizar los productos en la cuadrícula
+            // --- Carrito ---
             const renderProductos = (productos) => {
-                 const categoryColors = {
-                    'Platos Fuertes': '#F8D9D9',
-                    'Sides': '#FCF3CF',
-                    'Bebidas': '#DDDDDD',
-                    'PROMOS': '#D5F5E3',
-                    'Aderezos': '#E5E7E9',
-                    'default': '#F2F3F4'
-                };
+                 const categoryColors = {'Platos Fuertes':'#F8D9D9','Sides':'#FCF3CF','Bebidas':'#DDDDDD','PROMOS':'#D5F5E3','Aderezos':'#E5E7E9','default':'#F2F3F4'};
                 menuContainer.innerHTML = '';
                 productos.forEach(producto => {
                     const btn = document.createElement('button');
@@ -247,14 +237,11 @@
             const manejarClickProducto = async (e) => {
                 const target = e.target.closest('.btn-producto');
                 if (!target) return;
-                
                 const productoSeleccionado = target.dataset;
                 const gruposModificadoresStr = productoSeleccionado.gruposModificadores || '';
                 const gruposAplicables = gruposModificadoresStr.split(',').map(g => g.trim()).filter(Boolean);
-                
                 let modificadoresAcumulados = [];
                 let precioAdicionalTotal = 0;
-                
                 try {
                     for (const nombreGrupo of gruposAplicables) {
                         const opciones = menuData.opciones[nombreGrupo] || [];
@@ -269,14 +256,7 @@
             };
 
             const agregarItemAlCarrito = (producto, modificadoresAcumulados, precioAdicionalTotal) => {
-                const item = { 
-                    menu_producto_id: parseInt(producto.id), 
-                    nombre_venta: producto.nombre, 
-                    precio_unitario: parseFloat(producto.precio) + precioAdicionalTotal, 
-                    cantidad: 1, 
-                    modificadores: modificadoresAcumulados.map(m => m.valor).join(', '),
-                    notas: '' // 📝 Inicialmente vacío
-                };
+                const item = { menu_producto_id: parseInt(producto.id), nombre_venta: producto.nombre, precio_unitario: parseFloat(producto.precio) + precioAdicionalTotal, cantidad: 1, modificadores: modificadoresAcumulados.map(m => m.valor).join(', '), notas: '' };
                 carrito.push(item);
                 renderCarrito();
             };
@@ -291,10 +271,7 @@
                 carrito.forEach((item, index) => {
                     const li = document.createElement('li');
                     const mods = item.modificadores ? `(${item.modificadores})` : '';
-                    
-                    // 📝 Renderizar la nota si existe
                     const notaHTML = item.notas ? `<span class="item-nota">📝 ${item.notas}</span>` : '';
-                    
                     li.innerHTML = `
                         <div style="flex: 1;">
                             <strong>${item.cantidad}x ${item.nombre_venta}</strong>
@@ -303,9 +280,7 @@
                         </div>
                         <div style="display: flex; align-items: center; gap: 5px; margin-left: 10px;">
                             <span style="font-weight:600; min-width:60px; text-align:right;">$${(item.precio_unitario * item.cantidad).toFixed(2)}</span>
-                            
                             <button class="btn-item-action btn-nota" data-index="${index}" title="Agregar Nota">✏️</button>
-                            
                             <button class="btn-item-action btn-duplicar" data-index="${index}" title="Duplicar">➕</button>
                             <button class="btn-item-action btn-eliminar" data-index="${index}" title="Eliminar">❌</button>
                         </div>`;
@@ -314,125 +289,86 @@
                 calcularTotal();
             };
             
-            // Listener de acciones del carrito
             listaCarrito.addEventListener('click', (e) => {
                 const target = e.target.closest('button');
                 if (!target) return;
                 const index = parseInt(target.dataset.index, 10);
-                
-                if (target.classList.contains('btn-eliminar')) {
-                    carrito.splice(index, 1);
-                    renderCarrito();
-                } else if (target.classList.contains('btn-duplicar')) {
-                    const itemToDuplicate = carrito[index];
-                    const newItem = JSON.parse(JSON.stringify(itemToDuplicate));
-                    carrito.splice(index + 1, 0, newItem);
-                    renderCarrito();
-                } else if (target.classList.contains('btn-nota')) {
-                    // 📝 Lógica para pedir la nota
-                    const notaActual = carrito[index].notas || '';
-                    const nuevaNota = prompt("Nota para cocina (Ej: Sin cebolla, Salsa aparte):", notaActual);
-                    if (nuevaNota !== null) {
-                        carrito[index].notas = nuevaNota.trim();
-                        renderCarrito();
-                    }
-                }
+                if (target.classList.contains('btn-eliminar')) { carrito.splice(index, 1); renderCarrito(); } 
+                else if (target.classList.contains('btn-duplicar')) { const newItem = JSON.parse(JSON.stringify(carrito[index])); carrito.splice(index + 1, 0, newItem); renderCarrito(); } 
+                else if (target.classList.contains('btn-nota')) { const n = prompt("Nota:", carrito[index].notas || ''); if (n !== null) { carrito[index].notas = n.trim(); renderCarrito(); } }
             });
 
-            // --- 4. Finalizar Pedido ---
             formFinalizarPedido.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 if (carrito.length === 0) return alert('El carrito está vacío.');
-
                 const totalAjustado = inputAjusteTotal.value;
-                if (selectedCanal !== 'OyR' && !totalAjustado) {
-                    alert('Para Apps, ingresa el total exacto del ticket.');
-                    inputAjusteTotal.focus();
-                    return;
-                }
-                const totalCalculado = calcularTotal();
+                if (selectedCanal !== 'OyR' && !totalAjustado) { alert('Para Apps, ingresa el total exacto del ticket.'); inputAjusteTotal.focus(); return; }
+                const totalCalculado = calcularTotal(false); // No actualizar DOM, solo calcular
                 let totalFinal = inputAjusteTotal.value ? parseFloat(inputAjusteTotal.value) : totalCalculado;
                 
-                const pedidoData = { 
-                    cliente: inputClienteNombre.value.trim(), 
-                    telefono: inputTelefono.value.trim(), // Enviamos teléfono al CRM
-                    canal_venta: selectedCanal, 
-                    metodo_pago: selectedPago,
-                    total_ajustado: totalFinal, 
-                    items: carrito.map(item => ({ 
-                        menu_producto_id: item.menu_producto_id, 
-                        nombre_producto_completo: item.nombre_venta + (item.modificadores ? ` (${item.modificadores})` : ''), 
-                        cantidad: item.cantidad, 
-                        precio_unitario: item.precio_unitario,
-                        notas: item.notas // 📝 Enviamos la nota al servidor
-                    })) 
-                };
+                const pedidoData = { cliente: inputClienteNombre.value.trim(), telefono: inputTelefono.value.trim(), canal_venta: selectedCanal, metodo_pago: selectedPago, total_ajustado: totalFinal, items: carrito.map(item => ({ menu_producto_id: item.menu_producto_id, nombre_producto_completo: item.nombre_venta + (item.modificadores ? ` (${item.modificadores})` : ''), cantidad: item.cantidad, precio_unitario: item.precio_unitario, notas: item.notas })) };
 
                 try {
                     const response = await fetch(API_PEDIDOS_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(pedidoData) });
                     if (!response.ok) throw new Error('Error al guardar.');
                     const data = await response.json();
                     
-                    alert(`✅ Pedido #${data.id} guardado con éxito.`);
+                    let msg = `✅ Pedido #${data.id} guardado.`;
+                    if (data.comision && parseFloat(data.comision) > 0) {
+                        msg += `\n(Se descontó comisión de tarjeta: $${data.comision})`;
+                    }
+                    alert(msg);
                     
-                    // Resetear formulario
-                    carrito = [];
-                    formFinalizarPedido.reset();
-                    infoClienteCRM.style.display = 'none';
-                    seleccionarMetodoPago('Efectivo');
-                    canalBotonesContainer.querySelector('[data-canal="OyR"]').click();
-                    
+                    carrito = []; formFinalizarPedido.reset(); infoClienteCRM.style.display = 'none';
+                    seleccionarMetodoPago('Efectivo'); canalBotonesContainer.querySelector('[data-canal="OyR"]').click();
                     renderCarrito();
-                } catch (error) {
-                    alert(`❌ Error: ${error.message}`);
-                }
+                } catch (error) { alert(`❌ Error: ${error.message}`); }
             });
 
-            // Helpers y Modales
-            const calcularTotal = () => {
+            // --- Cálculos ---
+            const calcularTotal = (updateUI = true) => {
                 const total = carrito.reduce((sum, item) => sum + (item.precio_unitario * item.cantidad), 0);
-                totalPedidoSpan.textContent = `$${total.toFixed(2)}`;
+                
+                if (updateUI) {
+                    totalPedidoSpan.textContent = `$${total.toFixed(2)}`;
+                    
+                    // Lógica visual de comisión
+                    if (selectedPago === 'Tarjeta' && total > 0) {
+                        // Formula: Total * 0.036 = BaseComision. BaseComision * 1.16 = TotalComision.
+                        // Factor directo: 0.036 * 1.16 = 0.04176
+                        const comision = total * 0.04176;
+                        const neto = total - comision;
+                        
+                        infoComision.style.display = 'block';
+                        infoComision.innerHTML = `Cobro: $${total.toFixed(2)} | Recibes neto: <strong style="color: #27ae60;">$${neto.toFixed(2)}</strong>`;
+                    } else {
+                        infoComision.style.display = 'none';
+                    }
+                }
                 return total;
             };
             
+            // Modal Helpers
             const modalModTitulo = document.getElementById('modal-mod-titulo');
             const modalModOpciones = document.getElementById('modal-mod-opciones');
             const modalModificadores = document.getElementById('modalModificadores');
             const btnCancelarMod = document.getElementById('btn-cancelar-mod');
-            
             const solicitarOpcion = (titulo, opciones) => {
                 return new Promise((resolve, reject) => {
-                    modalModTitulo.textContent = titulo;
-                    modalModOpciones.innerHTML = '';
+                    modalModTitulo.textContent = titulo; modalModOpciones.innerHTML = '';
                     const cleanup = () => { modalModificadores.style.display = 'none'; modalModOpciones.innerHTML = ''; };
                     opciones.forEach(opcion => {
-                        const btn = document.createElement('button');
-                        btn.className = 'btn-modificador';
+                        const btn = document.createElement('button'); btn.className = 'btn-modificador';
                         btn.textContent = `${opcion.valor} ${opcion.precio_adicional > 0 ? `(+$${opcion.precio_adicional.toFixed(2)})` : ''}`;
-                        btn.onclick = () => { cleanup(); resolve(opcion); };
-                        modalModOpciones.appendChild(btn);
+                        btn.onclick = () => { cleanup(); resolve(opcion); }; modalModOpciones.appendChild(btn);
                     });
                     btnCancelarMod.onclick = () => { cleanup(); reject(new Error('Selección cancelada.')); };
                     modalModificadores.style.display = 'flex';
                 });
             };
 
-            // Init
-            const cargarMenuPOS = async () => {
-                try {
-                    const r = await fetch(API_MENU_URL);
-                    const d = await r.json();
-                    menuData = d;
-                    renderProductos(d.productos);
-                } catch (e) { menuContainer.innerHTML = 'Error cargando menú'; }
-            };
-            
-            // Auth check
-            const token = localStorage.getItem('authToken');
-            if(token) {
-                const u = parseJwt(token);
-                if(u) document.getElementById('user-identifier').textContent = u.username;
-            } else window.location.href = 'login.html';
+            const cargarMenuPOS = async () => { try { const r = await fetch(API_MENU_URL); const d = await r.json(); menuData = d; renderProductos(d.productos); } catch (e) { menuContainer.innerHTML = 'Error cargando menú'; } };
+            const token = localStorage.getItem('authToken'); if(token) { const u = parseJwt(token); if(u) document.getElementById('user-identifier').textContent = u.username; } else window.location.href = 'login.html';
             document.getElementById('btn-logout').addEventListener('click', () => {localStorage.clear(); window.location.href='login.html'});
 
             menuContainer.addEventListener('click', manejarClickProducto);
