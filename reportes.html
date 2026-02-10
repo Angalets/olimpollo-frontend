@@ -173,9 +173,9 @@
                 }
             };
             
-            // B. REPORTE DE VENTAS (TOTALES)
+            // B. REPORTE DE VENTAS (ACTUALIZADO CON COMISIONES) 💰
             const generarReporteVentas = async (fechaInicio, fechaFin) => {
-                resultadosDiv.innerHTML = '<h4>Calculando ventas...</h4>';
+                resultadosDiv.innerHTML = '<h4>Calculando ventas y comisiones...</h4>';
                 resultadosDiv.style.display = 'block';
 
                 const url = `${API_URL}/ventas?fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`;
@@ -185,15 +185,35 @@
 
                     if (!response.ok) throw new Error(data.error || 'Error desconocido al generar reporte');
                     
+                    // --- CÁLCULO DE TOTALES ---
+                    const ventasBrutas = parseFloat(data.ventas_totales);
+                    const comisiones = parseFloat(data.comisiones || 0);
+                    const ingresoNeto = ventasBrutas - comisiones;
+
                     resultadosDiv.innerHTML = `
                         <h4>Resultados del Reporte de Ventas</h4>
                         <div style="padding: 20px; background: #f4f6f7; border-radius: 8px;">
                             <p><strong>Periodo:</strong> ${data.fechaInicio} al ${data.fechaFin}</p>
                             <p><strong>Total de Pedidos Entregados:</strong> ${data.total_pedidos}</p>
                             <hr>
-                            <p style="font-size: 1.5em; margin-top: 10px;">
-                                <strong>Ventas Netas Totales:</strong> 
-                                <span style="color: #27AE60;">$${data.ventas_totales}</span>
+                            
+                            <p style="font-size: 1.1em;">
+                                <strong>Venta Bruta (Público):</strong> 
+                                <span>$${ventasBrutas.toFixed(2)}</span>
+                            </p>
+                            
+                            ${comisiones > 0 ? `
+                                <p style="font-size: 1.1em; color: #e74c3c;">
+                                    <strong>- Comisiones (Apps/Terminal):</strong> 
+                                    <span>$${comisiones.toFixed(2)}</span>
+                                </p>
+                            ` : ''}
+                            
+                            <hr>
+                            
+                            <p style="font-size: 1.6em; margin-top: 10px;">
+                                <strong>Ingreso Neto Real:</strong> 
+                                <span style="color: #27AE60;">$${ingresoNeto.toFixed(2)}</span>
                             </p>
                         </div>`;
                     mensajeElemento.textContent = 'Reporte generado exitosamente.';
@@ -264,7 +284,7 @@
                 }
             };
 
-            // D. REPORTE DE INSUMOS TEÓRICOS (DETECTIVE) - ¡NUEVO!
+            // D. REPORTE DE INSUMOS TEÓRICOS
             const generarReporteInsumosTeoricos = async (fechaInicio, fechaFin) => {
                 resultadosDiv.innerHTML = '<h4>Calculando consumo de recetas...</h4>';
                 resultadosDiv.style.display = 'block';
@@ -353,7 +373,7 @@
                     }
                     generarReportePlatillos(fechaInicio, fechaFin);
 
-                } else if (tipoReporte === 'insumos_teoricos') { // NUEVO
+                } else if (tipoReporte === 'insumos_teoricos') { 
                     if (!fechaInicio || !fechaFin) {
                         mensajeElemento.textContent = 'Selecciona fecha inicio y fin.';
                         mensajeElemento.style.color = 'red';
@@ -378,7 +398,3 @@
 </body>
 
 </html>
-
-
-
-
