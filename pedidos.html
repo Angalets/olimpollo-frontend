@@ -325,29 +325,37 @@
                 } catch (error) { alert(`❌ Error: ${error.message}`); }
             });
 
-            // --- Cálculos ---
+           // --- Cálculos ---
             const calcularTotal = (updateUI = true) => {
                 const total = carrito.reduce((sum, item) => sum + (item.precio_unitario * item.cantidad), 0);
                 
                 if (updateUI) {
                     totalPedidoSpan.textContent = `$${total.toFixed(2)}`;
                     
-                    // Lógica visual de comisión
-                    if (selectedPago === 'Tarjeta' && total > 0) {
-                        // Formula: Total * 0.036 = BaseComision. BaseComision * 1.16 = TotalComision.
-                        // Factor directo: 0.036 * 1.16 = 0.04176
-                        const comision = total * 0.04176;
-                        const neto = total - comision;
-                        
-                        infoComision.style.display = 'block';
-                        infoComision.innerHTML = `Cobro: $${total.toFixed(2)} | Recibes neto: <strong style="color: #27ae60;">$${neto.toFixed(2)}</strong>`;
+                    // Lógica visual de comisiones
+                    if (total > 0) {
+                        if (selectedPago === 'Tarjeta') {
+                            // Tarjeta: 4.176%
+                            const comision = total * 0.04176;
+                            const neto = total - comision;
+                            infoComision.style.display = 'block';
+                            infoComision.innerHTML = `Cobro: $${total.toFixed(2)} | Recibes neto: <strong style="color: #27ae60;">$${neto.toFixed(2)}</strong> <span style="font-size:12px; color:#e74c3c;">(-3.6%+IVA)</span>`;
+                        } else if (selectedPago === 'Aplicación') {
+                            // Apps: 42.13%
+                            const comision = total * 0.4213;
+                            const neto = total - comision;
+                            infoComision.style.display = 'block';
+                            infoComision.innerHTML = `Venta App: $${total.toFixed(2)} | Recibes neto: <strong style="color: #27ae60;">$${neto.toFixed(2)}</strong> <span style="font-size:12px; color:#e74c3c;">(-42.13%)</span>`;
+                        } else {
+                            // Efectivo / Transferencia (Sin comisión)
+                            infoComision.style.display = 'none';
+                        }
                     } else {
                         infoComision.style.display = 'none';
                     }
                 }
                 return total;
             };
-            
             // Modal Helpers
             const modalModTitulo = document.getElementById('modal-mod-titulo');
             const modalModOpciones = document.getElementById('modal-mod-opciones');
@@ -377,3 +385,4 @@
     </script>
 </body>
 </html>
+
