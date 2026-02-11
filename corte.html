@@ -184,21 +184,26 @@
                     observaciones: obs
                 };
 
-                try {
+try {
                     const res = await fetch(API_GUARDAR, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify(payload)
                     });
                     
+                    // Leemos la respuesta del servidor (sea éxito o error)
+                    const data = await res.json();
+
                     if (res.ok) {
                         alert('✅ Corte de caja guardado exitosamente.');
                         window.location.href = 'index.html';
                     } else {
-                        throw new Error('Error al guardar');
+                        // Aquí mostramos el error EXACTO que manda el servidor
+                        console.error("Detalle del error:", data);
+                        throw new Error(data.error || 'Error desconocido en el servidor');
                     }
                 } catch (e) {
-                    alert('Error: ' + e.message);
+                    alert('🛑 Ocurrió un error: ' + e.message);
                 }
             });
         });
