@@ -74,11 +74,17 @@
         <table id="tabla-inventario">
             <thead>
                 <tr>
-                    <th>ID</th><th>Nombre</th><th>Categoría</th><th>Cantidad</th><th>Unidad</th><th>Estado</th><th>Acciones</th>
+                    <th>ID</th>
+                    <th>Nombre</th>
+                    <th>Categoría</th>
+                    <th>Proveedor</th> <th>Cantidad</th>
+                    <th>Unidad</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
                 </tr>
             </thead>    
             <tbody>
-                <tr><td colspan="7" style="text-align: center;">Cargando inventario...</td></tr>
+                <tr><td colspan="8" style="text-align: center;">Cargando inventario...</td></tr>
             </tbody>
         </table>
     </main>
@@ -89,9 +95,25 @@
             <h3>Agregar Nuevo Insumo</h3>
             <form id="form-agregar" style="display: grid; gap: 15px;">
                 <div><label for="nombre-agregar">Nombre del Insumo:</label><input type="text" id="nombre-agregar" required></div>
-                <div><label for="categoria-agregar">Categoría:</label><select id="categoria-agregar" required><option value="Materia Prima">Materia Prima</option><option value="Salsas">Salsas</option><option value="Aderezos">Aderezos</option><option value="Aceite">Aceite</option><option value="Bebidas">Bebidas</option><option value="Empacado">Empacado</option><option value="Gases">Gas</option><option value="Otros">Otros</option></select></div>
-                <div><label for="cantidad-agregar">Cantidad Inicial:</label><input type="number" id="cantidad-agregar" min="0" value="0" step="0.01" required></div>
-                <div><label for="unidad-agregar">Unidad de Medida (Ej: Kg, Pz, L):</label><input type="text" id="unidad-agregar" value="Unidad" required></div>
+                <div>
+                    <label for="categoria-agregar">Categoría:</label>
+                    <select id="categoria-agregar" required>
+                        <option value="Materia Prima">Materia Prima</option>
+                        <option value="Salsas">Salsas</option>
+                        <option value="Aderezos">Aderezos</option>
+                        <option value="Aceite">Aceite</option>
+                        <option value="Bebidas">Bebidas</option>
+                        <option value="Empacado">Empacado</option>
+                        <option value="Gases">Gas</option>
+                        <option value="Otros">Otros</option>
+                    </select>
+                </div>
+                <div><label for="proveedor-agregar">Proveedor Preferido:</label><input type="text" id="proveedor-agregar" placeholder="Ej: Costco, Mercado" required></div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div><label for="cantidad-agregar">Cantidad Inicial:</label><input type="number" id="cantidad-agregar" min="0" value="0" step="0.01" required></div>
+                    <div><label for="unidad-agregar">Unidad (Ej: Kg, L):</label><input type="text" id="unidad-agregar" value="Unidad" required></div>
+                </div>
                 <div><label for="stock-minimo-agregar">Stock Mínimo (Alerta):</label><input type="number" id="stock-minimo-agregar" min="0" value="10" required></div>
                 <button type="submit" class="btn btn-primary">Guardar Insumo</button>
             </form>
@@ -104,12 +126,33 @@
             <h3>Editar Insumo</h3>
             <form id="form-editar" style="display: grid; gap: 15px;">
                 <input type="hidden" id="edit-id">
-                <div><label for="edit-cantidad">Cantidad:</label><input type="number" id="edit-cantidad" min="0" step="0.01" required></div>
-                <div><label for="edit-categoria">Categoría:</label><select id="edit-categoria" required><option value="Materia Prima">Materia Prima</option><option value="Salsas">Salsas</option><option value="Aderezos">Aderezos</option><option value="Aceite">Aceite</option><option value="Bebidas">Bebidas</option><option value="Empacado">Empacado</option><option value="Gases">Gas</option><option value="Otros">Otros</option></select></div>
+                
                 <div><label for="edit-nombre">Nombre:</label><input type="text" id="edit-nombre" required></div>
-                <div><label>ID Producto:</label><input type="text" id="edit-id-display" readonly disabled></div>
-                <div><label for="edit-unidad">Unidad de Medida:</label><input type="text" id="edit-unidad" required></div>
-                <div><label for="edit-stock-minimo">Stock Mínimo (Alerta):</label><input type="number" id="edit-stock-minimo" min="0" step="1" required></div>
+                
+                <div>
+                    <label for="edit-categoria">Categoría:</label>
+                    <select id="edit-categoria" required>
+                        <option value="Materia Prima">Materia Prima</option>
+                        <option value="Salsas">Salsas</option>
+                        <option value="Aderezos">Aderezos</option>
+                        <option value="Aceite">Aceite</option>
+                        <option value="Bebidas">Bebidas</option>
+                        <option value="Empacado">Empacado</option>
+                        <option value="Gases">Gas</option>
+                        <option value="Otros">Otros</option>
+                    </select>
+                </div>
+                
+                <div><label for="edit-proveedor">Proveedor Preferido:</label><input type="text" id="edit-proveedor" required></div>
+
+                <div><label for="edit-cantidad">Cantidad Actual:</label><input type="number" id="edit-cantidad" min="0" step="0.01" required></div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div><label for="edit-unidad">Unidad:</label><input type="text" id="edit-unidad" required></div>
+                    <div><label for="edit-stock-minimo">Stock Mínimo:</label><input type="number" id="edit-stock-minimo" min="0" step="1" required></div>
+                </div>
+
+                <div style="font-size: 12px; color: gray;">ID: <span id="edit-id-display"></span></div>
                 <button type="submit" class="btn btn-primary">Guardar Cambios</button>
             </form>
         </div>
@@ -119,7 +162,7 @@
         <div class="modal-content" style="text-align:center;">
             <span class="close">&times;</span>
             <h3>Confirmar Eliminación</h3>
-            <p>¿Estás seguro de que deseas eliminar el insumo: <strong id="insumo-a-eliminar"></strong>?</p>
+            <p>¿Estás seguro de eliminar: <strong id="insumo-a-eliminar"></strong>?</p>
             <div style="display: flex; gap: 15px; justify-content: center; margin-top: 20px;">
                 <button id="btn-confirmar-eliminar" class="btn btn-danger">Sí, Eliminar</button>
                 <button type="button" class="btn btn-secondary btn-cancelar">Cancelar</button>
@@ -140,31 +183,26 @@
             const filtroEstado = document.getElementById('filtro-estado');
             const btnAplicarFiltro = document.getElementById('btn-aplicar-filtro');
             const btnGuardarCorte = document.getElementById('btn-guardar-corte');
+            
+            // Modales
             const modalProducto = document.getElementById('modalProducto');
             const modalEditar = document.getElementById('modalEditar');
             const modalConfirmar = document.getElementById('modalConfirmar');
-            const insumoAEliminar = document.getElementById('insumo-a-eliminar');
+            
+            // Forms y Elementos
             const formAgregar = document.getElementById('form-agregar');
             const formEditar = document.getElementById('form-editar');
+            const insumoAEliminar = document.getElementById('insumo-a-eliminar');
             const btnConfirmarEliminar = document.getElementById('btn-confirmar-eliminar');
             let productoIdActual = null;
 
             // --- 1. VERIFICACIÓN Y SESIÓN ---
             const token = localStorage.getItem('authToken');
             const role = localStorage.getItem('userRole');
-            if (!token || !role) {
-                window.location.href = 'login.html';
-                return;
-            }
+            if (!token || !role) { window.location.href = 'login.html'; return; }
             const userData = parseJwt(token);
-            if (userData && userData.username) {
-                document.getElementById('user-identifier').textContent = userData.username;
-            }
-            document.getElementById('btn-logout').addEventListener('click', () => {
-                localStorage.removeItem('authToken');
-                localStorage.removeItem('userRole');
-                window.location.href = 'login.html';
-            });
+            if (userData && userData.username) document.getElementById('user-identifier').textContent = userData.username;
+            document.getElementById('btn-logout').addEventListener('click', () => { localStorage.clear(); window.location.href = 'login.html'; });
             
             // --- 2. FUNCIONES DE UTILIDAD ---
             const abrirModal = (modal) => modal.style.display = 'flex';
@@ -181,55 +219,46 @@
                 try {
                     const categoria = filtroCategoria.value;
                     const estado = filtroEstado.value;
-
                     let url = API_URL + '?';
                     if (categoria) url += `categoria=${encodeURIComponent(categoria)}&`;
                     if (estado) url += `estado=${encodeURIComponent(estado)}&`;
-                    url = url.endsWith('&') ? url.slice(0, -1) : url;
-                    url = url.endsWith('?') ? url.slice(0, -1) : url;
 
-                    const response = await fetch(url, {
-                        headers: { 'Authorization': `Bearer ${token}` }
-                    });
-
-                    if (!response.ok) {
-                        if (response.status === 401 || response.status === 403) {
-                            alert('Sesión expirada o no autorizado. Inicia sesión de nuevo.');
-                            window.location.href = 'login.html';
-                            return;
-                        }
-                        const errorData = await response.json();
-                        throw new Error(errorData.error || 'Error al obtener el inventario');
-                    }
+                    const response = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
+                    if (!response.ok) throw new Error('Error al obtener el inventario');
+                    
                     const inventario = await response.json();
                     tablaBody.innerHTML = '';
-                    if (inventario.length === 0) {
-                        tablaBody.innerHTML = '<tr><td colspan="7" style="text-align: center;">No se encontraron insumos.</td></tr>';
-                        return;
-                    }
+                    if (inventario.length === 0) { tablaBody.innerHTML = '<tr><td colspan="8" style="text-align: center;">No se encontraron insumos.</td></tr>'; return; }
+                    
                     inventario.forEach(producto => {
                         const tr = document.createElement('tr');
                         let color = '';
                         if (producto.estado === 'Agotado') color = 'background-color: #ffcccc;'; 
                         else if (producto.estado === 'Requiere re-stock') color = 'background-color: #ffebcc;';
                         tr.style = color;
+                        
+                        // Renderizamos la fila incluyendo PROVEEDOR
                         tr.innerHTML = `
                             <td>${producto.id}</td>
                             <td>${producto.nombre}</td>
                             <td>${producto.categoria}</td>
-                            <td>${producto.cantidad}</td>
+                            <td>${producto.proveedor_preferido || 'General'}</td> <td>${producto.cantidad}</td>
                             <td>${producto.unidad}</td>
                             <td><span style="font-weight: bold;">${producto.estado}</span></td>
                             <td>
-                                <button class="btn btn-secondary btn-edit" data-id="${producto.id}" data-nombre="${producto.nombre}" data-cantidad="${producto.cantidad}" data-unidad="${producto.unidad}" data-stock-minimo="${producto.stock_minimo}" data-categoria="${producto.categoria}">Editar</button>
+                                <button class="btn btn-secondary btn-edit" 
+                                    data-id="${producto.id}" 
+                                    data-nombre="${producto.nombre}" 
+                                    data-cantidad="${producto.cantidad}" 
+                                    data-unidad="${producto.unidad}" 
+                                    data-stock-minimo="${producto.stock_minimo}" 
+                                    data-categoria="${producto.categoria}"
+                                    data-proveedor="${producto.proveedor_preferido || ''}">Editar</button>
                                 <button class="btn btn-danger btn-eliminar" data-id="${producto.id}">Eliminar</button>
                             </td>`;
                         tablaBody.appendChild(tr);
                     });
-                } catch (error) {
-                    console.error('Error al cargar el inventario:', error);
-                    mostrarNotificacion('Error: ' + error.message);
-                }
+                } catch (error) { console.error(error); mostrarNotificacion('Error cargando inventario.'); }
             };
 
             const agregarProducto = async (data) => {
@@ -239,15 +268,9 @@
                         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                         body: JSON.stringify(data)
                     });
-                    if (!response.ok) throw new Error('Error al agregar el insumo');
-                    await response.json();
-                    renderInventario();
-                    cerrarModales();
-                    mostrarNotificacion(`Insumo "${data.nombre}" agregado exitosamente.`);
-                } catch (error) {
-                    console.error('Error al agregar:', error);
-                    mostrarNotificacion('Error al agregar el insumo.');
-                }
+                    if (!response.ok) throw new Error('Error al agregar');
+                    renderInventario(); cerrarModales(); mostrarNotificacion(`Insumo agregado exitosamente.`);
+                } catch (error) { mostrarNotificacion('Error al agregar el insumo.'); }
             };
 
             const editarProducto = async (id, data) => {
@@ -257,51 +280,26 @@
                         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                         body: JSON.stringify(data)
                     });
-                    if (!response.ok) throw new Error('Error al editar el insumo');
-                    await response.json();
-                    renderInventario();
-                    cerrarModales();
-                    mostrarNotificacion(`Insumo "${data.nombre}" actualizado exitosamente.`);
-                } catch (error) {
-                    console.error('Error al editar:', error);
-                    mostrarNotificacion('Error al editar el insumo.');
-                }
+                    if (!response.ok) throw new Error('Error al editar');
+                    renderInventario(); cerrarModales(); mostrarNotificacion(`Insumo actualizado exitosamente.`);
+                } catch (error) { mostrarNotificacion('Error al editar el insumo.'); }
             };
 
             const eliminarProducto = async (id) => {
                 try {
-                    const response = await fetch(`${API_URL}/${id}`, {
-                        method: 'DELETE',
-                        headers: { 'Authorization': `Bearer ${token}` }
-                    });
-                    if (response.status === 409) {
-                        const data = await response.json();
-                        throw new Error(data.mensaje);
-                    }
-                    if (!response.ok) throw new Error('Error al eliminar el insumo.');
-                    renderInventario();
-                    cerrarModales();
-                    mostrarNotificacion('Insumo eliminado exitosamente.');
-                } catch (error) {
-                    console.error('Error al eliminar:', error);
-                    mostrarNotificacion('Error: ' + error.message);
-                }
+                    const response = await fetch(`${API_URL}/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
+                    if (!response.ok) throw new Error('Error al eliminar');
+                    renderInventario(); cerrarModales(); mostrarNotificacion('Insumo eliminado.');
+                } catch (error) { mostrarNotificacion('Error al eliminar.'); }
             };
-            
+
             const guardarInventarioFisico = async () => {
-                if (!confirm("¿Estás seguro de que deseas guardar un registro del inventario físico actual?")) return;
+                if (!confirm("¿Guardar registro del inventario físico actual?")) return;
                 try {
-                    const response = await fetch(`${API_URL}/guardar`, {
-                        method: 'POST',
-                        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
-                    });
-                    const data = await response.json();
-                    if (!response.ok) throw new Error(data.error || 'Error al guardar el inventario físico.');
-                    mostrarNotificacion(data.mensaje);
-                } catch (error) {
-                    console.error('Error al guardar corte:', error);
-                    mostrarNotificacion('Error: ' + error.message);
-                }
+                    const response = await fetch(`${API_URL}/guardar`, { method: 'POST', headers: { 'Authorization': `Bearer ${token}` } });
+                    if (!response.ok) throw new Error('Error al guardar corte');
+                    mostrarNotificacion('Inventario físico guardado.');
+                } catch (error) { mostrarNotificacion('Error al guardar.'); }
             };
 
             // --- 4. MANEJADORES DE EVENTOS ---
@@ -318,37 +316,38 @@
                 if (e.target.classList.contains('btn-edit')) {
                     const editNombre = document.getElementById('edit-nombre');
                     const editCategoria = document.getElementById('edit-categoria');
+                    const editProveedor = document.getElementById('edit-proveedor'); // NUEVO
                     const editCantidad = document.getElementById('edit-cantidad');
                     const editUnidad = document.getElementById('edit-unidad');
                     const editStockMinimo = document.getElementById('edit-stock-minimo');
                     
                     document.getElementById('edit-id').value = id;
-                    document.getElementById('edit-id-display').value = id;
+                    document.getElementById('edit-id-display').textContent = id;
+                    
+                    // Llenar datos
                     editNombre.value = e.target.dataset.nombre;
                     editCategoria.value = e.target.dataset.categoria;
+                    editProveedor.value = e.target.dataset.proveedor; // Llenar proveedor
                     editCantidad.value = e.target.dataset.cantidad;
                     editUnidad.value = e.target.dataset.unidad;
                     editStockMinimo.value = e.target.dataset.stockMinimo;
 
-                    if (role === 'Gerente') {
-                        editNombre.disabled = true;
-                        editCategoria.disabled = true;
-                        editUnidad.disabled = true;
-                        editStockMinimo.disabled = true;
-                        editCantidad.disabled = false;
-                    } else {
-                        editNombre.disabled = false;
-                        editCategoria.disabled = false;
-                        editUnidad.disabled = false;
-                        editStockMinimo.disabled = false;
-                        editCantidad.disabled = false;
-                    }
+                    // --- SEGURIDAD: Solo Admin puede editar campos estructurales ---
+                    const esGerente = (role !== 'Administrador'); 
+                    
+                    editNombre.disabled = esGerente;
+                    editCategoria.disabled = esGerente;
+                    editProveedor.disabled = esGerente; // 🔒 BLOQUEADO SI NO ES ADMIN
+                    editUnidad.disabled = esGerente;
+                    editStockMinimo.disabled = esGerente;
+                    // Cantidad siempre habilitada para ajustes de stock
+                    editCantidad.disabled = false;
+
                     abrirModal(modalEditar);
                     
                 } else if (e.target.classList.contains('btn-eliminar')) {
                     productoIdActual = id;
-                    const nombreInsumo = e.target.closest('tr').querySelector('td:nth-child(2)').textContent;
-                    insumoAEliminar.textContent = nombreInsumo;
+                    insumoAEliminar.textContent = e.target.closest('tr').querySelector('td:nth-child(2)').textContent;
                     abrirModal(modalConfirmar);
                 }
             });
@@ -358,13 +357,11 @@
                 const data = {
                     nombre: document.getElementById('nombre-agregar').value.trim(),
                     categoria: document.getElementById('categoria-agregar').value,
-                    cantidad: parseInt(document.getElementById('cantidad-agregar').value, 10),
+                    proveedor_preferido: document.getElementById('proveedor-agregar').value.trim(), // NUEVO
+                    cantidad: parseFloat(document.getElementById('cantidad-agregar').value),
                     unidad: document.getElementById('unidad-agregar').value.trim(),
                     stock_minimo: parseInt(document.getElementById('stock-minimo-agregar').value, 10)
                 };
-                if (!data.nombre || isNaN(data.cantidad) || data.cantidad < 0 || isNaN(data.stock_minimo) || data.stock_minimo < 0) {
-                    return alert('Por favor, ingresa un nombre válido y cantidades positivas.');
-                }
                 agregarProducto(data);
             });
             
@@ -374,30 +371,20 @@
                 const data = {
                     nombre: document.getElementById('edit-nombre').value.trim(),
                     categoria: document.getElementById('edit-categoria').value,
+                    proveedor_preferido: document.getElementById('edit-proveedor').value.trim(), // NUEVO
                     cantidad: parseFloat(document.getElementById('edit-cantidad').value),
                     unidad: document.getElementById('edit-unidad').value.trim(),
                     stock_minimo: parseInt(document.getElementById('edit-stock-minimo').value, 10)
                 };
-                if (!data.nombre || isNaN(data.cantidad) || data.cantidad < 0 || isNaN(data.stock_minimo) || data.stock_minimo < 0) {
-                    return alert('Por favor, ingresa un nombre válido y cantidades positivas.');
-                }
                 editarProducto(id, data);
             });
 
-            btnConfirmarEliminar.addEventListener('click', () => {
-                eliminarProducto(productoIdActual);
-            });
-
+            btnConfirmarEliminar.addEventListener('click', () => { eliminarProducto(productoIdActual); });
             document.querySelectorAll('.close, .btn-cancelar').forEach(el => el.addEventListener('click', cerrarModales));
-            window.addEventListener('click', (e) => {
-                if (e.target.classList.contains('modal')) cerrarModales();
-            });
+            window.addEventListener('click', (e) => { if (e.target.classList.contains('modal')) cerrarModales(); });
 
-            // --- 5. INICIALIZACIÓN ---
             renderInventario();
         });
     </script>
 </body>
 </html>
-
-
