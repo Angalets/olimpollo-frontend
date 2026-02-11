@@ -73,8 +73,8 @@
                     <th>Canal</th>
                     <th>Cliente</th>
                     <th>Estado</th>
-                    <th>Ingreso Neto</th> <th>Fecha</th> 
-                    <th>Hora</th>
+                    <th>Total</th>
+                    <th>Fecha</th> <th>Hora</th>
                     <th>Acciones</th> 
                 </tr>
             </thead>
@@ -85,7 +85,7 @@
       <div class="detalles card">
           <h3 id="detalle-titulo">Detalles del Pedido</h3>
           <div id="detalle-contenido"><p>Selecciona un pedido para ver sus detalles.</p></div>
-          <div id="panel-acciones" style="margin-top: 20px;"></div>
+          <div id="panel-acciones" style="margin-top: 20px; display: flex; flex-direction: column; gap: 10px;"></div>
       </div>
     </div>
   </main>
@@ -132,7 +132,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const fechaInicio = filtroFechaInicio.value;
         const fechaFin = filtroFechaFin.value;
 
-        // Construir URL con parámetros
         let params = new URLSearchParams();
         if (canal && canal !== 'Todos') params.append('canal', canal);
         if (fechaInicio) params.append('fechaInicio', fechaInicio);
@@ -162,26 +161,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (pedido.estado === 'Entregado') colorEstado = 'style="background-color: #d4edda; font-weight: bold;"';
                 else if (pedido.estado === 'Cancelado') colorEstado = 'style="background-color: #f8d7da; text-decoration: line-through;"';
 
-                // --- 💰 CÁLCULO VISUAL DEL NETO ---
-                const totalBruto = parseFloat(pedido.total);
-                const comision = parseFloat(pedido.comision || 0);
-                const ingresoNeto = totalBruto - comision;
-                
-                // Formato de fecha
                 const fechaObj = new Date(pedido.fecha_creacion);
                 const fecha = fechaObj.toLocaleDateString('es-MX', { day: '2-digit', month: '2-digit', year: 'numeric' });
                 const hora = fechaObj.toLocaleTimeString('es-MX', {hour: '2-digit', minute:'2-digit'});
-                const canalTexto = pedido.canal_venta || 'N/A'; 
+                const canal = pedido.canal_venta || 'N/A'; 
 
                 tr.innerHTML = `
                     <td>${pedido.id.toString().padStart(3, '0')}</td>
-                    <td>${canalTexto}</td>
+                    <td>${canal}</td>
                     <td>${pedido.cliente}</td>
                     <td ${colorEstado}>${pedido.estado}</td>
-                    <td>
-                        <div style="font-weight:bold; color:#27ae60;">$${ingresoNeto.toFixed(2)}</div>
-                        ${comision > 0 ? `<div style="font-size:11px; color:#e74c3c;">(Comisión: -$${comision.toFixed(2)})</div>` : ''}
-                    </td>
+                    <td>$${pedido.total.toFixed(2)}</td>
                     <td>${fecha}</td>
                     <td>${hora}</td>
                     <td><button class="btn btn-secondary btn-detalle" data-id="${pedido.id}">Ver</button></td>
@@ -195,7 +185,95 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // --- 3. FUNCIÓN DE DETALLES Y ACCIONES ---
+    // --- 3. IMPRESIÓN DE TICKETS (FUNCIÓN NUEVA) 🖨️ ---
+    const imprimirTicket = (pedido) => {
+        // Formato para impresora térmica de 58mm o 80mm
+        const ventana = window.open('', 'PRINT', 'height=600,width=300');
+        
+        const fechaObj = new Date(pedido.fecha_creacion);
+        const fecha = fechaObj.toLocaleDateString('es-MX');
+        const hora = fechaObj.toLocaleTimeString('es-MX', {hour: '2-digit', minute:'2-digit'});
+
+        let itemsHTML = '';
+        pedido.items.forEach(item => {
+            itemsHTML += `
+                <tr>
+                    <td class="col-cant">${item.cantidad}</td>
+                    <td class="col-prod">
+                        ${item.nombre_producto}
+                        ${item.notas ? `<br><small>(${item.notas})</small>` : ''}
+                    </td>
+                    <td class="col-prec">$${(item.precio_unitario * item.cantidad).toFixed(2)}</td>
+                </tr>`;
+        });
+
+        ventana.document.write(`
+            <html>
+            <head>
+                <title>Ticket #${pedido.id}</title>
+                <style>
+                    body { font-family: 'Courier New', monospace; font-size: 12px; width: 58mm; margin: 0; padding: 5px; color: black; }
+                    .header { text-align: center; margin-bottom: 10px; }
+                    .header h2 { margin: 0; font-size: 16px; font-weight: bold; }
+                    .header p { margin: 2px 0; }
+                    .divider { border-bottom: 1px dashed black; margin: 5px 0; }
+                    .info { font-size: 11px; margin-bottom: 5px; }
+                    .items { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
+                    .items td { padding: 2px 0; vertical-align: top; }
+                    .col-cant { width: 10%; text-align: center; }
+                    .col-prod { width: 65%; }
+                    .col-prec { width: 25%; text-align: right; }
+                    .totals { text-align: right; margin-top: 5px; font-size: 12px; }
+                    .total-big { font-size: 16px; font-weight: bold; margin-top: 5px; }
+                    .footer { text-align: center; margin-top: 15px; font-size: 10px; }
+                    @media print { @page { margin: 0; } body { margin: 0; } }
+                </style>
+            </head>
+            <body>
+                <div class="header">
+                    <h2>OLIMPOLLO</h2>
+                    <p>Los Boneless del Olimpo</p>
+                    <p>Hermosillo, Sonora</p>
+                    <div class="divider"></div>
+                </div>
+                
+                <div class="info">
+                    <strong>Folio: #${pedido.id.toString().padStart(4, '0')}</strong><br>
+                    Fecha: ${fecha} ${hora}<br>
+                    Cliente: ${pedido.cliente}<br>
+                    Canal: ${pedido.canal_venta || 'Mostrador'}
+                </div>
+                <div class="divider"></div>
+
+                <table class="items">
+                    ${itemsHTML}
+                </table>
+                <div class="divider"></div>
+
+                <div class="totals">
+                    Total: <div class="total-big">$${pedido.total.toFixed(2)}</div>
+                    <small>Pago: ${pedido.metodo_pago || 'Efectivo'}</small>
+                </div>
+
+                <div class="footer">
+                    <p>¡Gracias por tu compra!</p>
+                    <p>Wifi: OlimpolloGuest</p>
+                    <p>********</p>
+                </div>
+            </body>
+            </html>
+        `);
+
+        ventana.document.close();
+        ventana.focus();
+        // Esperar un poco para asegurar que carguen estilos (aunque aquí son inline)
+        setTimeout(() => {
+            ventana.print();
+            ventana.close();
+        }, 250);
+    };
+
+    // --- 4. FUNCIÓN DE DETALLES Y ACCIONES ---
     const mostrarDetalles = (id) => {
         detalleContenido.innerHTML = '<p>Selecciona un pedido de la lista para ver sus detalles.</p>';
         panelAcciones.innerHTML = '';
@@ -203,11 +281,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!id) return;
         pedidoSeleccionado = pedidos.find(p => p.id == id);
         if (!pedidoSeleccionado) return;
-
-        // Cálculos para el detalle
-        const totalBruto = parseFloat(pedidoSeleccionado.total);
-        const comision = parseFloat(pedidoSeleccionado.comision || 0);
-        const neto = totalBruto - comision;
 
         let itemsHTML = '';
         pedidoSeleccionado.items.forEach(item => {
@@ -218,57 +291,55 @@ document.addEventListener('DOMContentLoaded', () => {
         detalleContenido.innerHTML = `
             <p><strong>Cliente:</strong> ${pedidoSeleccionado.cliente}</p>
             <p><strong>Canal:</strong> ${pedidoSeleccionado.canal_venta || 'N/A'}</p>
-            <p><strong>Pago:</strong> ${pedidoSeleccionado.metodo_pago || 'Desconocido'}</p>
             <p><strong>Estado:</strong> ${pedidoSeleccionado.estado}</p>
-            <hr>
-            <p><strong>Total Venta:</strong> $${totalBruto.toFixed(2)}</p>
-            ${comision > 0 ? `<p style="color:#e74c3c;"><strong>Comisión:</strong> -$${comision.toFixed(2)}</p>` : ''}
-            <p style="font-size:1.2em; color:#27ae60;"><strong>Ingreso Neto: $${neto.toFixed(2)}</strong></p>
+            <p><strong>Total:</strong> $${pedidoSeleccionado.total.toFixed(2)}</p>
             <hr>
             <h4>Productos:</h4>
             <ul>${itemsHTML}</ul>
         `;
 
-        // LÓGICA DE BOTONES
+        // BOTONES DE ACCIÓN (Ahora incluye Imprimir)
+        let botonesHTML = `
+            <button id="btn-imprimir-ticket" class="btn btn-secondary" style="background-color: #34495e; color: white; width:100%;">🖨️ Imprimir Ticket</button>
+        `;
+
         if (pedidoSeleccionado.estado === 'Pendiente') {
-            panelAcciones.innerHTML = `
+            botonesHTML += `
                 <button id="btn-marcar-entregado" class="btn btn-success" data-id="${id}">Marcar Entregado</button>
                 <button id="btn-marcar-cancelado" class="btn btn-danger" data-id="${id}">Marcar Cancelado</button>
             `;
         } else {
-            panelAcciones.innerHTML = `
-                <p style="color:gray; margin-bottom:10px;">Este pedido ya fue ${pedidoSeleccionado.estado}.</p>
+            botonesHTML += `
                 <button id="btn-eliminar-registro" class="btn btn-danger" style="background-color: #7f8c8d;" data-id="${id}" title="Borrar del historial permanentemente">
                     🗑️ Eliminar Registro
                 </button>
             `;
         }
+        panelAcciones.innerHTML = botonesHTML;
     };
 
-    // --- 4. EVENT LISTENERS Y LÓGICA DE BOTONES ---
+    // --- 5. EVENT LISTENERS ---
     panelAcciones.addEventListener('click', async (e) => {
         const id = pedidoSeleccionado?.id;
         if (!id) return;
 
-        if (e.target.id === 'btn-marcar-entregado') {
-            if (confirm(`¿Confirmas marcar el Pedido #${id} como ENTREGADO? Esto descontará el inventario.`)) {
-                cambiarEstado(id, 'Entregado');
-            }
-        } else if (e.target.id === 'btn-marcar-cancelado') {
-            if (confirm(`¿Confirmas marcar el Pedido #${id} como CANCELADO?`)) {
-                 cambiarEstado(id, 'Cancelado');
-            }
-        } else if (e.target.id === 'btn-eliminar-registro') {
-            if (confirm(`⚠️ ¿Estás seguro de ELIMINAR DEFINITIVAMENTE el Pedido #${id} del historial?\n\nEsta acción no se puede deshacer.`)) {
+        if (e.target.id === 'btn-imprimir-ticket') {
+            imprimirTicket(pedidoSeleccionado);
+        } 
+        else if (e.target.id === 'btn-marcar-entregado') {
+            if (confirm(`¿Confirmas marcar el Pedido #${id} como ENTREGADO?`)) cambiarEstado(id, 'Entregado');
+        } 
+        else if (e.target.id === 'btn-marcar-cancelado') {
+            if (confirm(`¿Confirmas marcar el Pedido #${id} como CANCELADO?`)) cambiarEstado(id, 'Cancelado');
+        } 
+        else if (e.target.id === 'btn-eliminar-registro') {
+            if (confirm(`⚠️ ¿Estás seguro de ELIMINAR DEFINITIVAMENTE el Pedido #${id}?`)) {
                 try {
                     const response = await fetch(`${API_PEDIDOS_URL}/${id}`, { method: 'DELETE' });
                     if (!response.ok) throw new Error('No se pudo eliminar.');
                     alert('Pedido eliminado del historial.');
-                    renderPedidos();
-                    mostrarDetalles(null);
-                } catch (error) {
-                    alert('Error: ' + error.message);
-                }
+                    renderPedidos(); mostrarDetalles(null);
+                } catch (error) { alert('Error: ' + error.message); }
             }
         }
     });
@@ -276,29 +347,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const cambiarEstado = async (id, nuevoEstado) => {
         try {
             const response = await fetch(`${API_PEDIDOS_URL}/${id}`, {
-                method: 'PUT',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ estado: nuevoEstado }) 
+                method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ estado: nuevoEstado }) 
             });
             if (!response.ok) throw new Error('Error al actualizar estado.');
             alert(`Pedido #${id} actualizado a ${nuevoEstado} con éxito.`);
             renderPedidos(); 
-        } catch (error) {
-            console.error('Error al cambiar estado:', error);
-            alert('Fallo al cambiar el estado: ' + error.message);
-        }
+        } catch (error) { console.error(error); alert('Fallo al cambiar el estado.'); }
     };
 
     btnAplicarFiltro.addEventListener('click', renderPedidos);
-
     tablaBody.addEventListener('click', (e) => {
         const detalleBtn = e.target.closest('.btn-detalle');
-        if (detalleBtn) {
-            mostrarDetalles(detalleBtn.dataset.id);
-        }
+        if (detalleBtn) mostrarDetalles(detalleBtn.dataset.id);
     });
 
-    // --- 5. INICIALIZACIÓN ---
     renderPedidos(); 
 });
 </script>
