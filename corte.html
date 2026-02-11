@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Olimpollo - Corte de Caja</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root{--bg-main:#ECF0F1;--card-bg:#FFFFFF;--text:#2c3e50;--accent:#e67e22;--green:#27ae60;--red:#c0392b;}
+        body{font-family:'Poppins',sans-serif;background:var(--bg-main);color:var(--text);margin:0;padding:20px;display:flex;justify-content:center;align-items:center;min-height:100vh;}
+        
+        .corte-container { background: var(--card-bg); width: 100%; max-width: 900px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); overflow: hidden; display: flex; flex-direction: column; }
+        .header { background: #34495e; color: white; padding: 20px 30px; display: flex; justify-content: space-between; align-items: center; }
+        .header h1 { margin: 0; font-size: 24px; }
+        .btn-close { background: transparent; border: 1px solid white; color: white; padding: 5px 15px; border-radius: 20px; cursor: pointer; text-decoration: none; font-size: 14px; }
+        
+        .grid-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+        
+        /* Columna Izquierda: SISTEMA */
+        .panel-sistema { background: #f8f9fa; padding: 30px; border-right: 1px solid #eee; }
+        .panel-sistema h3 { color: #7f8c8d; text-transform: uppercase; font-size: 14px; letter-spacing: 1px; margin-bottom: 20px; border-bottom: 2px solid #bdc3c7; padding-bottom: 10px; display: inline-block; }
+        
+        /* Columna Derecha: USUARIO */
+        .panel-usuario { background: white; padding: 30px; }
+        .panel-usuario h3 { color: var(--accent); text-transform: uppercase; font-size: 14px; letter-spacing: 1px; margin-bottom: 20px; border-bottom: 2px solid var(--accent); padding-bottom: 10px; display: inline-block; }
+
+        .fila-dato { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 10px; background: white; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .fila-dato label { font-weight: 500; }
+        .valor-sistema { font-size: 18px; font-weight: 700; color: #2c3e50; }
+        
+        .input-conteo { width: 120px; padding: 10px; font-size: 18px; text-align: right; border: 2px solid #ddd; border-radius: 8px; color: #2c3e50; font-weight: 600; outline: none; transition: border 0.3s; }
+        .input-conteo:focus { border-color: var(--accent); }
+        
+        .resumen-final { background: #2c3e50; color: white; padding: 20px 30px; display: flex; justify-content: space-between; align-items: center; }
+        .diferencia-box { text-align: right; }
+        .lbl-dif { font-size: 12px; opacity: 0.8; display: block; }
+        .val-dif { font-size: 24px; font-weight: 700; }
+        .val-dif.ok { color: var(--green); } /* Sobra o Exacto */
+        .val-dif.bad { color: var(--red); }   /* Falta */
+
+        .btn-guardar { background: var(--accent); color: white; border: none; padding: 15px 40px; font-size: 16px; font-weight: 600; border-radius: 30px; cursor: pointer; transition: transform 0.2s; }
+        .btn-guardar:hover { transform: scale(1.05); background: #d35400; }
+        
+        textarea { width: 100%; margin-top: 20px; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; resize: none; }
+    </style>
+</head>
+<body>
+
+    <div class="corte-container">
+        <div class="header">
+            <h1>Cierre de Turno 🔐</h1>
+            <a href="index.html" class="btn-close">Cancelar / Salir</a>
+        </div>
+
+        <div class="grid-layout">
+            <div class="panel-sistema">
+                <h3>Esperado (Sistema)</h3>
+                
+                <div class="fila-dato">
+                    <label>💵 Efectivo en Caja:</label>
+                    <span class="valor-sistema" id="sys-efectivo">$0.00</span>
+                </div>
+                <div class="fila-dato">
+                    <label>💳 Vouchers Tarjeta:</label>
+                    <span class="valor-sistema" id="sys-tarjeta">$0.00</span>
+                </div>
+                <div class="fila-dato" style="opacity: 0.6;">
+                    <label>📱 Apps (Ya pagado):</label>
+                    <span class="valor-sistema" id="sys-apps">$0.00</span>
+                </div>
+                <div class="fila-dato" style="opacity: 0.6;">
+                    <label>🏦 Transferencias:</label>
+                    <span class="valor-sistema" id="sys-transf">$0.00</span>
+                </div>
+                
+                <div style="margin-top: 30px; text-align: right;">
+                    <small>Venta Total del Día:</small><br>
+                    <strong style="font-size: 20px;" id="sys-total-dia">$0.00</strong>
+                </div>
+            </div>
+
+            <div class="panel-usuario">
+                <h3>Conteo Real (Arqueo)</h3>
+                
+                <div class="fila-dato">
+                    <label>💵 ¿Cuánto Efectivo contaste?</label>
+                    <input type="number" class="input-conteo" id="real-efectivo" placeholder="0.00" step="0.01">
+                </div>
+                <div class="fila-dato">
+                    <label>💳 Suma de Vouchers:</label>
+                    <input type="number" class="input-conteo" id="real-tarjeta" placeholder="0.00" step="0.01">
+                </div>
+                
+                <textarea id="observaciones" rows="3" placeholder="Observaciones (Ej: Se tomaron $50 para hielo)..."></textarea>
+            </div>
+        </div>
+
+        <div class="resumen-final">
+            <div class="diferencia-box">
+                <span class="lbl-dif">Diferencia en Caja:</span>
+                <span class="val-dif" id="diff-display">$0.00</span>
+                <span id="diff-text" style="font-size: 12px; margin-left: 10px;">(Exacto)</span>
+            </div>
+            <button class="btn-guardar" id="btn-cerrar-caja">CERRAR TURNO</button>
+        </div>
+    </div>
+
+    <script>
+        function parseJwt(token) { try { const base64Url = token.split('.')[1]; const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/'); const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join('')); return JSON.parse(jsonPayload); } catch (e) { return null; } }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const API_PREVIEW = 'https://olimpollo-api.onrender.com/api/corte/preview';
+            const API_GUARDAR = 'https://olimpollo-api.onrender.com/api/corte';
+            
+            let esperados = {};
+            let usuarioActual = 'Desconocido';
+
+            // Auth
+            const token = localStorage.getItem('authToken');
+            if(token) {
+                const u = parseJwt(token);
+                if(u) usuarioActual = u.username;
+            } else window.location.href = 'login.html';
+
+            // Cargar datos
+            try {
+                const res = await fetch(API_PREVIEW);
+                const data = await res.json();
+                esperados = data;
+                
+                // Renderizar valores esperados
+                document.getElementById('sys-efectivo').textContent = `$${data.Efectivo.toFixed(2)}`;
+                document.getElementById('sys-tarjeta').textContent = `$${data.Tarjeta.toFixed(2)}`;
+                document.getElementById('sys-apps').textContent = `$${data['Aplicación'].toFixed(2)}`;
+                document.getElementById('sys-transf').textContent = `$${data.Transferencia.toFixed(2)}`;
+                
+                const totalDia = data.Efectivo + data.Tarjeta + data['Aplicación'] + data.Transferencia;
+                document.getElementById('sys-total-dia').textContent = `$${totalDia.toFixed(2)}`;
+
+            } catch (e) {
+                alert('Error conectando con servidor: ' + e.message);
+            }
+
+            // Cálculo en tiempo real
+            const inputs = document.querySelectorAll('.input-conteo');
+            inputs.forEach(input => input.addEventListener('input', calcularDiferencia));
+
+            function calcularDiferencia() {
+                const realEfectivo = parseFloat(document.getElementById('real-efectivo').value) || 0;
+                const esperadoEfectivo = esperados.Efectivo || 0;
+                
+                const diff = realEfectivo - esperadoEfectivo;
+                const display = document.getElementById('diff-display');
+                const text = document.getElementById('diff-text');
+
+                display.textContent = (diff >= 0 ? '+' : '') + `$${diff.toFixed(2)}`;
+                
+                if (Math.abs(diff) < 1) {
+                    display.className = 'val-dif ok';
+                    text.textContent = '(Exacto)';
+                    text.style.color = '#2ecc71';
+                } else if (diff > 0) {
+                    display.className = 'val-dif ok';
+                    text.textContent = '(Sobra dinero)';
+                    text.style.color = '#2ecc71';
+                } else {
+                    display.className = 'val-dif bad';
+                    text.textContent = '(Falta dinero)';
+                    text.style.color = '#e74c3c';
+                }
+            }
+
+            // Guardar Corte
+            document.getElementById('btn-cerrar-caja').addEventListener('click', async () => {
+                const realEfectivo = parseFloat(document.getElementById('real-efectivo').value) || 0;
+                const realTarjeta = parseFloat(document.getElementById('real-tarjeta').value) || 0;
+                const obs = document.getElementById('observaciones').value;
+
+                if (!confirm('¿Estás seguro de cerrar el turno? Esta acción guardará el corte.')) return;
+
+                const payload = {
+                    usuario: usuarioActual,
+                    totales_esperados: esperados,
+                    totales_reales: { efectivo: realEfectivo, tarjeta: realTarjeta },
+                    observaciones: obs
+                };
+
+                try {
+                    const res = await fetch(API_GUARDAR, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(payload)
+                    });
+                    
+                    if (res.ok) {
+                        alert('✅ Corte de caja guardado exitosamente.');
+                        window.location.href = 'index.html';
+                    } else {
+                        throw new Error('Error al guardar');
+                    }
+                } catch (e) {
+                    alert('Error: ' + e.message);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
