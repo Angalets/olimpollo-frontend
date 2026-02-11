@@ -85,7 +85,7 @@
       font-size: 14px;
     }
 
-    /* --- NUEVO: ESTILOS DE MÉTRICAS (WIDGETS) --- */
+    /* --- ESTILOS DE MÉTRICAS (WIDGETS) --- */
     .stats-container {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -265,12 +265,12 @@
 
         const panel = document.getElementById('panel-modulos');
         
-        // --- 1. DEFINICIÓN DE MÓDULOS (INCLUYENDO COMPRAS) ---
+        // --- DEFINICIÓN DE MÓDULOS ---
         const modulos = [
             { text: 'Nuevo Pedido (POS)', href: 'pedidos.html', roles: ['Administrador', 'Gerente', 'Empleado'], icon: 'fa-cash-register' },
+            { text: 'Corte de Caja', href: 'corte.html', roles: ['Administrador', 'Gerente', 'Empleado'], icon: 'fa-file-invoice-dollar' }, // 🆕 BOTÓN NUEVO
             { text: 'Cocina (Comanda)', href: 'comanda.html', roles: ['Administrador', 'Gerente', 'Empleado'], icon: 'fa-receipt' },
             { text: 'Historial Pedidos', href: 'pedidos_lista.html', roles: ['Administrador', 'Gerente'], icon: 'fa-clipboard-list' },
-            // 🚨 NUEVO MÓDULO DE COMPRAS AGREGADO:
             { text: 'Compras / Re-stock', href: 'compras.html', roles: ['Administrador', 'Gerente'], icon: 'fa-cart-shopping' },
             { text: 'Inventario', href: 'inventario.html', roles: ['Administrador', 'Gerente'], icon: 'fa-boxes-stacked' },
             { text: 'Reportes', href: 'reportes.html', roles: ['Administrador', 'Gerente'], icon: 'fa-chart-line' },
@@ -290,7 +290,7 @@
             }
         });
 
-        // --- 2. LÓGICA DEL DASHBOARD (MÉTRICAS) ---
+        // --- LÓGICA DEL DASHBOARD (MÉTRICAS) ---
         // Solo cargamos métricas si es Admin o Gerente para no saturar al Empleado
         if (role === 'Administrador' || role === 'Gerente') {
             document.getElementById('stats-panel').style.display = 'grid';
@@ -307,10 +307,8 @@
 async function cargarMetricas() {
         try {
             // A. VENTAS DE HOY (Usamos new Date().toLocaleDateString('en-CA') para formato YYYY-MM-DD local)
-            const hoy = new Date().toLocaleDateString('en-CA'); // Esto da "2025-01-26" basado en tu PC
+            const hoy = new Date().toLocaleDateString('en-CA'); 
             
-            console.log("Consultando ventas para:", hoy); // Para depuración
-
             const resVentas = await fetch(`${API_URL}/reportes/ventas?fechaInicio=${hoy}&fechaFin=${hoy}`);
             
             if (resVentas.ok) {
@@ -318,11 +316,10 @@ async function cargarMetricas() {
                 document.getElementById('stat-ventas').textContent = `$${dataVentas.ventas_totales || '0.00'}`;
                 document.getElementById('stat-pedidos-count').textContent = `${dataVentas.total_pedidos || 0} pedidos entregados`;
             } else {
-                console.error("Error API Ventas:", await resVentas.text());
                 document.getElementById('stat-ventas').textContent = '$0.00';
             }
 
-            // B. PEDIDOS PENDIENTES (Consultamos la lista completa y filtramos en el cliente para asegurar)
+            // B. PEDIDOS PENDIENTES
             const resPedidos = await fetch(`${API_URL}/pedidos`); 
             
             if (resPedidos.ok) {
@@ -337,11 +334,11 @@ async function cargarMetricas() {
             }
 
             // C. STOCK BAJO
-            const resStock = await fetch(`${API_URL}/inventario`); // Traemos todo y filtramos aquí
+            const resStock = await fetch(`${API_URL}/inventario`); 
             if (resStock.ok) {
                 const dataStock = await resStock.json();
                 if(Array.isArray(dataStock)) {
-                    // Filtramos donde la cantidad sea menor o igual al stock mínimo Y mayor a 0 (o incluye agotados si quieres)
+                    // Filtramos donde la cantidad sea menor o igual al stock mínimo Y mayor a 0
                     const stockBajoCount = dataStock.filter(i => i.cantidad <= i.stock_minimo).length;
                     
                     const elemStock = document.getElementById('stat-stock');
@@ -357,4 +354,3 @@ async function cargarMetricas() {
 </script>
 </body>
 </html>
-
