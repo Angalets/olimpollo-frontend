@@ -19,6 +19,12 @@
     .detalles { flex: 1; min-width: 300px; align-self: flex-start; }
     .detalles ul { list-style: none; padding: 0; }
     .filtros-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; align-items: flex-end; }
+    
+    /* Estilos para el desglose financiero */
+    .finance-row { display: flex; justify-content: space-between; padding: 5px 0; font-size: 14px; }
+    .finance-total { border-top: 1px solid #eee; margin-top: 10px; padding-top: 10px; font-weight: bold; font-size: 16px; }
+    .finance-neto { color: #27ae60; font-size: 18px; margin-top: 5px; }
+    .finance-comision { color: #e74c3c; }
   </style>
 </head>
 <body>
@@ -93,7 +99,6 @@
   <footer>&copy; 2025 Los Boneless del Olimpo</footer>
 
 <script>
-// Función para decodificar JWT
 function parseJwt(token) { try { const base64Url = token.split('.')[1]; const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/'); const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join('')); return JSON.parse(jsonPayload); } catch (e) { return null; } }
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -185,11 +190,9 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // --- 3. IMPRESIÓN DE TICKETS (FUNCIÓN NUEVA) 🖨️ ---
+    // --- 3. IMPRESIÓN DE TICKETS ---
     const imprimirTicket = (pedido) => {
-        // Formato para impresora térmica de 58mm o 80mm
         const ventana = window.open('', 'PRINT', 'height=600,width=300');
-        
         const fechaObj = new Date(pedido.fecha_creacion);
         const fecha = fechaObj.toLocaleDateString('es-MX');
         const hora = fechaObj.toLocaleTimeString('es-MX', {hour: '2-digit', minute:'2-digit'});
@@ -266,14 +269,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         ventana.document.close();
         ventana.focus();
-        // Esperar un poco para asegurar que carguen estilos (aunque aquí son inline)
         setTimeout(() => {
             ventana.print();
             ventana.close();
         }, 250);
     };
 
-    // --- 4. FUNCIÓN DE DETALLES Y ACCIONES ---
+    // --- 4. FUNCIÓN DE DETALLES Y ACCIONES (MEJORADA) 💡 ---
     const mostrarDetalles = (id) => {
         detalleContenido.innerHTML = '<p>Selecciona un pedido de la lista para ver sus detalles.</p>';
         panelAcciones.innerHTML = '';
@@ -282,23 +284,76 @@ document.addEventListener('DOMContentLoaded', () => {
         pedidoSeleccionado = pedidos.find(p => p.id == id);
         if (!pedidoSeleccionado) return;
 
+        // --- CÁLCULOS FINANCIEROS REALES ---
+        const total = parseFloat(pedidoSeleccionado.total);
+        const comision = parseFloat(pedidoSeleccionado.comision || 0);
+        const ingresoNeto = total - comision;
+        const metodo = pedidoSeleccionado.metodo_pago || 'Desconocido';
+
+        // Icono según método
+        let iconoPago = '💰';
+        if (metodo.includes('Tarjeta')) iconoPago = '💳';
+        if (metodo.includes('Aplicación')) iconoPago = '📱';
+        if (metodo.includes('Transferencia')) iconoPago = '🏦';
+
+        // Renderizado de Items
         let itemsHTML = '';
         pedidoSeleccionado.items.forEach(item => {
             const subtotal = item.cantidad * item.precio_unitario;
-            itemsHTML += `<li>${item.cantidad}x ${item.nombre_producto} ($${subtotal.toFixed(2)})</li>`;
+            itemsHTML += `<li style="margin-bottom: 5px; border-bottom: 1px dashed #eee; padding-bottom: 5px;">
+                <div style="display:flex; justify-content:space-between;">
+                    <span><strong>${item.cantidad}x</strong> ${item.nombre_producto}</span>
+                    <span>$${subtotal.toFixed(2)}</span>
+                </div>
+                ${item.notas ? `<small style="color:orange;">📝 ${item.notas}</small>` : ''}
+            </li>`;
         });
 
+        // HTML DEL DETALLE MEJORADO
         detalleContenido.innerHTML = `
-            <p><strong>Cliente:</strong> ${pedidoSeleccionado.cliente}</p>
-            <p><strong>Canal:</strong> ${pedidoSeleccionado.canal_venta || 'N/A'}</p>
-            <p><strong>Estado:</strong> ${pedidoSeleccionado.estado}</p>
-            <p><strong>Total:</strong> $${pedidoSeleccionado.total.toFixed(2)}</p>
-            <hr>
+            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                <h3 style="margin:0; color: var(--accent-color);">#${pedidoSeleccionado.id.toString().padStart(4, '0')} - ${pedidoSeleccionado.cliente}</h3>
+                <small style="color: gray;">
+                    ${new Date(pedidoSeleccionado.fecha_creacion).toLocaleDateString('es-MX')} 
+                    ${new Date(pedidoSeleccionado.fecha_creacion).toLocaleTimeString('es-MX', {hour: '2-digit', minute:'2-digit'})}
+                </small>
+                <div style="margin-top: 10px;">
+                    <strong>Canal:</strong> ${pedidoSeleccionado.canal_venta || 'OyR'} | 
+                    <strong>Estado:</strong> ${pedidoSeleccionado.estado}
+                </div>
+            </div>
+
+            <div style="border: 1px solid #ddd; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                <h4 style="margin-top:0; border-bottom: 2px solid #eee; padding-bottom: 5px;">📊 Desglose Financiero</h4>
+                
+                <div class="finance-row">
+                    <span>Método de Pago:</span>
+                    <strong>${iconoPago} ${metodo}</strong>
+                </div>
+
+                <div class="finance-row finance-total">
+                    <span>Total Cobrado:</span>
+                    <span>$${total.toFixed(2)}</span>
+                </div>
+
+                ${comision > 0 ? `
+                <div class="finance-row finance-comision">
+                    <span>- Comisión:</span>
+                    <span>$${comision.toFixed(2)}</span>
+                </div>
+                ` : ''}
+
+                <div class="finance-row">
+                    <span style="align-self: flex-end; font-weight:500;">Ingreso Neto:</span>
+                    <strong class="finance-neto">$${ingresoNeto.toFixed(2)}</strong>
+                </div>
+            </div>
+
             <h4>Productos:</h4>
             <ul>${itemsHTML}</ul>
         `;
 
-        // BOTONES DE ACCIÓN (Ahora incluye Imprimir)
+        // BOTONES DE ACCIÓN
         let botonesHTML = `
             <button id="btn-imprimir-ticket" class="btn btn-secondary" style="background-color: #34495e; color: white; width:100%;">🖨️ Imprimir Ticket</button>
         `;
