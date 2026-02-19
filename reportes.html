@@ -46,11 +46,11 @@
                     <label for="select-tipo-reporte">Tipo de Reporte:</label>
                     <select id="select-tipo-reporte">
                         <option value="">Seleccionar Tipo</option>
-                        <option value="semanal_gerencial">⭐ Resumen Semanal Gerencial</option>
-                        <option value="ventas">Reporte de Ventas</option>
-                        <option value="historico_inventario">Inventario Histórico</option>
                         <option value="platillos">Conteo de Platillos</option>
-                        <option value="insumos_teoricos">Uso de Insumos (Teórico)</option>
+                        <option value="ventas">Reporte de Ventas</option>
+                       <option value="insumos_teoricos">Uso de Insumos (Teórico)</option>
+                        <option value="historico_inventario">Inventario Histórico</option>
+                        <option value="semanal_gerencial">Resumen Semanal Gerencial</option>
                     </select>
                 </div>
                 <div>
@@ -90,8 +90,7 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            const API_URL = 'https://olimpollo-api.onrender.com/api/reportes'; // Endpoint base
-            const API_BASE = 'https://olimpollo-api.onrender.com/api'; // Base general
+            const API_URL = 'https://olimpollo-api.onrender.com/api/reportes'; 
             
             // --- 1. VERIFICACIÓN DE LOGIN Y USUARIO ---
             const token = localStorage.getItem('authToken');
@@ -102,7 +101,6 @@
                 return;
             }
 
-            // Permitir acceso a Administradores y Gerentes
             if (role !== 'Administrador' && role !== 'Gerente') {
                 alert('Acceso denegado: No tiene permisos para ver reportes.');
                 window.location.href = 'index.html';
@@ -129,65 +127,36 @@
             
             // --- 3. FUNCIONES DE REPORTES ---
 
-            // A. REPORTE HISTÓRICO DE INVENTARIO
             const generarReporteHistorico = async (fecha) => {
                 resultadosDiv.innerHTML = '<h4>Cargando registros...</h4>';
                 resultadosDiv.style.display = 'block';
-                
                 try {
                     const url = `${API_URL}/inventario?fecha=${fecha}`;
                     const response = await fetch(url);
                     const data = await response.json();
-
-                    if (!response.ok) {
-                        throw new Error(data.mensaje || 'Error al generar reporte histórico');
-                    }
+                    if (!response.ok) throw new Error(data.mensaje || 'Error al generar reporte histórico');
                     
-                    let tablaHTML = `
-                        <h4>Inventario Registrado el ${fecha}</h4>
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Insumo</th>
-                                    <th>Cantidad</th>
-                                    <th>Unidad</th>
-                                    <th>Categoría</th>
-                                </tr>
-                            </thead>
-                            <tbody>`;
-                    
+                    let tablaHTML = `<h4>Inventario Registrado el ${fecha}</h4><table><thead><tr><th>Insumo</th><th>Cantidad</th><th>Unidad</th><th>Categoría</th></tr></thead><tbody>`;
                     data.forEach(item => {
-                        tablaHTML += `
-                            <tr>
-                                <td>${item.nombre_insumo}</td>
-                                <td>${item.cantidad_registrada}</td>
-                                <td>${item.unidad_medida}</td>
-                                <td>${item.categoria}</td>
-                            </tr>`;
+                        tablaHTML += `<tr><td>${item.nombre_insumo}</td><td>${item.cantidad_registrada}</td><td>${item.unidad_medida}</td><td>${item.categoria}</td></tr>`;
                     });
                     tablaHTML += `</tbody></table>`;
                     
                     resultadosDiv.innerHTML = tablaHTML;
                     mensajeElemento.textContent = 'Reporte histórico generado exitosamente.';
                     mensajeElemento.style.color = 'green';
-                } catch (error) {
-                    resultadosDiv.innerHTML = `<p style="color:red; font-weight:bold;">${error.message}</p>`;
-                }
+                } catch (error) { resultadosDiv.innerHTML = `<p style="color:red; font-weight:bold;">${error.message}</p>`; }
             };
             
-            // B. REPORTE DE VENTAS
             const generarReporteVentas = async (fechaInicio, fechaFin) => {
                 resultadosDiv.innerHTML = '<h4>Calculando ventas y comisiones...</h4>';
                 resultadosDiv.style.display = 'block';
-
                 const url = `${API_URL}/ventas?fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`;
                 try {
                     const response = await fetch(url);
                     const data = await response.json();
-
                     if (!response.ok) throw new Error(data.error || 'Error desconocido al generar reporte');
                     
-                    // Totales
                     const ventasBrutas = parseFloat(data.ventas_totales || 0);
                     const comisiones = parseFloat(data.comisiones || 0);
                     const ingresoNeto = ventasBrutas - comisiones;
@@ -198,145 +167,65 @@
                             <p><strong>Periodo:</strong> ${data.fechaInicio} al ${data.fechaFin}</p>
                             <p><strong>Total de Pedidos Entregados:</strong> ${data.total_pedidos}</p>
                             <hr>
-                            
-                            <p style="font-size: 1.1em;">
-                                <strong>Venta Bruta (Público):</strong> 
-                                <span>$${ventasBrutas.toFixed(2)}</span>
-                            </p>
-                            
-                            ${comisiones > 0 ? `
-                                <p style="font-size: 1.1em; color: #e74c3c;">
-                                    <strong>- Comisiones (Apps/Terminal):</strong> 
-                                    <span>$${comisiones.toFixed(2)}</span>
-                                </p>
-                            ` : ''}
-                            
+                            <p style="font-size: 1.1em;"><strong>Venta Bruta (Público):</strong> <span>$${ventasBrutas.toFixed(2)}</span></p>
+                            ${comisiones > 0 ? `<p style="font-size: 1.1em; color: #e74c3c;"><strong>- Comisiones (Apps/Terminal):</strong> <span>$${comisiones.toFixed(2)}</span></p>` : ''}
                             <hr>
-                            
-                            <p style="font-size: 1.6em; margin-top: 10px;">
-                                <strong>Ingreso Neto Real:</strong> 
-                                <span style="color: #27AE60;">$${ingresoNeto.toFixed(2)}</span>
-                            </p>
+                            <p style="font-size: 1.6em; margin-top: 10px;"><strong>Ingreso Neto Real:</strong> <span style="color: #27AE60;">$${ingresoNeto.toFixed(2)}</span></p>
                         </div>`;
                     mensajeElemento.textContent = 'Reporte generado exitosamente.';
                     mensajeElemento.style.color = 'green';
-                } catch (error) {
-                    resultadosDiv.innerHTML = `<p style="color:red; font-weight:bold;">${error.message}</p>`;
-                }
+                } catch (error) { resultadosDiv.innerHTML = `<p style="color:red; font-weight:bold;">${error.message}</p>`; }
             };
 
-            // C. REPORTE DE PLATILLOS (POPULARIDAD)
             const generarReportePlatillos = async (fechaInicio, fechaFin) => {
                 resultadosDiv.innerHTML = '<h4>Analizando popularidad...</h4>';
                 resultadosDiv.style.display = 'block';
-
                 const url = `${API_URL}/platillos?fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`;
-                
                 try {
                     const response = await fetch(url);
                     const data = await response.json();
-
                     if (!response.ok) throw new Error(data.error || 'Error al obtener datos');
+                    if (data.length === 0) { resultadosDiv.innerHTML = '<p>No hay ventas registradas en este periodo.</p>'; return; }
 
-                    if (data.length === 0) {
-                        resultadosDiv.innerHTML = '<p>No hay ventas registradas en este periodo.</p>';
-                        return;
-                    }
-
-                    let html = `
-                        <h4>Popularidad de Platillos (${fechaInicio} al ${fechaFin})</h4>
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th style="text-align:center">Posición</th>
-                                    <th>Producto Base</th>
-                                    <th>Cantidad Vendida</th>
-                                    <th>Ingresos Generados</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                    `;
-
+                    let html = `<h4>Popularidad de Platillos (${fechaInicio} al ${fechaFin})</h4><table><thead><tr><th style="text-align:center">Posición</th><th>Producto Base</th><th>Cantidad Vendida</th><th>Ingresos Generados</th></tr></thead><tbody>`;
                     data.forEach((item, index) => {
-                        let rango = `#${index + 1}`;
-                        let rowStyle = "";
+                        let rango = `#${index + 1}`; let rowStyle = "";
                         if (index === 0) { rango = '🥇'; rowStyle = "background-color: #fff9c4;"; }
                         if (index === 1) { rango = '🥈'; rowStyle = "background-color: #f5f5f5;"; }
                         if (index === 2) { rango = '🥉'; rowStyle = "background-color: #ffe0b2;"; }
-
-                        html += `
-                            <tr style="${rowStyle}">
-                                <td style="font-weight:bold; text-align:center; font-size: 1.2em;">${rango}</td>
-                                <td style="font-weight:500;">${item.producto}</td>
-                                <td style="font-weight:bold; color: var(--accent-color);">${item.cantidad_vendida}</td>
-                                <td>$${parseFloat(item.ingreso_generado).toFixed(2)}</td>
-                            </tr>
-                        `;
+                        html += `<tr style="${rowStyle}"><td style="font-weight:bold; text-align:center; font-size: 1.2em;">${rango}</td><td style="font-weight:500;">${item.producto}</td><td style="font-weight:bold; color: var(--accent-color);">${item.cantidad_vendida}</td><td>$${parseFloat(item.ingreso_generado).toFixed(2)}</td></tr>`;
                     });
-
                     html += '</tbody></table>';
                     resultadosDiv.innerHTML = html;
                     mensajeElemento.textContent = 'Reporte de popularidad generado.';
                     mensajeElemento.style.color = 'green';
-
-                } catch (error) {
-                    resultadosDiv.innerHTML = `<p style="color:red; font-weight:bold;">${error.message}</p>`;
-                }
+                } catch (error) { resultadosDiv.innerHTML = `<p style="color:red; font-weight:bold;">${error.message}</p>`; }
             };
 
-            // D. REPORTE DE INSUMOS TEÓRICOS
             const generarReporteInsumosTeoricos = async (fechaInicio, fechaFin) => {
                 resultadosDiv.innerHTML = '<h4>Calculando consumo de recetas...</h4>';
                 resultadosDiv.style.display = 'block';
-
                 const url = `${API_URL}/insumos-teoricos?fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`;
-                
                 try {
                     const response = await fetch(url);
                     const data = await response.json();
                     if (!response.ok) throw new Error(data.error || 'Error al obtener datos');
+                    if (data.length === 0) { resultadosDiv.innerHTML = '<p>No se encontraron datos. Asegúrate de tener recetas configuradas.</p>'; return; }
 
-                    if (data.length === 0) {
-                        resultadosDiv.innerHTML = '<p>No se encontraron datos. Asegúrate de tener recetas configuradas.</p>';
-                        return;
-                    }
-
-                    let html = `
-                        <h4>Uso Teórico de Insumos (${fechaInicio} al ${fechaFin})</h4>
-                        <p style="font-size:0.9em; color:gray; margin-bottom:15px;">* Consumo basado en recetas de lo vendido.</p>
-                        <table>
-                            <thead>
-                                <tr>
-                                    <th>Insumo</th>
-                                    <th>Cantidad Teórica</th>
-                                    <th>Unidad</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                    `;
-                    data.forEach(item => {
-                        html += `
-                            <tr>
-                                <td style="font-weight:500;">${item.nombre_insumo}</td>
-                                <td style="font-weight:bold; color: #E67E22;">${Number(item.cantidad_total).toFixed(2)}</td>
-                                <td>${item.unidad}</td>
-                            </tr>`;
-                    });
+                    let html = `<h4>Uso Teórico de Insumos (${fechaInicio} al ${fechaFin})</h4><p style="font-size:0.9em; color:gray; margin-bottom:15px;">* Consumo basado en recetas de lo vendido.</p><table><thead><tr><th>Insumo</th><th>Cantidad Teórica</th><th>Unidad</th></tr></thead><tbody>`;
+                    data.forEach(item => { html += `<tr><td style="font-weight:500;">${item.nombre_insumo}</td><td style="font-weight:bold; color: #E67E22;">${Number(item.cantidad_total).toFixed(2)}</td><td>${item.unidad}</td></tr>`; });
                     html += '</tbody></table>';
                     resultadosDiv.innerHTML = html;
                     mensajeElemento.textContent = 'Cálculo completado.';
                     mensajeElemento.style.color = 'green';
-                } catch (error) {
-                    resultadosDiv.innerHTML = `<p style="color:red; font-weight:bold;">${error.message}</p>`;
-                }
+                } catch (error) { resultadosDiv.innerHTML = `<p style="color:red; font-weight:bold;">${error.message}</p>`; }
             };
 
-            // E. REPORTE SEMANAL GERENCIAL (NUEVO) 📊
+            // E. REPORTE SEMANAL GERENCIAL MEJORADO 📊
             const generarReporteSemanal = async (fechaInicio, fechaFin) => {
                 resultadosDiv.innerHTML = '<h4 style="text-align:center;">Generando análisis de negocio... 📊</h4>';
                 resultadosDiv.style.display = 'block';
 
-                // Nota: Apunta al endpoint correcto (usando API_BASE por comodidad o API_URL/semanal)
                 const url = `${API_URL}/semanal?fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`;
                 
                 try {
@@ -346,8 +235,55 @@
                     if (!response.ok) throw new Error(data.error || 'Error al generar reporte gerencial');
 
                     const f = data.financiero;
+
+                    // --- NUEVOS CÁLCULOS EN EL FRONTEND PARA DESGLOSE ---
+                    let desglose = {
+                        efectivo: 0,
+                        transferencia: 0,
+                        tarjeta_bruto: 0,
+                        tarjeta_comision: 0,
+                        apps_bruto: 0,
+                        apps_comision: 0
+                    };
+
+                    let apps_desglose = {};
+
+                    // Iterar sobre los detalles que manda el servidor para armar la sumatoria
+                    f.detalles.forEach(row => {
+                        const bruta = parseFloat(row.venta_bruta || 0);
+                        const comision = parseFloat(row.comisiones || 0);
+                        const metodo = row.metodo_pago || 'Efectivo';
+                        const canal = row.canal_venta || 'OyR';
+
+                        // 1. Desglose General de Métodos de Pago
+                        if (metodo.includes('Efectivo')) {
+                            desglose.efectivo += bruta;
+                        } else if (metodo.includes('Transferencia')) {
+                            desglose.transferencia += bruta;
+                        } else if (metodo.includes('Tarjeta')) {
+                            desglose.tarjeta_bruto += bruta;
+                            desglose.tarjeta_comision += comision;
+                        } else if (metodo.includes('Aplicación')) {
+                            desglose.apps_bruto += bruta;
+                            desglose.apps_comision += comision;
+                        }
+
+                        // 2. Desglose Detallado por Aplicación
+                        if (['Uber', 'Didi', 'Rappi'].includes(canal)) {
+                            if (!apps_desglose[canal]) {
+                                apps_desglose[canal] = { bruto: 0, comision: 0, neto: 0 };
+                            }
+                            apps_desglose[canal].bruto += bruta;
+                            apps_desglose[canal].comision += comision;
+                            apps_desglose[canal].neto += (bruta - comision);
+                        }
+                    });
+
+                    // Totales netos calculados
+                    const tarjeta_neto = desglose.tarjeta_bruto - desglose.tarjeta_comision;
+                    const apps_neto = desglose.apps_bruto - desglose.apps_comision;
                     
-                    // Estructura HTML del Reporte
+                    // --- CONSTRUCCIÓN DEL HTML ---
                     let html = `
                         <div style="text-align: center; margin-bottom: 20px;">
                             <h2 style="color: var(--primary-text); margin:0;">Resumen Semanal Olimpollo</h2>
@@ -360,7 +296,7 @@
                                 <div style="font-size: 24px; font-weight: bold;">$${f.total_bruto.toFixed(2)}</div>
                             </div>
                             <div style="flex:1; background: #fdedec; padding: 15px; border-radius: 10px; border-left: 5px solid #e74c3c;">
-                                <small>Comisiones (Apps/Tarjeta)</small>
+                                <small>Comisiones Totales</small>
                                 <div style="font-size: 24px; font-weight: bold; color: #c0392b;">-$${f.total_comisiones.toFixed(2)}</div>
                             </div>
                             <div style="flex:1; background: #2c3e50; color: white; padding: 15px; border-radius: 10px; border-left: 5px solid #f1c40f;">
@@ -369,23 +305,67 @@
                             </div>
                         </div>
 
-                        <div style="margin-bottom: 30px;">
-                            <h3 style="border-bottom: 2px solid #ddd; padding-bottom: 5px;">📱 Desglose de Aplicaciones</h3>
-                            <table style="width: 100%; margin-top: 10px;">
+                        <div style="background: white; border: 1px solid #ddd; padding: 20px; border-radius: 8px; margin-bottom: 30px;">
+                            <h3 style="margin-top:0; border-bottom: 2px solid #eee; padding-bottom: 10px;">💵 Origen del Ingreso Neto Real</h3>
+                            <table style="width: 100%; border-collapse: collapse; margin-top:10px;">
                                 <tr style="background: #f8f9fa;">
-                                    <th>Plataforma</th>
-                                    <th>Venta Bruta</th>
-                                    <th>% del Total</th>
+                                    <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Método de Pago</th>
+                                    <th style="padding: 10px; text-align: right; border-bottom: 1px solid #ddd;">Venta Bruta</th>
+                                    <th style="padding: 10px; text-align: right; border-bottom: 1px solid #ddd;">Comisiones</th>
+                                    <th style="padding: 10px; text-align: right; border-bottom: 1px solid #ddd;">Ingreso Neto</th>
                                 </tr>
-                                ${Object.keys(f.apps_detalle).length > 0 ? 
-                                    Object.keys(f.apps_detalle).map(app => `
+                                <tr>
+                                    <td style="padding: 10px; border-bottom: 1px solid #eee;">💵 Efectivo</td>
+                                    <td style="padding: 10px; text-align: right; border-bottom: 1px solid #eee;">$${desglose.efectivo.toFixed(2)}</td>
+                                    <td style="padding: 10px; text-align: right; color: gray; border-bottom: 1px solid #eee;">$0.00</td>
+                                    <td style="padding: 10px; text-align: right; font-weight: bold; color: #27ae60; border-bottom: 1px solid #eee;">$${desglose.efectivo.toFixed(2)}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 10px; border-bottom: 1px solid #eee;">🏦 Transferencia</td>
+                                    <td style="padding: 10px; text-align: right; border-bottom: 1px solid #eee;">$${desglose.transferencia.toFixed(2)}</td>
+                                    <td style="padding: 10px; text-align: right; color: gray; border-bottom: 1px solid #eee;">$0.00</td>
+                                    <td style="padding: 10px; text-align: right; font-weight: bold; color: #27ae60; border-bottom: 1px solid #eee;">$${desglose.transferencia.toFixed(2)}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 10px; border-bottom: 1px solid #eee;">💳 Tarjeta</td>
+                                    <td style="padding: 10px; text-align: right; border-bottom: 1px solid #eee;">$${desglose.tarjeta_bruto.toFixed(2)}</td>
+                                    <td style="padding: 10px; text-align: right; color: #e74c3c; border-bottom: 1px solid #eee;">-$${desglose.tarjeta_comision.toFixed(2)}</td>
+                                    <td style="padding: 10px; text-align: right; font-weight: bold; color: #27ae60; border-bottom: 1px solid #eee;">$${tarjeta_neto.toFixed(2)}</td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 10px; border-bottom: 2px solid #333;">📱 Aplicaciones</td>
+                                    <td style="padding: 10px; text-align: right; border-bottom: 2px solid #333;">$${desglose.apps_bruto.toFixed(2)}</td>
+                                    <td style="padding: 10px; text-align: right; color: #e74c3c; border-bottom: 2px solid #333;">-$${desglose.apps_comision.toFixed(2)}</td>
+                                    <td style="padding: 10px; text-align: right; font-weight: bold; color: #27ae60; border-bottom: 2px solid #333;">$${apps_neto.toFixed(2)}</td>
+                                </tr>
+                                <tr style="background: #e8f8f5;">
+                                    <td style="padding: 12px; font-weight: bold; text-transform: uppercase;">Total Semana</td>
+                                    <td style="padding: 12px; text-align: right; font-weight: bold;">$${f.total_bruto.toFixed(2)}</td>
+                                    <td style="padding: 12px; text-align: right; font-weight: bold; color: #c0392b;">-$${f.total_comisiones.toFixed(2)}</td>
+                                    <td style="padding: 12px; text-align: right; font-weight: bold; font-size: 1.1em; color: #27ae60;">$${f.total_neto.toFixed(2)}</td>
+                                </tr>
+                            </table>
+                        </div>
+
+                        <div style="margin-bottom: 30px;">
+                            <h3 style="border-bottom: 2px solid #ddd; padding-bottom: 5px;">📱 Desglose por Plataforma (Apps)</h3>
+                            <table style="width: 100%; margin-top: 10px; border-collapse: collapse;">
+                                <tr style="background: #f8f9fa;">
+                                    <th style="padding: 10px; text-align: left; border-bottom: 1px solid #ddd;">Plataforma</th>
+                                    <th style="padding: 10px; text-align: right; border-bottom: 1px solid #ddd;">Venta Bruta</th>
+                                    <th style="padding: 10px; text-align: right; border-bottom: 1px solid #ddd;">Comisión</th>
+                                    <th style="padding: 10px; text-align: right; border-bottom: 1px solid #ddd;">Ingreso Neto</th>
+                                </tr>
+                                ${Object.keys(apps_desglose).length > 0 ? 
+                                    Object.keys(apps_desglose).map(app => `
                                     <tr>
-                                        <td>${app}</td>
-                                        <td>$${f.apps_detalle[app].toFixed(2)}</td>
-                                        <td>${((f.apps_detalle[app] / f.total_bruto) * 100).toFixed(1)}%</td>
+                                        <td style="padding: 10px; border-bottom: 1px solid #eee;">${app}</td>
+                                        <td style="padding: 10px; text-align: right; border-bottom: 1px solid #eee;">$${apps_desglose[app].bruto.toFixed(2)}</td>
+                                        <td style="padding: 10px; text-align: right; color: #e74c3c; border-bottom: 1px solid #eee;">-$${apps_desglose[app].comision.toFixed(2)}</td>
+                                        <td style="padding: 10px; text-align: right; font-weight: bold; color: #27ae60; border-bottom: 1px solid #eee;">$${apps_desglose[app].neto.toFixed(2)}</td>
                                     </tr>
                                 `).join('') 
-                                : '<tr><td colspan="3">No hubo ventas por Apps en este periodo.</td></tr>'}
+                                : '<tr><td colspan="4" style="padding:15px; text-align:center; color:gray;">No hubo ventas por Apps en este periodo.</td></tr>'}
                             </table>
                         </div>
 
@@ -420,7 +400,7 @@
                                         </ul>
                                     </div>
                                 `).join('') 
-                                : '<p style="text-align:center; color:green; width:100%;">✅ Todo el inventario está saludable. No se requieren compras urgentes.</p>'}
+                                : '<p style="text-align:center; color:green; width:100%; font-weight:500;">✅ Todo el inventario está saludable. No se requieren compras urgentes.</p>'}
                             </div>
                         </div>
                         
@@ -453,7 +433,7 @@
                     return;
                 }
 
-                if (tipoReporte === 'semanal_gerencial') { // NUEVO
+                if (tipoReporte === 'semanal_gerencial') { 
                     if (!fechaInicio || !fechaFin) {
                         mensajeElemento.textContent = 'Selecciona el rango de fechas (ej: Lunes a Domingo).';
                         mensajeElemento.style.color = 'red';
