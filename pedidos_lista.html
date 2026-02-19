@@ -190,7 +190,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-   // --- 3. IMPRESIÓN DE TICKETS CON LOGO ---
+ // --- 3. IMPRESIÓN DE TICKETS CON LOGO ---
     const imprimirTicket = (pedido) => {
         const ventana = window.open('', 'PRINT', 'height=600,width=300');
         const fechaObj = new Date(pedido.fecha_creacion);
@@ -220,10 +220,10 @@ document.addEventListener('DOMContentLoaded', () => {
                     
                     /* ESTILOS DEL LOGO */
                     .logo-ticket { 
-                        width: 140px; /* Ajusta este tamaño si lo ves muy grande o chico */
+                        width: 140px; 
                         max-width: 100%; 
                         margin-bottom: 5px; 
-                        filter: grayscale(100%) contrast(150%); /* Lo convierte a blanco y negro puro para la térmica */
+                        filter: grayscale(100%) contrast(150%); 
                     }
 
                     .header h2 { margin: 0; font-size: 16px; font-weight: bold; }
@@ -243,7 +243,7 @@ document.addEventListener('DOMContentLoaded', () => {
             </head>
             <body>
                 <div class="header">
-                    <img src="https://i.postimg.cc/7LgGpN5v/OLIMPOLLO-NEGRO-TRANSPARENTE.png">
+                    <img src="https://i.postimg.cc/tCYLDScF/logo250.png" class="logo-ticket" alt="Logo Olimpollo">
                     
                     <h2>OLIMPOLLO</h2>
                     <p>Los Boneless del Olimpo</p>
@@ -281,7 +281,7 @@ document.addEventListener('DOMContentLoaded', () => {
         ventana.document.close();
         ventana.focus();
         
-        // Aumentamos el tiempo de espera a 800ms para darle tiempo al logo de cargar desde internet antes de imprimir
+        // Esperamos 800ms para asegurar que el logo cargue
         setTimeout(() => {
             ventana.print();
             ventana.close();
