@@ -49,7 +49,8 @@
     <header>
         <a href="index.html" class="logo">Olimpollo</a>
         <nav>
-          <a href="pedidos.html">POS</a>
+          <a href="pedidos.html" style="color: var(--accent-color);">POS</a>
+          <a href="clientes.html">Clientes</a>
           <a href="reportes.html">Reportes</a>
           <a href="pedidos_lista.html">Pedidos</a>
           <a href="inventario.html">Inventario</a>
@@ -170,7 +171,8 @@
                 const tel = inputTelefono.value.trim();
                 if (tel.length < 7) return alert("Ingresa un número válido");
                 try {
-                    const res = await fetch(`https://olimpollo-api.onrender.com/api/clientes/${tel}`);
+                    // AQUÍ ESTÁ EL CAMBIO IMPORTANTE: Agregamos /exacto/ a la ruta
+                    const res = await fetch(`https://olimpollo-api.onrender.com/api/clientes/exacto/${tel}`);
                     if (res.ok) {
                         const cliente = await res.json();
                         inputClienteNombre.value = cliente.nombre;
