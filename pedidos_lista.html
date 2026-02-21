@@ -215,30 +215,45 @@ document.addEventListener('DOMContentLoaded', () => {
             <head>
                 <title>Ticket #${pedido.id}</title>
                 <style>
-                    body { font-family: 'Courier New', monospace; font-size: 12px; width: 75mm; margin: 0 auto; padding: 0; color: black; }
-                    .header { text-align: center; margin-bottom: 10px; }
+                    /* FUENTE MÁS GRUESA Y NEGRO PURO */
+                    body { 
+                        font-family: 'Arial', 'Helvetica', sans-serif; 
+                        font-size: 13px; 
+                        font-weight: bold; /* Fuerza negrita en todo */
+                        color: #000 !important; /* Negro absoluto */
+                        width: 75mm; 
+                        margin: 0 auto; 
+                        padding: 0; 
+                    }
+                    .header { text-align: center; margin-bottom: 5px; }
                     
-                    /* ESTILOS DEL LOGO */
                     .logo-ticket { 
                         width: 140px; 
                         max-width: 100%; 
-                        margin-bottom: 5px; 
+                        margin-bottom: 2px; 
                         filter: grayscale(100%) contrast(150%); 
                     }
 
-                    .header h2 { margin: 0; font-size: 16px; font-weight: bold; }
-                    .header p { margin: 2px 0; }
-                    .divider { border-bottom: 1px dashed black; margin: 5px 0; }
-                    .info { font-size: 11px; margin-bottom: 5px; }
-                    .items { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
-                    .items td { padding: 2px 0; vertical-align: top; }
-                    .col-cant { width: 10%; text-align: center; }
-                    .col-prod { width: 65%; }
-                    .col-prec { width: 25%; text-align: right; }
-                    .totals { text-align: right; margin-top: 5px; font-size: 12px; }
-                    .total-big { font-size: 16px; font-weight: bold; margin-top: 5px; }
-                    .footer { text-align: center; margin-top: 15px; font-size: 10px; }
-                    @media print { @page { margin: 0; } body { margin: 0; } }
+                    .header h2 { margin: 0; font-size: 18px; font-weight: 900; color: #000; text-transform: uppercase; }
+                    .header p { margin: 0; font-size: 11px; }
+                    .divider { border-bottom: 2px dashed #000; margin: 5px 0; }
+                    .info { font-size: 12px; margin-bottom: 5px; font-weight: bold; }
+                    
+                    .items { width: 100%; border-collapse: collapse; margin-bottom: 5px; font-size: 12px; }
+                    .items td { padding: 4px 0; vertical-align: top; border-bottom: 1px dotted #ccc; }
+                    .col-cant { width: 10%; text-align: center; font-weight: 900; font-size: 14px; }
+                    .col-prod { width: 65%; font-weight: bold; }
+                    .col-prec { width: 25%; text-align: right; font-weight: bold; }
+                    
+                    .totals { text-align: right; margin-top: 5px; font-size: 14px; font-weight: bold; }
+                    .total-big { font-size: 18px; font-weight: 900; margin-top: 2px; color: #000; }
+                    .footer { text-align: center; margin-top: 10px; margin-bottom: 0; font-size: 11px; font-weight: bold; }
+                    
+                    /* ELIMINA MÁRGENES DE LA HOJA PARA EVITAR CORTES LARGOS */
+                    @media print { 
+                        @page { margin: 0; padding: 0; } 
+                        body { margin: 0; padding: 0; } 
+                    }
                 </style>
             </head>
             <body>
