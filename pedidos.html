@@ -2,159 +2,234 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Olimpollo - Punto de Venta</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>POS Profesional - Olimpollo</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
   
     <style>
-        /* ESTILOS BASE */
-        :root{--bg-main:#ECF0F1;--bg-header:#FFFFFF;--card-bg:#FFFFFF;--primary-text:#502c2c;--secondary-text:#808B96;--accent-color:#db3434;--accent-hover:#b92929;--border-color:#D5D8DC;--shadow-light:0 4px 15px rgba(0, 0, 0, 0.08);--shadow-heavy:0 10px 20px rgba(0, 0, 0, 0.12);--payment-color:#2980B9;}
-        body{margin:0;font-family:'Poppins', sans-serif;background-color:var(--bg-main);color:var(--primary-text);display:flex;flex-direction:column;min-height:100vh;}header{background:var(--bg-header);padding:15px 40px;box-shadow:0 2px 10px rgba(0, 0, 0, 0.05);display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border-color);}header .logo{font-size:24px;font-weight:600;text-decoration:none;color:var(--primary-text);}header nav{display:flex;gap:20px;}header nav a{text-decoration:none;color:var(--secondary-text);font-weight:500;transition:color 0.3s;}header nav a:hover{color:var(--accent-color);}.user-info{display:flex;align-items:center;gap:20px;}#user-identifier{font-weight:500;background-color:var(--bg-main);padding:5px 12px;border-radius:15px;font-size:14px;}.logout{background:var(--accent-color);color:white;border:none;padding:8px 18px;border-radius:20px;cursor:pointer;font-size:14px;font-weight:500;transition:background-color 0.3s;}.logout:hover{background-color:var(--accent-hover);}main{flex:1;padding:40px;max-width:1400px;margin:0 auto;width:100%;box-sizing:border-box;}h2.page-title{margin-bottom:30px;font-size:28px;font-weight:600; display:flex; justify-content:space-between; align-items:center;}.card{background:var(--card-bg);border-radius:12px;padding:25px;box-shadow:var(--shadow-light);margin-bottom:25px;}table{width:100%;border-collapse:collapse;background:var(--card-bg);border-radius:12px;overflow:hidden;box-shadow:var(--shadow-light);}th, td{padding:15px;text-align:left;border-bottom:1px solid var(--bg-main);}
+        /* ==========================================================================
+           TEMA POS PROFESIONAL (ALTO RENDIMIENTO Y TÁCTIL)
+           ========================================================================== */
+        :root {
+            --bg-dark: #0F172A; --bg-panel: #1E293B; --bg-light: #F1F5F9; --white: #FFFFFF;
+            --text-main: #334155; --text-muted: #64748B; --text-light: #F8FAFC;
+            --primary: #3B82F6; --primary-hover: #2563EB;
+            --success: #10B981; --success-hover: #059669;
+            --danger: #EF4444; --warning: #F59E0B;
+            --border: #E2E8F0;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; user-select: none; }
         
-        /* ESTILOS POS */
-        .pos-container { display: flex; gap: 25px; align-items: flex-start; }
-        .menu-area { flex: 2; }
-        .carrito-card { flex: 1; position: sticky; top: 40px; }
-        .productos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(130px, 1fr)); gap: 15px; }
-        .btn-producto { width: 100%; aspect-ratio: 1 / 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; border: 1px solid var(--border-color); padding: 10px; color: var(--primary-text); border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 14px; transition: background 0.2s, transform 0.2s; word-wrap: break-word; }
-        .btn-producto:hover { transform: translateY(-4px); }
-        .carrito-list { list-style: none; padding: 0; margin: 0 0 20px 0; max-height: 300px; overflow-y: auto; }
-        .carrito-list li { display: flex; justify-content: space-between; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid var(--bg-main); }
+        body { background-color: var(--bg-light); color: var(--text-main); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+
+        /* HEADER POS */
+        header { background: var(--bg-dark); color: var(--white); padding: 0 20px; height: 60px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); z-index: 50; flex-shrink: 0; }
+        .header-left { display: flex; align-items: center; gap: 20px; }
+        .logo { font-size: 20px; font-weight: 800; letter-spacing: 1px; color: var(--white); text-decoration: none; display: flex; align-items: center; gap: 10px; }
+        .nav-links a { color: #94A3B8; text-decoration: none; font-weight: 600; font-size: 14px; transition: 0.2s; padding: 8px 12px; border-radius: 6px; }
+        .nav-links a:hover, .nav-links a.active { color: var(--white); background: rgba(255,255,255,0.1); }
+        .header-actions { display: flex; align-items: center; gap: 15px; }
+        .btn-intercom { background: var(--warning); color: #fff; border: none; padding: 8px 15px; border-radius: 6px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 8px; font-size: 14px; transition: 0.2s; }
+        .btn-intercom:hover { transform: scale(1.05); }
+        .user-badge { font-size: 13px; font-weight: 600; background: rgba(255,255,255,0.1); padding: 5px 10px; border-radius: 20px; }
+        .btn-logout { background: transparent; color: var(--text-muted); border: 1px solid var(--text-muted); padding: 5px 15px; border-radius: 6px; cursor: pointer; font-size: 12px; font-weight: 600; }
+
+        /* MAIN LAYOUT (2 COLUMNAS) */
+        main { display: flex; flex: 1; height: calc(100vh - 60px); overflow: hidden; }
+
+        /* PANEL IZQUIERDO: MENÚ */
+        .menu-panel { flex: 1; display: flex; flex-direction: column; background: var(--bg-light); border-right: 1px solid var(--border); }
         
-        .btn-item-action { border: none; padding: 5px 8px; font-size: 14px; cursor: pointer; border-radius: 4px; margin-left: 3px;}
-        .btn-nota { background: #f39c12; color: white; } 
-        .btn-duplicar { background: #007bff; color: white; }
-        .btn-eliminar { background: #e74c3c; color: white; }
-        .btn-modificador { width: 100%; padding: 15px; font-size: 16px; font-weight: bold; cursor: pointer; border: 1px solid #ddd; background: #f9f9f9; border-radius: 5px; transition: background 0.2s; }
-        .btn-modificador:hover { background: #FCF3CF; }
+        /* Barra de Categorías */
+        .category-bar { display: flex; gap: 10px; padding: 15px; background: var(--white); overflow-x: auto; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+        .category-bar::-webkit-scrollbar { display: none; }
+        .btn-category { padding: 12px 20px; border: 2px solid transparent; background: var(--bg-light); color: var(--text-muted); border-radius: 30px; font-weight: 700; font-size: 14px; cursor: pointer; white-space: nowrap; transition: 0.2s; }
+        .btn-category.active { background: var(--primary); color: var(--white); border-color: var(--primary-hover); box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3); }
+
+        /* Grid de Productos */
+        .products-grid { flex: 1; overflow-y: auto; padding: 20px; display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 15px; align-content: start; }
+        .products-grid::-webkit-scrollbar { width: 8px; }
+        .products-grid::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; }
         
-        .canal-botones-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 15px; }
-        .btn-selector { padding: 12px 5px; border: 2px solid var(--border-color); background-color: transparent; color: var(--secondary-text); border-radius: 8px; cursor: pointer; font-weight: 500; font-size: 14px; transition: all 0.2s ease-in-out; }
-        .btn-selector.btn-canal.active { background-color: var(--accent-color); color: white; border-color: var(--accent-color); transform: scale(1.05); }
-        .btn-selector.btn-pago.active { background-color: var(--payment-color); color: white; border-color: var(--payment-color); transform: scale(1.05); }
-        .item-nota { display: block; font-size: 12px; color: #e67e22; font-style: italic; margin-top: 2px; font-weight: 600; border-left: 2px solid #e67e22; padding-left: 5px; }
+        .btn-product { background: var(--white); border: 2px solid transparent; border-radius: 12px; padding: 15px 10px; cursor: pointer; display: flex; flex-direction: column; justify-content: space-between; align-items: center; text-align: center; height: 140px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); transition: 0.1s; position: relative; overflow: hidden; }
+        .btn-product:active { transform: scale(0.95); }
+        .btn-product.has-mods { border-color: var(--primary); }
+        .btn-product.has-mods::after { content: 'MODS'; position: absolute; top: 0; right: 0; background: var(--primary); color: white; font-size: 9px; font-weight: 800; padding: 2px 6px; border-bottom-left-radius: 8px; }
+        .prod-name { font-size: 15px; font-weight: 700; color: var(--text-main); line-height: 1.2; }
+        .prod-price { font-size: 16px; font-weight: 800; color: var(--success); }
+
+        /* PANEL DERECHO: TICKET (CARRITO Y COBRO) */
+        .ticket-panel { width: 420px; background: var(--white); display: flex; flex-direction: column; flex-shrink: 0; box-shadow: -4px 0 15px rgba(0,0,0,0.05); z-index: 10; }
         
-        .modal{display:none;position:fixed;z-index:1000;left:0;top:0;width:100%;height:100%;background-color:rgba(0,0,0,0.5);justify-content:center;align-items:center;}.modal-content{background:var(--card-bg);padding:30px;border-radius:12px;box-shadow:var(--shadow-heavy);width:90%;max-width:500px;position:relative;}.close{position:absolute;top:15px;right:20px;font-size:28px;cursor:pointer;color:var(--secondary-text);}
-        footer{text-align:center;padding:20px;font-size:14px;color:var(--secondary-text);}
-        .btn-primary { background: var(--accent-color); color: white; border: none; border-radius: 8px; cursor: pointer; padding: 10px 15px;}
-        .btn-secondary { background: var(--secondary-text); color: white; border: none; border-radius: 8px; cursor: pointer; padding: 10px 15px;}
-        .btn-warning { background: #f39c12; color: white; border: none; border-radius: 8px; cursor: pointer; padding: 10px 20px; font-weight: bold;}
+        /* 1. Cliente CRM (Fijo arriba) */
+        .ticket-customer { padding: 15px; border-bottom: 1px solid var(--border); background: #F8FAFC; }
+        .search-crm { display: flex; gap: 8px; margin-bottom: 10px; }
+        .input-crm { flex: 1; padding: 12px; border: 1px solid var(--border); border-radius: 8px; font-size: 14px; outline: none; }
+        .input-crm:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(59,130,246,0.1); }
+        .btn-search { background: var(--bg-panel); color: white; border: none; padding: 0 15px; border-radius: 8px; cursor: pointer; }
+        #info-cliente-crm { font-size: 12px; font-weight: 600; padding: 5px 10px; border-radius: 6px; display: none; }
+
+        /* 2. Lista de Items (Scrollable) */
+        .ticket-items { flex: 1; overflow-y: auto; padding: 15px; background: var(--white); }
+        .ticket-items::-webkit-scrollbar { width: 4px; }
+        .ticket-items::-webkit-scrollbar-thumb { background: #E2E8F0; }
+        .empty-cart { text-align: center; color: var(--text-muted); margin-top: 50px; font-weight: 500; font-size: 18px; }
+        .empty-cart i { font-size: 40px; color: #CBD5E1; margin-bottom: 15px; display: block; }
+
+        .cart-item { display: flex; flex-direction: column; padding: 12px 0; border-bottom: 1px dashed var(--border); }
+        .cart-item-header { display: flex; justify-content: space-between; align-items: flex-start; }
+        .item-info { flex: 1; padding-right: 10px; }
+        .item-name { font-weight: 700; font-size: 15px; }
+        .item-mods { font-size: 12px; color: var(--text-muted); display: block; line-height: 1.2; margin-top: 2px; }
+        .item-note { font-size: 11px; color: var(--warning); font-weight: 600; display: block; margin-top: 2px; }
+        .item-price { font-weight: 800; font-size: 15px; width: 70px; text-align: right; }
+        
+        .item-controls { display: flex; justify-content: space-between; align-items: center; margin-top: 8px; }
+        .qty-controls { display: flex; align-items: center; background: var(--bg-light); border-radius: 20px; overflow: hidden; }
+        .btn-qty { background: transparent; border: none; width: 35px; height: 32px; font-size: 18px; font-weight: bold; cursor: pointer; color: var(--text-main); }
+        .btn-qty:hover { background: #E2E8F0; }
+        .qty-display { width: 30px; text-align: center; font-weight: 700; font-size: 14px; }
+        .btn-action-sm { background: var(--bg-light); border: none; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 600; cursor: pointer; color: var(--text-muted); transition: 0.2s; }
+        .btn-action-sm:hover { background: #E2E8F0; color: var(--text-main); }
+
+        /* 3. Panel de Cobro (Fijo abajo) */
+        .ticket-checkout { padding: 15px; border-top: 2px solid var(--border); background: var(--bg-light); flex-shrink: 0; }
+        
+        .checkout-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+        .checkout-group label { display: block; font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 5px; }
+        .select-btn { width: 100%; padding: 10px; background: var(--white); border: 1px solid var(--border); border-radius: 8px; font-weight: 600; font-size: 13px; color: var(--text-main); cursor: pointer; text-align: left; display: flex; justify-content: space-between; }
+        .select-btn:after { content: '\f0d7'; font-family: 'Font Awesome 6 Free'; font-weight: 900; }
+        
+        .totals-row { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 10px; }
+        .total-label { font-size: 14px; font-weight: 700; color: var(--text-muted); }
+        .total-amount { font-size: 32px; font-weight: 800; color: var(--text-main); line-height: 1; }
+        #info-comision { font-size: 12px; font-weight: 600; color: var(--danger); text-align: right; margin-bottom: 15px; display: none; }
+
+        .btn-pay { width: 100%; background: var(--success); color: white; border: none; padding: 18px; border-radius: 12px; font-size: 20px; font-weight: 800; cursor: pointer; transition: 0.2s; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3); }
+        .btn-pay:hover { background: var(--success-hover); transform: translateY(-2px); }
+
+        /* MODALES (General) */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(4px); justify-content: center; align-items: center; }
+        .modal-content { background: var(--white); padding: 30px; border-radius: 16px; width: 90%; max-width: 450px; position: relative; box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1); }
+        .close { position: absolute; top: 15px; right: 20px; font-size: 28px; cursor: pointer; color: var(--text-muted); }
+        
+        /* Modal Opciones Específicas */
+        .opt-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 15px; }
+        .btn-opt { background: var(--bg-light); border: 2px solid transparent; padding: 15px; border-radius: 10px; font-weight: 600; font-size: 14px; cursor: pointer; transition: 0.2s; }
+        .btn-opt.active { background: #EFF6FF; border-color: var(--primary); color: var(--primary-hover); }
     </style>
 </head>
 <body>
     <header>
-        <a href="index.html" class="logo">Olimpollo</a>
-        <nav>
-          <a href="pedidos.html" style="color: var(--accent-color);">POS</a>
-          <a href="clientes.html">Clientes</a>
-          <a href="reportes.html">Reportes</a>
-          <a href="pedidos_lista.html">Pedidos</a>
-          <a href="inventario.html">Inventario</a>
-        </nav>
-        <div class="user-info">
-            <span id="user-identifier"></span>
-            <button class="logout" id="btn-logout">Salir</button>
+        <div class="header-left">
+            <a href="index.html" class="logo"><i class="fas fa-cash-register"></i> POS Olimpollo</a>
+            <nav class="nav-links">
+                <a href="pedidos_lista.html">Historial</a>
+                <a href="clientes.html">CRM</a>
+                <a href="inventario.html">Stock</a>
+            </nav>
+        </div>
+        <div class="header-actions">
+            <button id="btn-abrir-intercom" class="btn-intercom"><i class="fas fa-bullhorn"></i> Cocina</button>
+            <span class="user-badge" id="user-identifier">Cajero</span>
+            <button class="btn-logout" id="btn-logout"><i class="fas fa-sign-out-alt"></i></button>
         </div>
     </header>
 
     <main>
-        <h2 class="page-title">
-            Punto de Venta (POS)
-            <button id="btn-abrir-intercom" class="btn-warning">🔔 Hablar a Cocina</button>
-        </h2>
-        <div class="pos-container">
-            <div class="menu-area">
-                <div id="productos-container" class="productos-grid card">
-                    <p>Cargando menú...</p>
+        <div class="menu-panel">
+            <div class="category-bar" id="category-container">
+                <button class="btn-category active" data-cat="Todos">Todos</button>
+                </div>
+            <div class="products-grid" id="productos-container">
+                <p style="grid-column: 1/-1; text-align:center; padding: 40px;">Cargando menú...</p>
+            </div>
+        </div>
+
+        <div class="ticket-panel">
+            
+            <div class="ticket-customer">
+                <div class="search-crm">
+                    <input type="tel" id="cliente-telefono" class="input-crm" placeholder="Teléfono del cliente...">
+                    <button type="button" id="btn-buscar-cliente" class="btn-search"><i class="fas fa-search"></i></button>
+                </div>
+                <input type="text" id="cliente-nombre" class="input-crm" placeholder="Nombre completo" style="width: 100%; display: none;">
+                <div id="info-cliente-crm"></div>
+            </div>
+
+            <div class="ticket-items" id="lista-carrito">
+                <div class="empty-cart">
+                    <i class="fas fa-shopping-basket"></i>
+                    Ticket vacío
                 </div>
             </div>
 
-            <div class="carrito-card card">
-                <h3>Carrito de Pedido</h3>
-                <ul id="lista-carrito" class="carrito-list">
-                    <li style="color: var(--secondary-text);">Aún no hay productos.</li>
-                </ul>
-                <div style="font-size: 20px; font-weight: bold; border-top: 2px solid var(--accent-color); padding-top: 15px; margin-bottom: 20px;">
-                    Total: <span id="total-pedido">$0.00</span>
-                    <div id="info-comision" style="font-size: 14px; color: #7f8c8d; font-weight: normal; margin-top: 8px; display: none;">
+            <div class="ticket-checkout">
+                <div class="checkout-grid">
+                    <div class="checkout-group">
+                        <label>Canal de Venta</label>
+                        <button class="select-btn" id="btn-select-canal">OyR</button>
+                    </div>
+                    <div class="checkout-group">
+                        <label>Método de Pago</label>
+                        <button class="select-btn" id="btn-select-pago">Efectivo</button>
                     </div>
                 </div>
-                
-                <form id="form-finalizar-pedido">
-                    <div style="margin-bottom: 15px; background: #f8f9fa; padding: 10px; border-radius: 8px; border: 1px solid #ddd;">
-                        <label style="color: var(--accent-color); font-weight: bold;">Cliente (Teléfono):</label>
-                        <div style="display: flex; gap: 10px;">
-                            <input type="text" id="cliente-telefono" placeholder="Ej: 6621234567" style="flex: 1; padding: 8px; border-radius: 6px; border: 1px solid #ccc;">
-                            <button type="button" id="btn-buscar-cliente" class="btn-secondary" style="padding: 10px;">🔍</button>
-                        </div>
-                        <div id="info-cliente-crm" style="margin-top: 8px; font-size: 13px; color: #27ae60; font-weight: 600; display: none;"></div>
-                    </div>
 
-                    <div style="margin-bottom: 15px;">
-                        <label>Canal de Venta:</label>
-                        <div id="canal-venta-botones" class="canal-botones-container" style="grid-template-columns: repeat(3, 1fr);">
-                            <button type="button" class="btn-selector btn-canal active" data-canal="OyR">OyR</button>
-                            <button type="button" class="btn-selector btn-canal" data-canal="Uber">Uber</button>
-                            <button type="button" class="btn-selector btn-canal" data-canal="Didi">Didi</button>
-                            <button type="button" class="btn-selector btn-canal" data-canal="Rappi">Rappi</button>
-                            <button type="button" class="btn-selector btn-canal" data-canal="Empleado">Empleado</button>
-                        </div>
-                    </div>
+                <div class="checkout-group" style="margin-bottom: 15px;">
+                    <label>Ajuste Manual de Total ($)</label>
+                    <input type="number" id="ajuste-total" class="input-crm" placeholder="Opcional. Ej: 200" step="0.01">
+                </div>
 
-                    <div style="margin-bottom: 15px;">
-                        <label>Método de Pago:</label>
-                        <div id="metodo-pago-botones" class="canal-botones-container">
-                            <button type="button" class="btn-selector btn-pago active" data-pago="Efectivo">Efectivo</button>
-                            <button type="button" class="btn-selector btn-pago" data-pago="Tarjeta">Tarjeta</button>
-                            <button type="button" class="btn-selector btn-pago" data-pago="Transferencia">Transferencia</button>
-                            <button type="button" class="btn-selector btn-pago" data-pago="Aplicación">Aplicación</button>
-                        </div>
-                    </div>
+                <div class="totals-row">
+                    <span class="total-label">TOTAL A COBRAR</span>
+                    <span class="total-amount" id="total-pedido">$0.00</span>
+                </div>
+                <div id="info-comision"></div>
 
-                    <div style="margin-bottom: 15px;">
-                        <label for="cliente-nombre">Nombre del Cliente:</label>
-                        <input type="text" id="cliente-nombre" placeholder="Nombre del cliente" required>
-                    </div>
-                    <div style="margin-bottom: 20px;">
-                        <label for="ajuste-total" style="color: var(--accent-color);">Total Recibido/Ajustado ($):</label>
-                        <input type="number" id="ajuste-total" placeholder="Opcional para OyR" min="0" step="0.01">
-                    </div>
-                    <button type="submit" class="btn btn-primary" style="width: 100%; padding: 15px; font-size: 16px;">
-                        FINALIZAR PEDIDO
-                    </button>
-                </form>
+                <button class="btn-pay" id="btn-cobrar">
+                    <i class="fas fa-check-circle"></i> COBRAR PEDIDO
+                </button>
             </div>
         </div>
     </main>
 
-    <div id="modalIntercom" class="modal">
+    <div id="modalSelector" class="modal">
         <div class="modal-content">
-            <span class="close" id="close-intercom">&times;</span>
-            <h3 style="color: var(--accent-color);">🔔 Enviar Alerta a Cocina</h3>
-            <p style="font-size: 14px; color: gray;">Cocina recibirá el mensaje con una alerta sonora.</p>
-            
-            <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px;">
-                <button class="btn-secondary btn-quick-alert">🗑️ Recoger Basura</button>
-                <button class="btn-secondary btn-quick-alert">🧻 Faltan Servilletas</button>
-                <button class="btn-secondary btn-quick-alert">🧹 Limpiar Mesa</button>
-                <button class="btn-secondary btn-quick-alert">🚶‍♂️ Favor de venir a caja</button>
-            </div>
-
-            <input type="text" id="input-alerta" placeholder="O escribe un mensaje personalizado..." style="width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #ccc;">
-            <button id="btn-enviar-alerta" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 16px;">Enviar Mensaje</button>
+            <span class="close" id="close-selector">&times;</span>
+            <h3 id="selector-title" style="margin-bottom: 15px; color: var(--text-main);">Seleccionar</h3>
+            <div class="opt-grid" id="selector-options"></div>
         </div>
     </div>
 
     <div id="modalModificadores" class="modal">
         <div class="modal-content">
-            <h3 id="modal-mod-titulo">Seleccionar Opción</h3>
-            <div id="modal-mod-opciones" style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;"></div>
-            <button id="btn-cancelar-mod" class="btn-secondary" style="margin-top: 20px; width: 100%;">Cancelar</button>
+            <h3 id="modal-mod-titulo" style="margin-bottom: 15px; color: var(--text-main);">Personalizar</h3>
+            <div class="opt-grid" id="modal-mod-opciones" style="display: flex; flex-direction: column; gap: 8px;"></div>
+            <button id="btn-cancelar-mod" style="margin-top: 20px; width: 100%; padding: 12px; background: var(--bg-light); border:none; border-radius:8px; font-weight:bold; cursor:pointer;">Cancelar</button>
         </div>
     </div>
 
-    <footer>&copy; 2025 Los Boneless del Olimpo</footer>
+    <div id="modalIntercom" class="modal">
+        <div class="modal-content">
+            <span class="close" id="close-intercom">&times;</span>
+            <h3 style="color: var(--warning); margin-bottom: 5px;"><i class="fas fa-bullhorn"></i> Alerta a Cocina</h3>
+            <p style="font-size: 13px; color: var(--text-muted); margin-bottom: 20px;">Sonará un zumbido en la pantalla de cocina.</p>
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px;">
+                <button class="btn-opt btn-quick-alert" style="padding: 10px;">🗑️ Basura</button>
+                <button class="btn-opt btn-quick-alert" style="padding: 10px;">🧻 Servilletas</button>
+                <button class="btn-opt btn-quick-alert" style="padding: 10px;">🧹 Limpiar</button>
+                <button class="btn-opt btn-quick-alert" style="padding: 10px;">🚶‍♂️ Venir a Caja</button>
+            </div>
+            <input type="text" id="input-alerta" class="input-crm" placeholder="Mensaje personalizado..." style="margin-bottom: 15px;">
+            <button id="btn-enviar-alerta" class="btn-pay" style="padding: 12px; font-size:16px;">Enviar Alerta</button>
+        </div>
+    </div>
 
     <script>
         function parseJwt(token) { try { const base64Url = token.split('.')[1]; const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/'); const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join('')); return JSON.parse(jsonPayload); } catch (e) { return null; } }
@@ -162,295 +237,280 @@
         document.addEventListener('DOMContentLoaded', () => {
             const API_MENU_URL = 'https://olimpollo-api.onrender.com/api/menu/pos';
             const API_PEDIDOS_URL = 'https://olimpollo-api.onrender.com/api/pedidos';
-            const API_ALERTAS_URL = 'https://olimpollo-api.onrender.com/api/alertas'; // NUEVO ENDPOINT
+            const API_ALERTAS_URL = 'https://olimpollo-api.onrender.com/api/alertas'; 
             
             let menuData = { productos: [], opciones: {} };
             let carrito = [];
             let selectedCanal = 'OyR';
             let selectedPago = 'Efectivo'; 
 
-            // Elementos DOM POS
+            // DOM
             const menuContainer = document.getElementById('productos-container');
+            const categoryContainer = document.getElementById('category-container');
             const listaCarrito = document.getElementById('lista-carrito');
             const totalPedidoSpan = document.getElementById('total-pedido');
             const infoComision = document.getElementById('info-comision'); 
-            const formFinalizarPedido = document.getElementById('form-finalizar-pedido');
-            const inputClienteNombre = document.getElementById('cliente-nombre');
-            const canalBotonesContainer = document.getElementById('canal-venta-botones');
-            const pagoBotonesContainer = document.getElementById('metodo-pago-botones');
             const inputAjusteTotal = document.getElementById('ajuste-total');
+            const btnCobrar = document.getElementById('btn-cobrar');
+            
             const inputTelefono = document.getElementById('cliente-telefono');
+            const inputClienteNombre = document.getElementById('cliente-nombre');
             const btnBuscarCliente = document.getElementById('btn-buscar-cliente');
             const infoClienteCRM = document.getElementById('info-cliente-crm');
 
-            // Elementos DOM Intercomunicador
-            const modalIntercom = document.getElementById('modalIntercom');
-            const btnAbrirIntercom = document.getElementById('btn-abrir-intercom');
-            const closeIntercom = document.getElementById('close-intercom');
-            const inputAlerta = document.getElementById('input-alerta');
-            const btnEnviarAlerta = document.getElementById('btn-enviar-alerta');
+            // --- AUTH ---
+            const token = localStorage.getItem('authToken'); 
+            if(token) { 
+                const u = parseJwt(token); 
+                if(u) document.getElementById('user-identifier').textContent = u.username; 
+            } else { window.location.href = 'login.html'; }
+            document.getElementById('btn-logout').addEventListener('click', () => {localStorage.clear(); window.location.href='login.html'});
 
-            // --- LÓGICA INTERCOMUNICADOR (ALERTAS) ---
-            btnAbrirIntercom.addEventListener('click', () => {
-                inputAlerta.value = '';
-                modalIntercom.style.display = 'flex';
-                inputAlerta.focus();
-            });
-
-            closeIntercom.addEventListener('click', () => modalIntercom.style.display = 'none');
-            window.addEventListener('click', (e) => { if (e.target === modalIntercom) modalIntercom.style.display = 'none'; });
-
-            // Botones rápidos de alerta
-            document.querySelectorAll('.btn-quick-alert').forEach(btn => {
-                btn.addEventListener('click', (e) => {
-                    inputAlerta.value = e.target.textContent.replace(/[^\w\sñáéíóú]/gi, '').trim(); // Quitar emojis
+            // --- SELECTORES MODALES (Canal / Pago) ---
+            const modalSelector = document.getElementById('modalSelector');
+            const selectorOptions = document.getElementById('selector-options');
+            const btnSelectCanal = document.getElementById('btn-select-canal');
+            const btnSelectPago = document.getElementById('btn-select-pago');
+            
+            document.getElementById('close-selector').onclick = () => modalSelector.style.display = 'none';
+            
+            const openSelector = (title, options, currentVal, callback) => {
+                document.getElementById('selector-title').textContent = title;
+                selectorOptions.innerHTML = '';
+                options.forEach(opt => {
+                    const btn = document.createElement('button');
+                    btn.className = `btn-opt ${opt === currentVal ? 'active' : ''}`;
+                    btn.textContent = opt;
+                    btn.onclick = () => { callback(opt); modalSelector.style.display = 'none'; };
+                    selectorOptions.appendChild(btn);
                 });
+                modalSelector.style.display = 'flex';
+            };
+
+            btnSelectCanal.onclick = () => openSelector('Canal de Venta', ['OyR', 'Uber', 'Didi', 'Rappi', 'Empleado'], selectedCanal, (val) => {
+                selectedCanal = val; btnSelectCanal.textContent = val;
+                if (['Uber', 'Didi', 'Rappi'].includes(val)) { selectedPago = 'Aplicación'; btnSelectPago.textContent = 'Aplicación'; }
+                else if (val === 'OyR' && selectedPago === 'Aplicación') { selectedPago = 'Efectivo'; btnSelectPago.textContent = 'Efectivo'; }
+                calcularTotal();
             });
 
-            // Enviar alerta a cocina
-            btnEnviarAlerta.addEventListener('click', async () => {
-                const mensaje = inputAlerta.value.trim();
-                if (!mensaje) return alert("Escribe un mensaje para cocina.");
-                
-                try {
-                    const res = await fetch(API_ALERTAS_URL, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({ mensaje })
-                    });
-                    if (res.ok) {
-                        alert("✅ Alerta enviada a cocina.");
-                        modalIntercom.style.display = 'none';
-                    } else {
-                        throw new Error("No se pudo enviar");
-                    }
-                } catch (e) { alert("Error al enviar alerta: " + e.message); }
+            btnSelectPago.onclick = () => openSelector('Método de Pago', ['Efectivo', 'Tarjeta', 'Transferencia', 'Aplicación'], selectedPago, (val) => {
+                selectedPago = val; btnSelectPago.textContent = val; calcularTotal();
             });
+
+            // --- INTERCOMUNICADOR ---
+            const modalIntercom = document.getElementById('modalIntercom');
+            document.getElementById('btn-abrir-intercom').onclick = () => { document.getElementById('input-alerta').value = ''; modalIntercom.style.display = 'flex'; };
+            document.getElementById('close-intercom').onclick = () => modalIntercom.style.display = 'none';
+            document.querySelectorAll('.btn-quick-alert').forEach(b => b.onclick = (e) => document.getElementById('input-alerta').value = e.target.textContent.replace(/[^\w\sñáéíóú]/gi, '').trim());
+            
+            document.getElementById('btn-enviar-alerta').onclick = async () => {
+                const mensaje = document.getElementById('input-alerta').value.trim();
+                if (!mensaje) return;
+                try {
+                    await fetch(API_ALERTAS_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mensaje }) });
+                    modalIntercom.style.display = 'none';
+                } catch (e) { alert("Error"); }
+            };
 
             // --- CRM ---
             btnBuscarCliente.addEventListener('click', async () => {
                 const tel = inputTelefono.value.trim();
-                if (tel.length < 7) return alert("Ingresa un número válido");
+                if (tel.length < 7) return alert("Número inválido");
+                inputClienteNombre.style.display = 'block';
                 try {
                     const res = await fetch(`https://olimpollo-api.onrender.com/api/clientes/exacto/${tel}`);
                     if (res.ok) {
-                        const cliente = await res.json();
-                        inputClienteNombre.value = cliente.nombre;
-                        infoClienteCRM.style.display = 'block';
-                        infoClienteCRM.innerHTML = `🌟 ¡Cliente Frecuente!<br>Visitas: ${cliente.visitas} | Puntos: ${cliente.puntos}`;
-                        infoClienteCRM.style.color = '#27ae60';
+                        const c = await res.json();
+                        inputClienteNombre.value = c.nombre;
+                        infoClienteCRM.style.display = 'block'; infoClienteCRM.style.background = '#DCFCE7'; infoClienteCRM.style.color = '#059669';
+                        infoClienteCRM.innerHTML = `🌟 Frecuente | Visitas: ${c.visitas} | Puntos: ${c.puntos}`;
                     } else {
-                        infoClienteCRM.style.display = 'block';
-                        infoClienteCRM.innerHTML = `🆕 Cliente Nuevo (Se registrará al finalizar)`;
-                        infoClienteCRM.style.color = '#7f8c8d';
-                        inputClienteNombre.focus();
+                        infoClienteCRM.style.display = 'block'; infoClienteCRM.style.background = '#F1F5F9'; infoClienteCRM.style.color = '#64748B';
+                        infoClienteCRM.innerHTML = `🆕 Nuevo Cliente`; inputClienteNombre.focus();
                     }
-                } catch (e) { console.error(e); }
+                } catch (e) { }
             });
 
-            // --- Selectores ---
-            canalBotonesContainer.addEventListener('click', (e) => {
-                const target = e.target.closest('.btn-selector');
-                if (!target) return;
-                canalBotonesContainer.querySelectorAll('.btn-selector').forEach(btn => btn.classList.remove('active'));
-                target.classList.add('active');
-                selectedCanal = target.dataset.canal;
-
-                if (['Uber', 'Didi', 'Rappi'].includes(selectedCanal)) {
-                    seleccionarMetodoPago('Aplicación');
-                } else if (selectedCanal === 'OyR' && selectedPago === 'Aplicación') {
-                    seleccionarMetodoPago('Efectivo');
-                }
-            });
-
-            pagoBotonesContainer.addEventListener('click', (e) => {
-                const target = e.target.closest('.btn-selector');
-                if (!target) return;
-                seleccionarMetodoPago(target.dataset.pago);
-            });
-
-            function seleccionarMetodoPago(metodo) {
-                selectedPago = metodo;
-                pagoBotonesContainer.querySelectorAll('.btn-selector').forEach(btn => btn.classList.remove('active'));
-                const btnAActivar = Array.from(pagoBotonesContainer.children).find(btn => btn.dataset.pago === metodo);
-                if (btnAActivar) btnAActivar.classList.add('active');
-                calcularTotal();
-            }
-
-            // --- Carrito ---
-            const renderProductos = (productos) => {
-                 const categoryColors = {'Platos Fuertes':'#F8D9D9','Sides':'#FCF3CF','Bebidas':'#DDDDDD','PROMOS':'#D5F5E3','Aderezos':'#E5E7E9','default':'#F2F3F4'};
-                menuContainer.innerHTML = '';
-                productos.forEach(producto => {
+            // --- RENDER MENÚ ---
+            const renderCategorias = () => {
+                const cats = ['Todos', ...new Set(menuData.productos.map(p => p.categoria))];
+                categoryContainer.innerHTML = '';
+                cats.forEach(c => {
                     const btn = document.createElement('button');
-                    btn.className = 'btn-producto';
-                    btn.dataset.id = producto.id;
-                    btn.dataset.precio = producto.precio_base;
-                    btn.dataset.nombre = producto.nombre_venta;
-                    btn.dataset.gruposModificadores = producto.grupos_modificadores || '';
-                    btn.textContent = `${producto.nombre_venta} ($${producto.precio_base.toFixed(2)})`;
-                    btn.style.backgroundColor = categoryColors[producto.categoria] || categoryColors['default'];
-                    if (producto.grupos_modificadores) btn.style.border = '3px solid #007bff';
+                    btn.className = `btn-category ${c === 'Todos' ? 'active' : ''}`;
+                    btn.textContent = c;
+                    btn.onclick = () => {
+                        document.querySelectorAll('.btn-category').forEach(b => b.classList.remove('active'));
+                        btn.classList.add('active');
+                        renderProductos(c);
+                    };
+                    categoryContainer.appendChild(btn);
+                });
+            };
+
+            const renderProductos = (filtroCat = 'Todos') => {
+                const colores = {'Platos Fuertes':'#FEF2F2','Sides':'#FFFBEB','Bebidas':'#F8FAFC','PROMOS':'#ECFDF5','Aderezos':'#F1F5F9'};
+                menuContainer.innerHTML = '';
+                const filtrados = filtroCat === 'Todos' ? menuData.productos : menuData.productos.filter(p => p.categoria === filtroCat);
+                
+                filtrados.forEach(p => {
+                    const btn = document.createElement('div');
+                    btn.className = `btn-product ${p.grupos_modificadores ? 'has-mods' : ''}`;
+                    btn.style.backgroundColor = colores[p.categoria] || '#ffffff';
+                    btn.innerHTML = `<span class="prod-name">${p.nombre_venta}</span><span class="prod-price">$${p.precio_base.toFixed(2)}</span>`;
+                    
+                    btn.onclick = async () => {
+                        let modsAcum = []; let precioAdicional = 0;
+                        if (p.grupos_modificadores) {
+                            const grupos = p.grupos_modificadores.split(',').map(g => g.trim()).filter(Boolean);
+                            try {
+                                for (const g of grupos) {
+                                    const opcs = menuData.opciones[g] || [];
+                                    if(opcs.length > 0) {
+                                        const sel = await solicitarOpcion(`Selecciona ${g}`, opcs);
+                                        modsAcum.push(sel); precioAdicional += sel.precio_adicional;
+                                    }
+                                }
+                            } catch (e) { return; } // Cancelado
+                        }
+                        agregarAlCarrito(p, modsAcum, precioAdicional);
+                    };
                     menuContainer.appendChild(btn);
                 });
             };
 
-            const manejarClickProducto = async (e) => {
-                const target = e.target.closest('.btn-producto');
-                if (!target) return;
-                const productoSeleccionado = target.dataset;
-                const gruposModificadoresStr = productoSeleccionado.gruposModificadores || '';
-                const gruposAplicables = gruposModificadoresStr.split(',').map(g => g.trim()).filter(Boolean);
-                let modificadoresAcumulados = [];
-                let precioAdicionalTotal = 0;
-                try {
-                    for (const nombreGrupo of gruposAplicables) {
-                        const opciones = menuData.opciones[nombreGrupo] || [];
-                        if (opciones.length === 0) continue;
-                        const titulo = `Selecciona ${nombreGrupo} para ${productoSeleccionado.nombre}`;
-                        const seleccion = await solicitarOpcion(titulo, opciones);
-                        modificadoresAcumulados.push(seleccion);
-                        precioAdicionalTotal += seleccion.precio_adicional;
-                    }
-                    agregarItemAlCarrito(productoSeleccionado, modificadoresAcumulados, precioAdicionalTotal);
-                } catch (error) { console.log(error.message); }
-            };
-
-            const agregarItemAlCarrito = (producto, modificadoresAcumulados, precioAdicionalTotal) => {
-                const item = { menu_producto_id: parseInt(producto.id), nombre_venta: producto.nombre, precio_unitario: parseFloat(producto.precio) + precioAdicionalTotal, cantidad: 1, modificadores: modificadoresAcumulados.map(m => m.valor).join(', '), notas: '' };
-                carrito.push(item);
+            // --- CARRITO INTELIGENTE ---
+            const agregarAlCarrito = (producto, mods, extraPrice) => {
+                const modStr = mods.map(m => m.valor).join(', ');
+                const precioUnidad = producto.precio_base + extraPrice;
+                
+                // Buscar si existe exactamente el mismo (agrupar)
+                const index = carrito.findIndex(i => i.id === producto.id && i.mods === modStr && i.notas === '');
+                if (index > -1) {
+                    carrito[index].cantidad++;
+                } else {
+                    carrito.push({ id: producto.id, nombre: producto.nombre_venta, precio: precioUnidad, cantidad: 1, mods: modStr, notas: '' });
+                }
                 renderCarrito();
             };
 
             const renderCarrito = () => {
                 listaCarrito.innerHTML = '';
-                if (carrito.length === 0) {
-                    listaCarrito.innerHTML = '<li style="color: var(--secondary-text);">Aún no hay productos.</li>';
-                    calcularTotal();
-                    return;
-                }
+                if (carrito.length === 0) { listaCarrito.innerHTML = `<div class="empty-cart"><i class="fas fa-shopping-basket"></i>Ticket vacío</div>`; calcularTotal(); return; }
+                
                 carrito.forEach((item, index) => {
-                    const li = document.createElement('li');
-                    const mods = item.modificadores ? `(${item.modificadores})` : '';
-                    const notaHTML = item.notas ? `<span class="item-nota">📝 ${item.notas}</span>` : '';
-                    li.innerHTML = `
-                        <div style="flex: 1;">
-                            <strong>${item.cantidad}x ${item.nombre_venta}</strong>
-                            <span style="font-size: 14px; display: block; color: var(--secondary-text);">${mods}</span>
-                            ${notaHTML}
+                    const div = document.createElement('div'); div.className = 'cart-item';
+                    div.innerHTML = `
+                        <div class="cart-item-header">
+                            <div class="item-info">
+                                <span class="item-name">${item.nombre}</span>
+                                ${item.mods ? `<span class="item-mods">${item.mods}</span>` : ''}
+                                ${item.notas ? `<span class="item-note">📝 ${item.notas}</span>` : ''}
+                            </div>
+                            <div class="item-price">$${(item.precio * item.cantidad).toFixed(2)}</div>
                         </div>
-                        <div style="display: flex; align-items: center; gap: 5px; margin-left: 10px;">
-                            <span style="font-weight:600; min-width:60px; text-align:right;">$${(item.precio_unitario * item.cantidad).toFixed(2)}</span>
-                            <button type="button" class="btn-item-action btn-nota" data-index="${index}" title="Agregar Nota">✏️</button>
-                            <button type="button" class="btn-item-action btn-duplicar" data-index="${index}" title="Duplicar">➕</button>
-                            <button type="button" class="btn-item-action btn-eliminar" data-index="${index}" title="Eliminar">❌</button>
-                        </div>`;
-                    listaCarrito.appendChild(li);
+                        <div class="item-controls">
+                            <button class="btn-action-sm" onclick="addNota(${index})"><i class="fas fa-pen"></i> Nota</button>
+                            <div class="qty-controls">
+                                <button class="btn-qty" onclick="modQty(${index}, -1)">-</button>
+                                <div class="qty-display">${item.cantidad}</div>
+                                <button class="btn-qty" onclick="modQty(${index}, 1)">+</button>
+                            </div>
+                        </div>
+                    `;
+                    listaCarrito.appendChild(div);
                 });
                 calcularTotal();
             };
-            
-            listaCarrito.addEventListener('click', (e) => {
-                const target = e.target.closest('button');
-                if (!target) return;
-                const index = parseInt(target.dataset.index, 10);
-                if (target.classList.contains('btn-eliminar')) { carrito.splice(index, 1); renderCarrito(); } 
-                else if (target.classList.contains('btn-duplicar')) { const newItem = JSON.parse(JSON.stringify(carrito[index])); carrito.splice(index + 1, 0, newItem); renderCarrito(); } 
-                else if (target.classList.contains('btn-nota')) { const n = prompt("Nota:", carrito[index].notas || ''); if (n !== null) { carrito[index].notas = n.trim(); renderCarrito(); } }
-            });
 
-            formFinalizarPedido.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                if (carrito.length === 0) return alert('El carrito está vacío.');
-                const totalAjustado = inputAjusteTotal.value;
-                if (selectedCanal !== 'OyR' && !totalAjustado) { alert('Para Apps, ingresa el total exacto del ticket.'); inputAjusteTotal.focus(); return; }
-                const totalCalculado = calcularTotal(false); 
-                let totalFinal = inputAjusteTotal.value ? parseFloat(inputAjusteTotal.value) : totalCalculado;
+            window.modQty = (idx, delta) => {
+                carrito[idx].cantidad += delta;
+                if (carrito[idx].cantidad <= 0) carrito.splice(idx, 1);
+                renderCarrito();
+            };
+            window.addNota = (idx) => {
+                const n = prompt("Nota de cocina:", carrito[idx].notas);
+                if (n !== null) { carrito[idx].notas = n.trim(); renderCarrito(); }
+            };
+
+            // --- CÁLCULOS Y COBRO ---
+            const calcularTotal = () => {
+                const totalCar = carrito.reduce((s, i) => s + (i.precio * i.cantidad), 0);
+                const manual = parseFloat(inputAjusteTotal.value);
+                const total = (manual && manual > 0) ? manual : totalCar;
+
+                totalPedidoSpan.textContent = `$${total.toFixed(2)}`;
+                if (manual) totalPedidoSpan.textContent += ' *';
+
+                if (total > 0 && selectedPago === 'Tarjeta') {
+                    const c = total * 0.04176; 
+                    infoComision.style.display = 'block';
+                    infoComision.innerHTML = `Comisión Tarjeta: -$${c.toFixed(2)} | Recibes: $${(total-c).toFixed(2)}`;
+                } else if (total > 0 && selectedPago === 'Aplicación') {
+                    if(!manual) { infoComision.style.display='block'; infoComision.innerHTML = `<span style="color:#F59E0B;">⚠️ Ingresa el total ajustado de la App arriba</span>`; }
+                    else { const c = total * 0.4213; infoComision.style.display='block'; infoComision.innerHTML = `Comisión App: -$${c.toFixed(2)} | Recibes: $${(total-c).toFixed(2)}`; }
+                } else { infoComision.style.display = 'none'; }
                 
-                const pedidoData = { cliente: inputClienteNombre.value.trim(), telefono: inputTelefono.value.trim(), canal_venta: selectedCanal, metodo_pago: selectedPago, total_ajustado: totalFinal, items: carrito.map(item => ({ menu_producto_id: item.menu_producto_id, nombre_producto_completo: item.nombre_venta + (item.modificadores ? ` (${item.modificadores})` : ''), cantidad: item.cantidad, precio_unitario: item.precio_unitario, notas: item.notas })) };
+                return total;
+            };
+            inputAjusteTotal.addEventListener('input', calcularTotal);
+
+            // FINALIZAR
+            btnCobrar.addEventListener('click', async () => {
+                if (carrito.length === 0) return alert('El ticket está vacío.');
+                const manual = parseFloat(inputAjusteTotal.value);
+                if (selectedCanal !== 'OyR' && !manual) return alert('Para pedidos de App, ingresa el Total Ajustado exacto.');
+                
+                btnCobrar.disabled = true; btnCobrar.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando...';
+                const totalFinal = calcularTotal();
+                
+                const payload = { 
+                    cliente: inputClienteNombre.value.trim() || 'Mostrador', telefono: inputTelefono.value.trim(), 
+                    canal_venta: selectedCanal, metodo_pago: selectedPago, total_ajustado: totalFinal, 
+                    items: carrito.map(i => ({ menu_producto_id: i.id, nombre_producto_completo: i.nombre + (i.mods ? ` (${i.mods})` : ''), cantidad: i.cantidad, precio_unitario: i.precio, notas: i.notas })) 
+                };
 
                 try {
-                    const response = await fetch(API_PEDIDOS_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(pedidoData) });
-                    if (!response.ok) throw new Error('Error al guardar.');
-                    const data = await response.json();
+                    const res = await fetch(API_PEDIDOS_URL, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                    if (!res.ok) throw new Error('Error al guardar');
+                    alert('✅ Pedido cobrado con éxito.');
                     
-                    let msg = `✅ Pedido #${data.id} guardado.`;
-                    if (data.comision && parseFloat(data.comision) > 0) {
-                        msg += `\n(Se descontó comisión: $${data.comision})`;
-                    }
-                    alert(msg);
-                    
-                    carrito = []; formFinalizarPedido.reset(); infoClienteCRM.style.display = 'none';
-                    seleccionarMetodoPago('Efectivo'); canalBotonesContainer.querySelector('[data-canal="OyR"]').click();
+                    // Reset
+                    carrito = []; inputAjusteTotal.value = ''; inputTelefono.value = ''; inputClienteNombre.value = ''; inputClienteNombre.style.display = 'none'; infoClienteCRM.style.display = 'none';
+                    selectedCanal = 'OyR'; selectedPago = 'Efectivo'; btnSelectCanal.textContent = 'OyR'; btnSelectPago.textContent = 'Efectivo';
                     renderCarrito();
-                } catch (error) { alert(`❌ Error: ${error.message}`); }
+                } catch (e) { alert('Error: ' + e.message); } finally { btnCobrar.disabled = false; btnCobrar.innerHTML = '<i class="fas fa-check-circle"></i> COBRAR PEDIDO'; }
             });
 
-            // --- Cálculos Inteligentes ---
-            const calcularTotal = (updateUI = true) => {
-                const totalCarrito = carrito.reduce((sum, item) => sum + (item.precio_unitario * item.cantidad), 0);
-                const totalManual = parseFloat(inputAjusteTotal.value);
-                const totalReal = (totalManual && totalManual > 0) ? totalManual : totalCarrito;
-
-                if (updateUI) {
-                    if (!totalManual) {
-                        totalPedidoSpan.textContent = `$${totalCarrito.toFixed(2)}`;
-                    } else {
-                        totalPedidoSpan.textContent = `$${totalReal.toFixed(2)} (Manual)`;
-                    }
-                    
-                    infoComision.style.display = 'block'; 
-
-                    if (totalReal > 0) {
-                        if (selectedPago === 'Tarjeta') {
-                            const comision = totalReal * 0.04176; 
-                            const neto = totalReal - comision;
-                            infoComision.innerHTML = `Cobras: <strong>$${totalReal.toFixed(2)}</strong> | Recibes: <strong style="color: #27ae60;">$${neto.toFixed(2)}</strong> <span style="font-size:12px; color:#e74c3c;">(-3.6%+IVA)</span>`;
-                        } else if (selectedPago === 'Aplicación') {
-                            if (!totalManual) {
-                                infoComision.innerHTML = `<span style="color: #e67e22; font-weight: 600; background: #fdf2e9; padding: 6px; border-radius: 4px; border: 1px solid #e67e22; display:block; text-align:center;">⚠️ Por favor ingresa el total ajustado del ticket</span>`;
-                            } else {
-                                const comision = totalReal * 0.4213; 
-                                const neto = totalReal - comision;
-                                infoComision.innerHTML = `Venta App: <strong>$${totalReal.toFixed(2)}</strong> | Recibes: <strong style="color: #27ae60;">$${neto.toFixed(2)}</strong> <span style="font-size:12px; color:#e74c3c;">(-42.13%)</span>`;
-                            }
-                        } else {
-                            infoComision.style.display = 'none';
-                        }
-                    } else {
-                        infoComision.style.display = 'none';
-                    }
-                }
-                return totalCarrito;
-            };
-            
-            inputAjusteTotal.addEventListener('input', () => calcularTotal(true));
-
-            // Modal Helpers
-            const modalModTitulo = document.getElementById('modal-mod-titulo');
-            const modalModOpciones = document.getElementById('modal-mod-opciones');
-            const modalModificadores = document.getElementById('modalModificadores');
-            const btnCancelarMod = document.getElementById('btn-cancelar-mod');
+            // MODAL HELPERS
             const solicitarOpcion = (titulo, opciones) => {
                 return new Promise((resolve, reject) => {
-                    modalModTitulo.textContent = titulo; modalModOpciones.innerHTML = '';
-                    const cleanup = () => { modalModificadores.style.display = 'none'; modalModOpciones.innerHTML = ''; };
-                    opciones.forEach(opcion => {
-                        const btn = document.createElement('button'); btn.className = 'btn-modificador';
-                        btn.textContent = `${opcion.valor} ${opcion.precio_adicional > 0 ? `(+$${opcion.precio_adicional.toFixed(2)})` : ''}`;
-                        btn.onclick = () => { cleanup(); resolve(opcion); }; modalModOpciones.appendChild(btn);
+                    document.getElementById('modal-mod-titulo').textContent = titulo;
+                    const container = document.getElementById('modal-mod-opciones'); container.innerHTML = '';
+                    const modal = document.getElementById('modalModificadores');
+                    
+                    const cleanup = () => { modal.style.display = 'none'; };
+                    opciones.forEach(op => {
+                        const b = document.createElement('button'); b.className = 'btn-opt';
+                        b.style.display = 'flex'; b.style.justifyContent = 'space-between';
+                        b.innerHTML = `<span>${op.valor}</span> ${op.precio_adicional > 0 ? `<span style="color:var(--success)">+$${op.precio_adicional.toFixed(2)}</span>` : ''}`;
+                        b.onclick = () => { cleanup(); resolve(op); }; container.appendChild(b);
                     });
-                    btnCancelarMod.onclick = () => { cleanup(); reject(new Error('Selección cancelada.')); };
-                    modalModificadores.style.display = 'flex';
+                    document.getElementById('btn-cancelar-mod').onclick = () => { cleanup(); reject(new Error('Cancelado')); };
+                    modal.style.display = 'flex';
                 });
             };
 
-            const cargarMenuPOS = async () => { try { const r = await fetch(API_MENU_URL); const d = await r.json(); menuData = d; renderProductos(d.productos); } catch (e) { menuContainer.innerHTML = 'Error cargando menú'; } };
-            const token = localStorage.getItem('authToken'); if(token) { const u = parseJwt(token); if(u) document.getElementById('user-identifier').textContent = u.username; } else window.location.href = 'login.html';
-            document.getElementById('btn-logout').addEventListener('click', () => {localStorage.clear(); window.location.href='login.html'});
-
-            menuContainer.addEventListener('click', manejarClickProducto);
-            cargarMenuPOS();
+            // INICIALIZAR
+            const init = async () => {
+                try {
+                    const r = await fetch(API_MENU_URL); menuData = await r.json();
+                    renderCategorias(); renderProductos();
+                } catch (e) { menuContainer.innerHTML = 'Error de red'; }
+            };
+            init();
+            window.addEventListener('click', (e) => { document.querySelectorAll('.modal').forEach(m => { if(e.target === m) m.style.display='none'; }) });
         });
     </script>
 </body>
