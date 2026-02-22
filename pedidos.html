@@ -10,7 +10,7 @@
     <style>
         /* ESTILOS BASE */
         :root{--bg-main:#ECF0F1;--bg-header:#FFFFFF;--card-bg:#FFFFFF;--primary-text:#502c2c;--secondary-text:#808B96;--accent-color:#db3434;--accent-hover:#b92929;--border-color:#D5D8DC;--shadow-light:0 4px 15px rgba(0, 0, 0, 0.08);--shadow-heavy:0 10px 20px rgba(0, 0, 0, 0.12);--payment-color:#2980B9;}
-        body{margin:0;font-family:'Poppins', sans-serif;background-color:var(--bg-main);color:var(--primary-text);display:flex;flex-direction:column;min-height:100vh;}header{background:var(--bg-header);padding:15px 40px;box-shadow:0 2px 10px rgba(0, 0, 0, 0.05);display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border-color);}header .logo{font-size:24px;font-weight:600;text-decoration:none;color:var(--primary-text);}header nav{display:flex;gap:20px;}header nav a{text-decoration:none;color:var(--secondary-text);font-weight:500;transition:color 0.3s;}header nav a:hover{color:var(--accent-color);}.user-info{display:flex;align-items:center;gap:20px;}#user-identifier{font-weight:500;background-color:var(--bg-main);padding:5px 12px;border-radius:15px;font-size:14px;}.logout{background:var(--accent-color);color:white;border:none;padding:8px 18px;border-radius:20px;cursor:pointer;font-size:14px;font-weight:500;transition:background-color 0.3s;}.logout:hover{background-color:var(--accent-hover);}main{flex:1;padding:40px;max-width:1400px;margin:0 auto;width:100%;box-sizing:border-box;}h2.page-title{margin-bottom:30px;font-size:28px;font-weight:600;}.card{background:var(--card-bg);border-radius:12px;padding:25px;box-shadow:var(--shadow-light);margin-bottom:25px;}table{width:100%;border-collapse:collapse;background:var(--card-bg);border-radius:12px;overflow:hidden;box-shadow:var(--shadow-light);}th, td{padding:15px;text-align:left;border-bottom:1px solid var(--bg-main);}
+        body{margin:0;font-family:'Poppins', sans-serif;background-color:var(--bg-main);color:var(--primary-text);display:flex;flex-direction:column;min-height:100vh;}header{background:var(--bg-header);padding:15px 40px;box-shadow:0 2px 10px rgba(0, 0, 0, 0.05);display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border-color);}header .logo{font-size:24px;font-weight:600;text-decoration:none;color:var(--primary-text);}header nav{display:flex;gap:20px;}header nav a{text-decoration:none;color:var(--secondary-text);font-weight:500;transition:color 0.3s;}header nav a:hover{color:var(--accent-color);}.user-info{display:flex;align-items:center;gap:20px;}#user-identifier{font-weight:500;background-color:var(--bg-main);padding:5px 12px;border-radius:15px;font-size:14px;}.logout{background:var(--accent-color);color:white;border:none;padding:8px 18px;border-radius:20px;cursor:pointer;font-size:14px;font-weight:500;transition:background-color 0.3s;}.logout:hover{background-color:var(--accent-hover);}main{flex:1;padding:40px;max-width:1400px;margin:0 auto;width:100%;box-sizing:border-box;}h2.page-title{margin-bottom:30px;font-size:28px;font-weight:600; display:flex; justify-content:space-between; align-items:center;}.card{background:var(--card-bg);border-radius:12px;padding:25px;box-shadow:var(--shadow-light);margin-bottom:25px;}table{width:100%;border-collapse:collapse;background:var(--card-bg);border-radius:12px;overflow:hidden;box-shadow:var(--shadow-light);}th, td{padding:15px;text-align:left;border-bottom:1px solid var(--bg-main);}
         
         /* ESTILOS POS */
         .pos-container { display: flex; gap: 25px; align-items: flex-start; }
@@ -22,7 +22,6 @@
         .carrito-list { list-style: none; padding: 0; margin: 0 0 20px 0; max-height: 300px; overflow-y: auto; }
         .carrito-list li { display: flex; justify-content: space-between; align-items: flex-start; padding: 10px 0; border-bottom: 1px solid var(--bg-main); }
         
-        /* Botones de acción del carrito */
         .btn-item-action { border: none; padding: 5px 8px; font-size: 14px; cursor: pointer; border-radius: 4px; margin-left: 3px;}
         .btn-nota { background: #f39c12; color: white; } 
         .btn-duplicar { background: #007bff; color: white; }
@@ -30,19 +29,17 @@
         .btn-modificador { width: 100%; padding: 15px; font-size: 16px; font-weight: bold; cursor: pointer; border: 1px solid #ddd; background: #f9f9f9; border-radius: 5px; transition: background 0.2s; }
         .btn-modificador:hover { background: #FCF3CF; }
         
-        /* Estilos Botones Selección */
         .canal-botones-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 15px; }
         .btn-selector { padding: 12px 5px; border: 2px solid var(--border-color); background-color: transparent; color: var(--secondary-text); border-radius: 8px; cursor: pointer; font-weight: 500; font-size: 14px; transition: all 0.2s ease-in-out; }
-        
         .btn-selector.btn-canal.active { background-color: var(--accent-color); color: white; border-color: var(--accent-color); transform: scale(1.05); }
         .btn-selector.btn-pago.active { background-color: var(--payment-color); color: white; border-color: var(--payment-color); transform: scale(1.05); }
-
         .item-nota { display: block; font-size: 12px; color: #e67e22; font-style: italic; margin-top: 2px; font-weight: 600; border-left: 2px solid #e67e22; padding-left: 5px; }
         
         .modal{display:none;position:fixed;z-index:1000;left:0;top:0;width:100%;height:100%;background-color:rgba(0,0,0,0.5);justify-content:center;align-items:center;}.modal-content{background:var(--card-bg);padding:30px;border-radius:12px;box-shadow:var(--shadow-heavy);width:90%;max-width:500px;position:relative;}.close{position:absolute;top:15px;right:20px;font-size:28px;cursor:pointer;color:var(--secondary-text);}
         footer{text-align:center;padding:20px;font-size:14px;color:var(--secondary-text);}
-        .btn-primary { background: var(--accent-color); color: white; border: none; border-radius: 8px; cursor: pointer;}
-        .btn-secondary { background: var(--secondary-text); color: white; border: none; border-radius: 8px; cursor: pointer;}
+        .btn-primary { background: var(--accent-color); color: white; border: none; border-radius: 8px; cursor: pointer; padding: 10px 15px;}
+        .btn-secondary { background: var(--secondary-text); color: white; border: none; border-radius: 8px; cursor: pointer; padding: 10px 15px;}
+        .btn-warning { background: #f39c12; color: white; border: none; border-radius: 8px; cursor: pointer; padding: 10px 20px; font-weight: bold;}
     </style>
 </head>
 <body>
@@ -62,7 +59,10 @@
     </header>
 
     <main>
-        <h2 class="page-title">Punto de Venta (POS)</h2>
+        <h2 class="page-title">
+            Punto de Venta (POS)
+            <button id="btn-abrir-intercom" class="btn-warning">🔔 Hablar a Cocina</button>
+        </h2>
         <div class="pos-container">
             <div class="menu-area">
                 <div id="productos-container" class="productos-grid card">
@@ -86,7 +86,7 @@
                         <label style="color: var(--accent-color); font-weight: bold;">Cliente (Teléfono):</label>
                         <div style="display: flex; gap: 10px;">
                             <input type="text" id="cliente-telefono" placeholder="Ej: 6621234567" style="flex: 1; padding: 8px; border-radius: 6px; border: 1px solid #ccc;">
-                            <button type="button" id="btn-buscar-cliente" class="btn btn-secondary" style="padding: 10px;">🔍</button>
+                            <button type="button" id="btn-buscar-cliente" class="btn-secondary" style="padding: 10px;">🔍</button>
                         </div>
                         <div id="info-cliente-crm" style="margin-top: 8px; font-size: 13px; color: #27ae60; font-weight: 600; display: none;"></div>
                     </div>
@@ -128,11 +128,29 @@
         </div>
     </main>
 
+    <div id="modalIntercom" class="modal">
+        <div class="modal-content">
+            <span class="close" id="close-intercom">&times;</span>
+            <h3 style="color: var(--accent-color);">🔔 Enviar Alerta a Cocina</h3>
+            <p style="font-size: 14px; color: gray;">Cocina recibirá el mensaje con una alerta sonora.</p>
+            
+            <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px;">
+                <button class="btn-secondary btn-quick-alert">🗑️ Recoger Basura</button>
+                <button class="btn-secondary btn-quick-alert">🧻 Faltan Servilletas</button>
+                <button class="btn-secondary btn-quick-alert">🧹 Limpiar Mesa</button>
+                <button class="btn-secondary btn-quick-alert">🚶‍♂️ Favor de venir a caja</button>
+            </div>
+
+            <input type="text" id="input-alerta" placeholder="O escribe un mensaje personalizado..." style="width: 100%; padding: 12px; margin-bottom: 15px; border-radius: 8px; border: 1px solid #ccc;">
+            <button id="btn-enviar-alerta" class="btn btn-primary" style="width: 100%; padding: 12px; font-size: 16px;">Enviar Mensaje</button>
+        </div>
+    </div>
+
     <div id="modalModificadores" class="modal">
         <div class="modal-content">
             <h3 id="modal-mod-titulo">Seleccionar Opción</h3>
             <div id="modal-mod-opciones" style="display: flex; flex-direction: column; gap: 10px; margin-top: 20px;"></div>
-            <button id="btn-cancelar-mod" class="btn btn-secondary" style="margin-top: 20px;">Cancelar</button>
+            <button id="btn-cancelar-mod" class="btn-secondary" style="margin-top: 20px; width: 100%;">Cancelar</button>
         </div>
     </div>
 
@@ -144,34 +162,76 @@
         document.addEventListener('DOMContentLoaded', () => {
             const API_MENU_URL = 'https://olimpollo-api.onrender.com/api/menu/pos';
             const API_PEDIDOS_URL = 'https://olimpollo-api.onrender.com/api/pedidos';
+            const API_ALERTAS_URL = 'https://olimpollo-api.onrender.com/api/alertas'; // NUEVO ENDPOINT
             
             let menuData = { productos: [], opciones: {} };
             let carrito = [];
             let selectedCanal = 'OyR';
             let selectedPago = 'Efectivo'; 
 
-            // Elementos DOM
+            // Elementos DOM POS
             const menuContainer = document.getElementById('productos-container');
             const listaCarrito = document.getElementById('lista-carrito');
             const totalPedidoSpan = document.getElementById('total-pedido');
             const infoComision = document.getElementById('info-comision'); 
             const formFinalizarPedido = document.getElementById('form-finalizar-pedido');
             const inputClienteNombre = document.getElementById('cliente-nombre');
-            
             const canalBotonesContainer = document.getElementById('canal-venta-botones');
             const pagoBotonesContainer = document.getElementById('metodo-pago-botones');
             const inputAjusteTotal = document.getElementById('ajuste-total');
-            
             const inputTelefono = document.getElementById('cliente-telefono');
             const btnBuscarCliente = document.getElementById('btn-buscar-cliente');
             const infoClienteCRM = document.getElementById('info-cliente-crm');
+
+            // Elementos DOM Intercomunicador
+            const modalIntercom = document.getElementById('modalIntercom');
+            const btnAbrirIntercom = document.getElementById('btn-abrir-intercom');
+            const closeIntercom = document.getElementById('close-intercom');
+            const inputAlerta = document.getElementById('input-alerta');
+            const btnEnviarAlerta = document.getElementById('btn-enviar-alerta');
+
+            // --- LÓGICA INTERCOMUNICADOR (ALERTAS) ---
+            btnAbrirIntercom.addEventListener('click', () => {
+                inputAlerta.value = '';
+                modalIntercom.style.display = 'flex';
+                inputAlerta.focus();
+            });
+
+            closeIntercom.addEventListener('click', () => modalIntercom.style.display = 'none');
+            window.addEventListener('click', (e) => { if (e.target === modalIntercom) modalIntercom.style.display = 'none'; });
+
+            // Botones rápidos de alerta
+            document.querySelectorAll('.btn-quick-alert').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    inputAlerta.value = e.target.textContent.replace(/[^\w\sñáéíóú]/gi, '').trim(); // Quitar emojis
+                });
+            });
+
+            // Enviar alerta a cocina
+            btnEnviarAlerta.addEventListener('click', async () => {
+                const mensaje = inputAlerta.value.trim();
+                if (!mensaje) return alert("Escribe un mensaje para cocina.");
+                
+                try {
+                    const res = await fetch(API_ALERTAS_URL, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ mensaje })
+                    });
+                    if (res.ok) {
+                        alert("✅ Alerta enviada a cocina.");
+                        modalIntercom.style.display = 'none';
+                    } else {
+                        throw new Error("No se pudo enviar");
+                    }
+                } catch (e) { alert("Error al enviar alerta: " + e.message); }
+            });
 
             // --- CRM ---
             btnBuscarCliente.addEventListener('click', async () => {
                 const tel = inputTelefono.value.trim();
                 if (tel.length < 7) return alert("Ingresa un número válido");
                 try {
-                    // AQUÍ ESTÁ EL CAMBIO IMPORTANTE: Agregamos /exacto/ a la ruta
                     const res = await fetch(`https://olimpollo-api.onrender.com/api/clientes/exacto/${tel}`);
                     if (res.ok) {
                         const cliente = await res.json();
@@ -214,8 +274,6 @@
                 pagoBotonesContainer.querySelectorAll('.btn-selector').forEach(btn => btn.classList.remove('active'));
                 const btnAActivar = Array.from(pagoBotonesContainer.children).find(btn => btn.dataset.pago === metodo);
                 if (btnAActivar) btnAActivar.classList.add('active');
-                
-                // Recalcular para mostrar/ocultar info de comisión
                 calcularTotal();
             }
 
@@ -283,9 +341,9 @@
                         </div>
                         <div style="display: flex; align-items: center; gap: 5px; margin-left: 10px;">
                             <span style="font-weight:600; min-width:60px; text-align:right;">$${(item.precio_unitario * item.cantidad).toFixed(2)}</span>
-                            <button class="btn-item-action btn-nota" data-index="${index}" title="Agregar Nota">✏️</button>
-                            <button class="btn-item-action btn-duplicar" data-index="${index}" title="Duplicar">➕</button>
-                            <button class="btn-item-action btn-eliminar" data-index="${index}" title="Eliminar">❌</button>
+                            <button type="button" class="btn-item-action btn-nota" data-index="${index}" title="Agregar Nota">✏️</button>
+                            <button type="button" class="btn-item-action btn-duplicar" data-index="${index}" title="Duplicar">➕</button>
+                            <button type="button" class="btn-item-action btn-eliminar" data-index="${index}" title="Eliminar">❌</button>
                         </div>`;
                     listaCarrito.appendChild(li);
                 });
@@ -345,23 +403,18 @@
 
                     if (totalReal > 0) {
                         if (selectedPago === 'Tarjeta') {
-                            // Tarjeta: Calcula directo (sobre carrito o manual)
                             const comision = totalReal * 0.04176; 
                             const neto = totalReal - comision;
                             infoComision.innerHTML = `Cobras: <strong>$${totalReal.toFixed(2)}</strong> | Recibes: <strong style="color: #27ae60;">$${neto.toFixed(2)}</strong> <span style="font-size:12px; color:#e74c3c;">(-3.6%+IVA)</span>`;
                         } else if (selectedPago === 'Aplicación') {
-                            // Apps: Lógica condicional
                             if (!totalManual) {
-                                // ⚠️ Si es App y NO hay manual: Advertencia
                                 infoComision.innerHTML = `<span style="color: #e67e22; font-weight: 600; background: #fdf2e9; padding: 6px; border-radius: 4px; border: 1px solid #e67e22; display:block; text-align:center;">⚠️ Por favor ingresa el total ajustado del ticket</span>`;
                             } else {
-                                // ✅ Si es App y HAY manual: Muestra cálculo
                                 const comision = totalReal * 0.4213; 
                                 const neto = totalReal - comision;
                                 infoComision.innerHTML = `Venta App: <strong>$${totalReal.toFixed(2)}</strong> | Recibes: <strong style="color: #27ae60;">$${neto.toFixed(2)}</strong> <span style="font-size:12px; color:#e74c3c;">(-42.13%)</span>`;
                             }
                         } else {
-                            // Efectivo / Transferencia
                             infoComision.style.display = 'none';
                         }
                     } else {
@@ -371,7 +424,6 @@
                 return totalCarrito;
             };
             
-            // Escuchar cambios en el input manual para recalcular al instante
             inputAjusteTotal.addEventListener('input', () => calcularTotal(true));
 
             // Modal Helpers
