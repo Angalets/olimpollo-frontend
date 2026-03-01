@@ -204,6 +204,11 @@
 
                     const hora = new Date(pedido.fecha_creacion).toLocaleTimeString('es-MX', { hour: '2-digit', minute: '2-digit' });
                     
+                    // NUEVO: Etiqueta Visual de Empaque
+                    const tipoConsumo = pedido.tipo_consumo || 'Para Llevar';
+                    const tipoHTML = tipoConsumo === 'Comedor' 
+                        ? '<span style="background:#F39C12; color:white; padding: 4px 8px; border-radius:6px; font-weight:bold; font-size: 0.8em; margin-left: 10px;">🍽️ COMEDOR</span>' 
+                        : '<span style="background:#3498DB; color:white; padding: 4px 8px; border-radius:6px; font-weight:bold; font-size: 0.8em; margin-left: 10px;">🛍️ PARA LLEVAR</span>';
                     let itemsHTML = '';
                     pedido.items.forEach(item => {
                         const match = item.nombre_producto.match(/(.*)\s\((.*)\)/);
