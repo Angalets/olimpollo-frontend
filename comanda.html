@@ -220,17 +220,24 @@
                         itemsHTML += `<li><strong>${item.cantidad}x</strong> ${nombreBase} ${modificadores ? `<span class="mods">${modificadores}</span>` : ''} ${notaHTML}</li>`;
                     });
 
-                    card.innerHTML = `
+                 card.innerHTML = `
                         <div class="comanda-header">
-                            <div><span class="comanda-id">#${pedido.id.toString().padStart(3, '0')}</span><div>
+                            <div>
                                 <span class="comanda-id">#${pedido.id.toString().padStart(3, '0')}</span>
                                 ${tipoHTML}
+                                <br>
                                 <div class="timer-badge">00:00</div>
-                            </div></div>
-                            <div class="comanda-info"><span>Cliente: <strong>${pedido.cliente}</strong></span><span>Canal: ${pedido.canal_venta || 'Mostrador'}</span><span>Hora: ${hora}</span></div>
+                            </div>
+                            <div class="comanda-info">
+                                <span>Cliente: <strong>${pedido.cliente}</strong></span>
+                                <span>Canal: ${pedido.canal_venta || 'Mostrador'}</span>
+                                <span>Hora: ${hora}</span>
+                            </div>
                         </div>
                         <ul class="comanda-items">${itemsHTML}</ul>
-                        <div class="comanda-actions"><button class="btn-entregado" data-id="${pedido.id}">✔ LISTO</button></div>
+                        <div class="comanda-actions">
+                            <button class="btn-entregado" data-id="${pedido.id}">✔ LISTO</button>
+                        </div>
                     `;
                     comandasContainer.appendChild(card);
                 });
