@@ -228,7 +228,7 @@
             let selectedTipo = 'Para Llevar'; 
             let editModeId = null;
 
-            // Elementos DOM
+            // Elementos DOM (AQUÍ ESTÁ LA LUPA AGREGADA)
             const menuContainer = document.getElementById('productos-container');
             const categoryContainer = document.getElementById('category-container');
             const listaCarrito = document.getElementById('lista-carrito');
@@ -238,6 +238,7 @@
             const btnCobrar = document.getElementById('btn-cobrar');
             const infoComision = document.getElementById('info-comision');
             const inputTelefono = document.getElementById('cliente-telefono');
+            const btnBuscarCliente = document.getElementById('btn-buscar-cliente'); // <-- ¡AQUÍ ESTABA EL ERROR!
             const inputClienteNombre = document.getElementById('cliente-nombre');
             const infoClienteCRM = document.getElementById('info-cliente-crm');
 
@@ -292,7 +293,6 @@
 
                         // Reconstruir el carrito
                         carrito = pedido.items.map(item => {
-                            // Separar nombre base de los modificadores
                             const match = item.nombre_producto.match(/(.*)\s\((.*)\)/);
                             return {
                                 id: item.menu_producto_id,
@@ -367,7 +367,6 @@
             
             document.querySelectorAll('.btn-quick-alert').forEach(btn => {
                 btn.onclick = (e) => {
-                    // Pega el texto del botón rápido quitando emojis
                     document.getElementById('input-alerta').value = e.target.textContent.replace(/[^\w\sñáéíóú]/gi, '').trim();
                 };
             });
@@ -459,7 +458,6 @@
                         
                         const modStr = modsAcumulados.map(x => x.valor).join(', '); 
                         
-                        // Buscar si ya existe en carrito para sumarlo
                         const index = carrito.findIndex(i => i.id === producto.id && i.mods === modStr && i.notas === ''); 
                         if (index > -1) {
                             carrito[index].cantidad++; 
@@ -539,7 +537,6 @@
                     totalPedidoSpan.textContent = `$${totalFinal.toFixed(2)}`;
                 }
 
-                // Cálculo informativo de comisiones para el cajero
                 if (totalFinal > 0) {
                     if (selectedPago === 'Tarjeta') {
                         const comision = totalFinal * 0.04176; 
@@ -628,7 +625,6 @@
                 }
             });
 
-            // Helpers de Modales
             const solicitarOpcion = (titulo, opciones) => { 
                 return new Promise((resolve, reject) => { 
                     document.getElementById('modal-mod-titulo').textContent = titulo; 
