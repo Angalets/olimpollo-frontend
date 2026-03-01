@@ -222,7 +222,11 @@
 
                     card.innerHTML = `
                         <div class="comanda-header">
-                            <div><span class="comanda-id">#${pedido.id.toString().padStart(3, '0')}</span><div class="timer-badge">00:00</div></div>
+                            <div><span class="comanda-id">#${pedido.id.toString().padStart(3, '0')}</span><div>
+                                <span class="comanda-id">#${pedido.id.toString().padStart(3, '0')}</span>
+                                ${tipoHTML}
+                                <div class="timer-badge">00:00</div>
+                            </div></div>
                             <div class="comanda-info"><span>Cliente: <strong>${pedido.cliente}</strong></span><span>Canal: ${pedido.canal_venta || 'Mostrador'}</span><span>Hora: ${hora}</span></div>
                         </div>
                         <ul class="comanda-items">${itemsHTML}</ul>
