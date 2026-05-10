@@ -8,19 +8,14 @@
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
   
   <style>
-    /* ==========================================================================
-       BASE DE ESTILOS UNIFICADA
-       ========================================================================== */
     :root{--bg-main:#ECF0F1;--bg-header:#FFFFFF;--card-bg:#FFFFFF;--primary-text:#502c2c;--secondary-text:#808B96;--accent-color:#db3434;--accent-hover:#b92929;--border-color:#D5D8DC;--shadow-light:0 4px 15px rgba(0, 0, 0, 0.08);--shadow-heavy:0 10px 20px rgba(0, 0, 0, 0.12);}body{margin:0;font-family:'Poppins', sans-serif;background-color:var(--bg-main);color:var(--primary-text);display:flex;flex-direction:column;min-height:100vh;}header{background:var(--bg-header);padding:15px 40px;box-shadow:0 2px 10px rgba(0, 0, 0, 0.05);display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border-color);}header .logo{font-size:24px;font-weight:600;text-decoration:none;color:var(--primary-text);}header nav{display:flex;gap:20px;}header nav a{text-decoration:none;color:var(--secondary-text);font-weight:500;transition:color 0.3s;}header nav a:hover{color:var(--accent-color);}.user-info{display:flex;align-items:center;gap:20px;}#user-identifier{font-weight:500;background-color:var(--bg-main);padding:5px 12px;border-radius:15px;font-size:14px;}.logout{background:var(--accent-color);color:white;border:none;padding:8px 18px;border-radius:20px;cursor:pointer;font-size:14px;font-weight:500;transition:background-color 0.3s;}.logout:hover{background-color:var(--accent-hover);}main{flex:1;padding:40px;max-width:1400px;margin:0 auto;width:100%;box-sizing:border-box;}h1, h2, h3{margin-top:0;}h2.page-title{margin-bottom:30px;font-size:28px;font-weight:600;}.card{background:var(--card-bg);border-radius:12px;padding:25px;box-shadow:var(--shadow-light);margin-bottom:25px;}table{width:100%;border-collapse:collapse;background:var(--card-bg);border-radius:12px;overflow:hidden;box-shadow:var(--shadow-light);}th, td{padding:15px;text-align:left;border-bottom:1px solid var(--bg-main);}th{font-weight:600;font-size:14px;text-transform:uppercase;color:var(--secondary-text);background-color:#F8F9F9;}tr:hover{background-color:#FDF2F2;}.btn{border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:500;font-family:'Poppins', sans-serif;transition:background-color 0.3s, transform 0.2s;}.btn:hover{transform:translateY(-2px);}.btn-primary{background-color:var(--accent-color);color:white;}.btn-primary:hover{background-color:var(--accent-hover);}.btn-secondary{background-color:var(--secondary-text);color:white;}.btn-secondary:hover{background-color:#6C7A89;}.btn-warning{background-color:#f39c12;color:white;}.btn-warning:hover{background-color:#e67e22;}.btn-danger{background-color:#E74C3C;color:white;}.btn-success{background-color:#2ECC71;color:white;}label{display:block;margin-bottom:8px;font-weight:500;font-size:14px;}input[type="text"],input[type="password"],input[type="number"],input[type="date"],select,textarea{width:100%;padding:12px;border:1px solid var(--border-color);border-radius:8px;font-family:'Poppins', sans-serif;font-size:14px;box-sizing:border-box;transition:border-color 0.3s, box-shadow 0.3s;}input:focus, select:focus, textarea:focus{outline:none;border-color:var(--accent-color);box-shadow:0 0 0 3px rgba(219, 52, 52, 0.1);}.modal{display:none;position:fixed;z-index:1000;left:0;top:0;width:100%;height:100%;background-color:rgba(0,0,0,0.5);justify-content:center;align-items:center;}.modal-content{background:var(--card-bg);padding:30px;border-radius:12px;box-shadow:var(--shadow-heavy);width:90%;max-width:500px;position:relative;}.close{position:absolute;top:15px;right:20px;font-size:28px;cursor:pointer;color:var(--secondary-text);}footer{text-align:center;padding:20px;font-size:14px;color:var(--secondary-text);}
 
-    /* Estilos específicos para esta página */
     .layout-container { display: flex; gap: 25px; flex-wrap: wrap; }
     .pedidos-lista { flex: 3; min-width: 450px; }
     .detalles { flex: 1; min-width: 300px; align-self: flex-start; }
     .detalles ul { list-style: none; padding: 0; }
     .filtros-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; align-items: flex-end; }
     
-    /* Estilos para el desglose financiero */
     .finance-row { display: flex; justify-content: space-between; padding: 5px 0; font-size: 14px; }
     .finance-total { border-top: 1px solid #eee; margin-top: 10px; padding-top: 10px; font-weight: bold; font-size: 16px; }
     .finance-neto { color: #27ae60; font-size: 18px; margin-top: 5px; }
@@ -32,7 +27,6 @@
         <a href="index.html" class="logo">Olimpollo</a>
         <nav>
           <a href="pedidos.html">POS</a>
-          <a href="clientes.html">Clientes</a>
           <a href="reportes.html">Reportes</a>
           <a href="pedidos_lista.html" style="color: var(--accent-color);">Pedidos</a>
           <a href="inventario.html">Inventario</a>
@@ -117,7 +111,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let pedidos = []; 
     let pedidoSeleccionado = null;
 
-    // --- 1. VERIFICACIÓN Y SESIÓN ---
     const token = localStorage.getItem('authToken');
     if(token) {
         const userData = parseJwt(token);
@@ -132,7 +125,6 @@ document.addEventListener('DOMContentLoaded', () => {
     };
     document.getElementById('btn-logout').addEventListener('click', cerrarSesion);
 
-    // --- 2. FUNCIÓN PRINCIPAL DE RENDERIZADO CON FILTROS ---
     const renderPedidos = async () => {
         const canal = filtroCanal.value;
         const fechaInicio = filtroFechaInicio.value;
@@ -167,13 +159,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (pedido.estado === 'Entregado') colorEstado = 'style="background-color: #d4edda; font-weight: bold;"';
                 else if (pedido.estado === 'Cancelado') colorEstado = 'style="background-color: #f8d7da; text-decoration: line-through;"';
 
+                // Distintivo visual en la tabla si tiene recompensa
+                const estrella = pedido.recompensa ? '⭐ ' : '';
+
                 const fechaObj = new Date(pedido.fecha_creacion);
                 const fecha = fechaObj.toLocaleDateString('es-MX', { day: '2-digit', month: '2-digit', year: 'numeric' });
                 const hora = fechaObj.toLocaleTimeString('es-MX', {hour: '2-digit', minute:'2-digit'});
                 const canal = pedido.canal_venta || 'N/A'; 
 
                 tr.innerHTML = `
-                    <td>${pedido.id.toString().padStart(3, '0')}</td>
+                    <td>${estrella}#${pedido.id.toString().padStart(3, '0')}</td>
                     <td>${canal}</td>
                     <td>${pedido.cliente}</td>
                     <td ${colorEstado}>${pedido.estado}</td>
@@ -191,7 +186,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
-    // --- 3. IMPRESIÓN DE TICKETS CON LOGO Y AJUSTE DE FUENTE ---
+    // IMPRESIÓN DE TICKET Y CUPÓN
     const imprimirTicket = (pedido) => {
         const ventana = window.open('', 'PRINT', 'height=600,width=300');
         const fechaObj = new Date(pedido.fecha_creacion);
@@ -213,59 +208,44 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const tipoConsumoTexto = pedido.tipo_consumo === 'Comedor' ? '🍽️ PARA COMER AQUÍ' : '🛍️ PARA LLEVAR';
 
+        // Lógica del Cupón
+        const cuponHTML = pedido.recompensa ? `
+            <div class="divider" style="margin-top: 15px;"></div>
+            <div style="border: 2px dashed #000; text-align: center; padding: 10px; margin: 10px 0; border-radius: 8px;">
+                <h2 style="margin: 0; font-size: 16px;">🎟️ ¡CUPÓN GANADOR!</h2>
+                <p style="margin: 5px 0; font-size: 12px; font-weight: bold;">Felicidades por tu 8va visita</p>
+                <h3 style="margin: 0; font-size: 18px; text-transform: uppercase; background: #000; color: #fff; padding: 5px; border-radius: 4px;">1 PLATO FUERTE GRATIS</h3>
+                <p style="margin: 5px 0 0; font-size: 10px;">Válido en tu próxima compra presentando este ticket.</p>
+            </div>
+        ` : '';
+
         ventana.document.write(`
             <html>
             <head>
                 <title>Ticket #${pedido.id}</title>
                 <style>
-                    /* FUENTE MÁS GRUESA Y NEGRO PURO PARA TÉRMICA */
-                    body { 
-                        font-family: 'Arial', 'Helvetica', sans-serif; 
-                        font-size: 13px; 
-                        font-weight: bold; 
-                        color: #000 !important; 
-                        width: 75mm; 
-                        margin: 0 auto; 
-                        padding: 0; 
-                    }
+                    body { font-family: 'Arial', 'Helvetica', sans-serif; font-size: 13px; font-weight: bold; color: #000 !important; width: 75mm; margin: 0 auto; padding: 0; }
                     .header { text-align: center; margin-bottom: 5px; }
-                    
-                    /* ESTILOS DEL LOGO */
-                    .logo-ticket { 
-                        width: 140px; 
-                        max-width: 100%; 
-                        margin-bottom: 2px; 
-                        filter: grayscale(100%) contrast(150%); 
-                    }
-
+                    .logo-ticket { width: 140px; max-width: 100%; margin-bottom: 2px; filter: grayscale(100%) contrast(150%); }
                     .header h2 { margin: 0; font-size: 18px; font-weight: 900; color: #000; text-transform: uppercase; }
                     .header p { margin: 0; font-size: 11px; }
                     .divider { border-bottom: 2px dashed #000; margin: 5px 0; }
                     .info { font-size: 12px; margin-bottom: 5px; font-weight: bold; }
-                    
                     .items { width: 100%; border-collapse: collapse; margin-bottom: 5px; font-size: 12px; }
                     .items td { padding: 4px 0; vertical-align: top; border-bottom: 1px dotted #ccc; }
                     .col-cant { width: 10%; text-align: center; font-weight: 900; font-size: 14px; }
                     .col-prod { width: 65%; font-weight: bold; }
                     .col-prec { width: 25%; text-align: right; font-weight: bold; }
-                    
                     .totals { text-align: right; margin-top: 5px; font-size: 14px; font-weight: bold; }
                     .total-big { font-size: 18px; font-weight: 900; margin-top: 2px; color: #000; }
                     .footer { text-align: center; margin-top: 10px; margin-bottom: 0; font-size: 11px; font-weight: bold; }
-                    
                     .empaque-box { border: 2px solid #000; text-align: center; font-size: 16px; font-weight: 900; padding: 5px; margin: 5px 0; border-radius: 4px; }
-
-                    /* ELIMINA MÁRGENES DE LA HOJA PARA EVITAR CORTES LARGOS */
-                    @media print { 
-                        @page { margin: 0; padding: 0; } 
-                        body { margin: 0; padding: 0; } 
-                    }
+                    @media print { @page { margin: 0; padding: 0; } body { margin: 0; padding: 0; } }
                 </style>
             </head>
             <body>
                 <div class="header">
                     <img src="https://i.postimg.cc/tCYLDScF/logo250.png" class="logo-ticket" alt="Logo Olimpollo">
-                    
                     <h2>OLIMPOLLO</h2>
                     <p>Los Boneless del Olimpo</p>
                     <p>Hermosillo, Sonora</p>
@@ -280,7 +260,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
                 
                 <div class="empaque-box">${tipoConsumoTexto}</div>
-
                 <div class="divider"></div>
 
                 <table class="items">
@@ -294,6 +273,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     <small>Pago: ${pedido.metodo_pago || 'Efectivo'}</small>
                 </div>
 
+                ${cuponHTML}
+
                 <div class="footer">
                     <p>¡Gracias por tu compra!</p>
                     <p>Wifi: OlimpolloGuest</p>
@@ -305,15 +286,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         ventana.document.close();
         ventana.focus();
-        
-        // Esperamos 800ms para asegurar que el logo cargue antes de lanzar la ventana de impresión
-        setTimeout(() => {
-            ventana.print();
-            ventana.close();
-        }, 800);
+        setTimeout(() => { ventana.print(); ventana.close(); }, 800);
     };
 
-    // --- 4. FUNCIÓN DE DETALLES Y ACCIONES (MEJORADA) ---
     const mostrarDetalles = (id) => {
         detalleContenido.innerHTML = '<p>Selecciona un pedido de la lista para ver sus detalles.</p>';
         panelAcciones.innerHTML = '';
@@ -322,7 +297,6 @@ document.addEventListener('DOMContentLoaded', () => {
         pedidoSeleccionado = pedidos.find(p => p.id == id);
         if (!pedidoSeleccionado) return;
 
-        // --- CÁLCULOS FINANCIEROS REALES ---
         const total = parseFloat(pedidoSeleccionado.total);
         const comision = parseFloat(pedidoSeleccionado.comision || 0);
         const ingresoNeto = total - comision;
@@ -330,13 +304,11 @@ document.addEventListener('DOMContentLoaded', () => {
         const tipoConsumo = pedidoSeleccionado.tipo_consumo || 'Para Llevar';
         const descuento = pedidoSeleccionado.descuento || 0;
 
-        // Icono según método
         let iconoPago = '💰';
         if (metodo.includes('Tarjeta')) iconoPago = '💳';
         if (metodo.includes('Aplicación')) iconoPago = '📱';
         if (metodo.includes('Transferencia')) iconoPago = '🏦';
 
-        // Renderizado de Items
         let itemsHTML = '';
         pedidoSeleccionado.items.forEach(item => {
             const subtotal = item.cantidad * item.precio_unitario;
@@ -349,8 +321,14 @@ document.addEventListener('DOMContentLoaded', () => {
             </li>`;
         });
 
-        // HTML DEL DETALLE MEJORADO
+        // Etiqueta visual si tiene recompensa
+        const badgeRecompensa = pedidoSeleccionado.recompensa ? 
+            `<div style="background: #f1c40f; color: #fff; padding: 5px; border-radius: 4px; font-weight: bold; margin-bottom: 10px; text-align: center;">
+                🎟️ Pedido Ganador de Recompensa (8va Visita)
+            </div>` : '';
+
         detalleContenido.innerHTML = `
+            ${badgeRecompensa}
             <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
                 <h3 style="margin:0; color: var(--accent-color);">#${pedidoSeleccionado.id.toString().padStart(4, '0')} - ${pedidoSeleccionado.cliente}</h3>
                 <small style="color: gray;">
@@ -366,45 +344,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
             <div style="border: 1px solid #ddd; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
                 <h4 style="margin-top:0; border-bottom: 2px solid #eee; padding-bottom: 5px;">📊 Desglose Financiero</h4>
-                
-                <div class="finance-row">
-                    <span>Método de Pago:</span>
-                    <strong>${iconoPago} ${metodo}</strong>
-                </div>
-
-                ${descuento > 0 ? `
-                <div class="finance-row" style="color:var(--warning-color);">
-                    <span>Descuento / Cortesía:</span>
-                    <span>-${descuento}%</span>
-                </div>
-                ` : ''}
-
-                <div class="finance-row finance-total">
-                    <span>Total Cobrado:</span>
-                    <span>$${total.toFixed(2)}</span>
-                </div>
-
-                ${comision > 0 ? `
-                <div class="finance-row finance-comision">
-                    <span>- Comisión:</span>
-                    <span>$${comision.toFixed(2)}</span>
-                </div>
-                ` : ''}
-
-                <div class="finance-row">
-                    <span style="align-self: flex-end; font-weight:500;">Ingreso Neto:</span>
-                    <strong class="finance-neto">$${ingresoNeto.toFixed(2)}</strong>
-                </div>
+                <div class="finance-row"><span>Método de Pago:</span><strong>${iconoPago} ${metodo}</strong></div>
+                ${descuento > 0 ? `<div class="finance-row" style="color:var(--warning-color);"><span>Descuento / Cortesía:</span><span>-${descuento}%</span></div>` : ''}
+                <div class="finance-row finance-total"><span>Total Cobrado:</span><span>$${total.toFixed(2)}</span></div>
+                ${comision > 0 ? `<div class="finance-row finance-comision"><span>- Comisión:</span><span>$${comision.toFixed(2)}</span></div>` : ''}
+                <div class="finance-row"><span style="align-self: flex-end; font-weight:500;">Ingreso Neto:</span><strong class="finance-neto">$${ingresoNeto.toFixed(2)}</strong></div>
             </div>
 
             <h4>Productos:</h4>
             <ul>${itemsHTML}</ul>
         `;
 
-        // BOTONES DE ACCIÓN 
-        let botonesHTML = `
-            <button id="btn-imprimir-ticket" class="btn btn-secondary" style="background-color: #34495e; color: white; width:100%;">🖨️ Imprimir Ticket</button>
-        `;
+        let botonesHTML = `<button id="btn-imprimir-ticket" class="btn btn-secondary" style="background-color: #34495e; color: white; width:100%;">🖨️ Imprimir Ticket</button>`;
 
         if (pedidoSeleccionado.estado === 'Pendiente') {
             botonesHTML += `
@@ -415,16 +366,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 </div>
             `;
         } else {
-            botonesHTML += `
-                <button id="btn-eliminar-registro" class="btn btn-danger" style="background-color: #7f8c8d; width:100%; margin-top: 10px;" data-id="${id}" title="Borrar del historial permanentemente">
-                    🗑️ Eliminar Registro
-                </button>
-            `;
+            botonesHTML += `<button id="btn-eliminar-registro" class="btn btn-danger" style="background-color: #7f8c8d; width:100%; margin-top: 10px;" data-id="${id}" title="Borrar del historial permanentemente">🗑️ Eliminar Registro</button>`;
         }
         panelAcciones.innerHTML = botonesHTML;
     };
 
-    // --- 5. EVENT LISTENERS ---
     panelAcciones.addEventListener('click', async (e) => {
         const id = pedidoSeleccionado?.id;
         if (!id) return;
@@ -433,7 +379,6 @@ document.addEventListener('DOMContentLoaded', () => {
             imprimirTicket(pedidoSeleccionado);
         } 
         else if (e.target.id === 'btn-editar-pedido') {
-            // Guarda el pedido en la memoria temporal y manda al POS
             localStorage.setItem('editPedidoData', JSON.stringify(pedidoSeleccionado));
             window.location.href = 'pedidos.html';
         }
