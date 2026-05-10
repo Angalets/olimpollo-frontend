@@ -563,7 +563,7 @@
                 return totalFinal;
             };
 
-            // --- 8. FINALIZAR / ACTUALIZAR PEDIDO ---
+// --- 8. FINALIZAR / ACTUALIZAR PEDIDO ---
             btnCobrar.addEventListener('click', async () => {
                 if (carrito.length === 0) return alert('El ticket está vacío.');
                 
@@ -610,7 +610,16 @@
 
                     if (!response.ok) throw new Error('Error al guardar el pedido en la base de datos.');
                     
-                    alert(editModeId ? '✅ Pedido actualizado correctamente.' : '✅ Pedido registrado con éxito.');
+                    const responseData = await response.json();
+                    
+                    let msj = editModeId ? '✅ Pedido actualizado correctamente.' : '✅ Pedido registrado con éxito.';
+                    
+                    // AÑADIDO: Notificación visual al Cajero
+                    if (responseData.recompensa) {
+                        msj += '\n\n🎉 ¡ESTE CLIENTE ALCANZÓ SU 8VA VISITA!\nImprime su ticket, el cupón de PLATO FUERTE GRATIS saldrá hasta abajo.';
+                    }
+
+                    alert(msj);
                     
                     if (editModeId) {
                         localStorage.removeItem('editPedidoData');
