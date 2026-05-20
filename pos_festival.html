@@ -217,52 +217,50 @@
 
             inputEfectivo.addEventListener('input', calcularTotal);
 
-            // 3. IMPRESIÓN DE COMANDA (80mm FONT GIGANTE)
+// 3. IMPRESIÓN SEGURA (FORZADA)
             const imprimirComanda = (nombre, folio, total, recibido, cambio) => {
-                const ventana = window.open('', 'PRINT', 'height=600,width=400');
-                
                 let itemsHTML = '';
                 carrito.forEach(item => {
                     itemsHTML += `
-                        <div style="margin-bottom: 10px; border-bottom: 2px dashed #000; padding-bottom: 10px;">
-                            <div style="font-size: 22px; font-weight: 900; text-transform: uppercase;">1x ${item.nombre}</div>
-                            <div style="font-size: 16px; font-weight: bold; margin-left: 20px;">${item.mods}</div>
+                        <div style="margin-bottom: 5px; border-bottom: 2px dashed #000; padding: 5px 0;">
+                            <div style="font-size: 20px; font-weight: 900; text-transform: uppercase;">1x ${item.nombre}</div>
+                            <div style="font-size: 14px; font-weight: bold; margin-left: 10px;">${item.mods}</div>
                         </div>`;
                 });
 
-                ventana.document.write(`
+                // Creamos un contenedor limpio, sin heredar estilos complejos del CSS principal
+                const printWindow = window.open('', '_blank', 'width=400,height=600');
+                
+                printWindow.document.write(`
                     <html>
                     <head>
                         <style>
-                            body { font-family: 'Arial', sans-serif; color: #000; width: 75mm; margin: 0 auto; padding: 0; }
-                            .titulo { font-size: 28px; font-weight: 900; text-align: center; border-bottom: 4px solid #000; margin-bottom: 10px; padding-bottom: 10px;}
-                            .nombre-gigante { font-size: 45px; font-weight: 900; text-align: center; text-transform: uppercase; background: #000; color: #fff; padding: 10px; border-radius: 8px; margin: 10px 0; word-wrap: break-word;}
-                            .folio { text-align: center; font-size: 18px; font-weight: bold; margin-bottom: 20px; }
-                            .resumen-pago { margin-top: 20px; border-top: 4px solid #000; padding-top: 10px; font-size: 18px; font-weight: 900; }
-                            @media print { @page { margin: 0; } body { margin: 0; } }
+                            body { font-family: 'Courier New', Courier, monospace; color: #000; width: 70mm; margin: 0; padding: 5px; }
+                            .titulo { font-size: 24px; font-weight: 900; text-align: center; border-bottom: 3px solid #000; padding-bottom: 5px; }
+                            .nombre-gigante { font-size: 30px; font-weight: 900; text-align: center; border: 2px solid #000; padding: 10px; margin: 10px 0; }
+                            .resumen { margin-top: 15px; border-top: 3px solid #000; padding-top: 5px; font-size: 16px; font-weight: 900; }
                         </style>
                     </head>
                     <body>
                         <div class="titulo">OLIMPOLLO</div>
-                        
                         <div class="nombre-gigante">${nombre}</div>
-                        
-                        <div style="margin-top: 20px;">
-                            ${itemsHTML}
-                        </div>
-
-                        <div class="resumen-pago">
+                        <div>${itemsHTML}</div>
+                        <div class="resumen">
                             <div>TOTAL: $${total}</div>
                             <div>RECIBIDO: $${recibido}</div>
                             <div>CAMBIO: $${cambio}</div>
                         </div>
+                        <script>
+                            // Esperar a que todo cargue antes de lanzar el print
+                            window.onload = function() { 
+                                window.print(); 
+                                setTimeout(function(){ window.close(); }, 500);
+                            };
+                        </script>
                     </body>
                     </html>
                 `);
-
-                ventana.document.close();
-                ventana.focus();
-                setTimeout(() => { ventana.print(); ventana.close(); }, 500);
+                printWindow.document.close();
             };
 
            // 4. GUARDAR Y COBRAR (CON REPORTE DE ERRORES EXACTO)
