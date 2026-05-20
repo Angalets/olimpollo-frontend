@@ -266,7 +266,7 @@
                 setTimeout(() => { ventana.print(); ventana.close(); }, 500);
             };
 
-            // 4. GUARDAR Y COBRAR
+           // 4. GUARDAR Y COBRAR (CON REPORTE DE ERRORES EXACTO)
             btnCobrar.addEventListener('click', async () => {
                 if (carrito.length === 0) return;
                 const nombre = inputCliente.value.trim();
@@ -276,11 +276,13 @@
                 }
 
                 btnCobrar.disabled = true;
+                btnCobrar.textContent = "COBRANDO...";
+
                 const total = calcularTotal();
                 const recibido = parseFloat(inputEfectivo.value) || total;
                 const cambio = recibido >= total ? recibido - total : 0;
 
-                // Agrupamos el carrito para enviarlo al servidor como pide la API
+                // Agrupamos el carrito
                 const itemsAgrupados = {};
                 carrito.forEach(i => {
                     const key = i.id + '-' + i.mods;
@@ -290,8 +292,8 @@
 
                 const payload = {
                     cliente: nombre,
-                    telefono: null, // No pedimos teléfono por rapidez
-                    canal_venta: 'Festival Pitic',
+                    telefono: null, 
+                    canal_venta: 'OyR', // Lo cambiamos a OyR estándar para evitar que la Base de Datos lo rechace
                     metodo_pago: 'Efectivo',
                     total_ajustado: total,
                     tipo_consumo: 'Para Llevar',
@@ -300,14 +302,18 @@
                 };
 
                 try {
-                    // Guardar en Base de Datos (Finanzas cuadradas)
                     const res = await fetch(`${API_BASE}/pedidos`, { 
                         method: 'POST', 
                         headers: { 'Content-Type': 'application/json' }, 
                         body: JSON.stringify(payload) 
                     });
                     
-                    if (!res.ok) throw new Error('Error de red');
+                    // Si el servidor rechaza la orden, atrapamos el mensaje EXACTO de la base de datos
+                    if (!res.ok) {
+                        const errorDb = await res.json();
+                        throw new Error(errorDb.error || 'Error desconocido del servidor');
+                    }
+                    
                     const data = await res.json();
                     const folio = data.id;
 
@@ -322,9 +328,11 @@
                     inputCliente.focus();
 
                 } catch (error) {
-                    alert('Error guardando la orden. Revisa el internet.');
+                    // Ahora la alerta nos dirá la verdad
+                    alert('ERROR DE BASE DE DATOS: ' + error.message);
                 } finally {
                     btnCobrar.disabled = false;
+                    btnCobrar.textContent = "COBRAR Y COMANDA";
                 }
             });
 
