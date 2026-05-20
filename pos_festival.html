@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>POS FESTIVAL - Olimpollo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@600;800;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  
+    <style>
+        /* TEMA ULTRA ALTO CONTRASTE PARA FESTIVALES */
+        :root { --bg-dark: #000000; --bg-main: #111827; --white: #FFFFFF; --primary: #3B82F6; --success: #10B981; --danger: #EF4444; --warning: #F59E0B; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; user-select: none; }
+        body { background-color: var(--bg-main); color: var(--white); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        
+        header { background: var(--bg-dark); padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #333; }
+        .logo { font-size: 24px; font-weight: 900; color: var(--warning); text-decoration: none; text-transform: uppercase; letter-spacing: 2px;}
+        .btn-exit { background: transparent; color: gray; border: 1px solid gray; padding: 8px 15px; border-radius: 8px; cursor: pointer; text-decoration: none; }
+        
+        main { display: flex; flex: 1; height: calc(100vh - 60px); }
+        
+        /* PANEL DE PRODUCTOS (IZQUIERDA) */
+        .menu-area { flex: 1.5; padding: 20px; overflow-y: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; align-content: start; }
+        .btn-product { background: #1F2937; border: 3px solid #374151; border-radius: 16px; padding: 25px 15px; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 160px; transition: 0.1s; }
+        .btn-product:active { transform: scale(0.92); background: var(--primary); border-color: var(--white); }
+        .prod-name { font-size: 20px; font-weight: 900; color: var(--white); text-align: center; line-height: 1.1; margin-bottom: 10px; }
+        .prod-price { font-size: 22px; font-weight: 900; color: var(--success); }
+
+        /* PANEL DE COBRO (DERECHA) */
+        .ticket-panel { width: 450px; background: #000; border-left: 2px solid #333; display: flex; flex-direction: column; }
+        
+        .customer-input { padding: 20px; background: #111; border-bottom: 2px solid #333; }
+        .customer-input input { width: 100%; padding: 20px; font-size: 24px; font-weight: 900; text-align: center; border-radius: 12px; border: 4px solid var(--warning); background: #222; color: white; outline: none; text-transform: uppercase; }
+        .customer-input input:focus { background: #000; }
+
+        .cart-items { flex: 1; overflow-y: auto; padding: 15px; }
+        .cart-item { display: flex; justify-content: space-between; align-items: center; padding: 15px; background: #1F2937; margin-bottom: 10px; border-radius: 12px; }
+        .cart-item-name { font-size: 18px; font-weight: 800; }
+        .cart-item-price { font-size: 18px; font-weight: 900; color: var(--success); }
+        .btn-del { background: var(--danger); color: white; border: none; width: 40px; height: 40px; border-radius: 8px; font-size: 18px; font-weight: 900; cursor: pointer; }
+
+        .checkout-zone { padding: 20px; background: #111; border-top: 2px solid #333; }
+        .total-display { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 15px; }
+        .total-display span { font-size: 24px; font-weight: 900; color: gray; }
+        .total-display strong { font-size: 45px; font-weight: 900; color: white; line-height: 1; }
+
+        /* CALCULADORA DE CAMBIO */
+        .math-zone { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px; }
+        .math-box { background: #222; padding: 15px; border-radius: 12px; text-align: center; }
+        .math-box label { display: block; font-size: 12px; font-weight: 900; color: gray; margin-bottom: 5px; text-transform: uppercase; }
+        .math-box input { width: 100%; background: transparent; border: none; color: var(--success); font-size: 30px; font-weight: 900; text-align: center; outline: none; }
+        .math-box .cambio-val { font-size: 35px; font-weight: 900; color: var(--danger); }
+
+        .btn-pay { width: 100%; background: var(--success); color: white; border: none; padding: 25px; border-radius: 16px; font-size: 28px; font-weight: 900; cursor: pointer; text-transform: uppercase; box-shadow: 0 10px 0 #059669; transition: 0.1s; }
+        .btn-pay:active { transform: translateY(10px); box-shadow: 0 0 0 #059669; }
+
+        /* MODAL MODIFICADORES */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.9); justify-content: center; align-items: center; }
+        .modal-content { background: #1F2937; padding: 30px; border-radius: 20px; width: 90%; max-width: 500px; }
+        .opt-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; }
+        .btn-opt { background: #374151; border: none; padding: 25px; border-radius: 12px; font-weight: 900; font-size: 18px; color: white; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="logo"><i class="fas fa-fire"></i> FESTIVAL PITIC</div>
+        <a href="index.html" class="btn-exit"><i class="fas fa-sign-out-alt"></i> Salir al Sistema Principal</a>
+    </header>
+
+    <main>
+        <div class="menu-area" id="menu-area">
+            <p style="grid-column: 1/-1; text-align: center; font-size: 20px;">Cargando menú del festival...</p>
+        </div>
+
+        <div class="ticket-panel">
+            <div class="customer-input">
+                <input type="text" id="nombre-cliente" placeholder="NOMBRE DEL CLIENTE" autocomplete="off">
+            </div>
+
+            <div class="cart-items" id="lista-carrito"></div>
+
+            <div class="checkout-zone">
+                <div class="total-display">
+                    <span>TOTAL:</span>
+                    <strong id="total-pedido">$0</strong>
+                </div>
+
+                <div class="math-zone">
+                    <div class="math-box">
+                        <label>Billete Recibido</label>
+                        <input type="number" id="pago-efectivo" placeholder="$0">
+                    </div>
+                    <div class="math-box">
+                        <label>Dar Cambio</label>
+                        <div class="cambio-val" id="cambio-devolver">$0</div>
+                    </div>
+                </div>
+
+                <button class="btn-pay" id="btn-cobrar">COBRAR Y COMANDA</button>
+            </div>
+        </div>
+    </main>
+
+    <div id="modalModificadores" class="modal">
+        <div class="modal-content">
+            <h2 id="modal-mod-titulo" style="font-size: 28px; text-align: center;">Elige una opción</h2>
+            <div class="opt-grid" id="modal-mod-opciones"></div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const API_BASE = 'https://olimpollo-api.onrender.com/api';
+            let menuData = { productos: [], opciones: {} };
+            let carrito = [];
+
+            // DOM Elements
+            const menuArea = document.getElementById('menu-area');
+            const listaCarrito = document.getElementById('lista-carrito');
+            const totalSpan = document.getElementById('total-pedido');
+            const inputEfectivo = document.getElementById('pago-efectivo');
+            const cambioSpan = document.getElementById('cambio-devolver');
+            const inputCliente = document.getElementById('nombre-cliente');
+            const btnCobrar = document.getElementById('btn-cobrar');
+
+            // 1. CARGAR MENÚ DEL FESTIVAL
+            const init = async () => {
+                try {
+                    const res = await fetch(`${API_BASE}/menu/pos`); 
+                    const data = await res.json();
+                    
+                    // IMPORTANTE: Solo carga platillos que en tu sistema tengan categoría "Festival"
+                    // (Si prefieres que cargue todos, quita el .filter(...))
+                    menuData.productos = data.productos.filter(p => p.categoria === 'Festival');
+                    menuData.opciones = data.opciones;
+
+                    if(menuData.productos.length === 0) {
+                        menuArea.innerHTML = `<p style="grid-column:1/-1; text-align:center; color:gray;">No hay productos con la categoría "Festival". Ve a Gestión de Menú y asigna esa categoría a los combos.</p>`;
+                    } else {
+                        renderProductos();
+                    }
+                } catch (e) { 
+                    menuArea.innerHTML = '<p style="color:red;">Error de conexión.</p>'; 
+                }
+            };
+
+            const renderProductos = () => {
+                menuArea.innerHTML = '';
+                menuData.productos.forEach(p => {
+                    const btn = document.createElement('div');
+                    btn.className = 'btn-product';
+                    btn.innerHTML = `<span class="prod-name">${p.nombre_venta}</span><span class="prod-price">$${p.precio_base}</span>`;
+                    
+                    btn.onclick = async () => {
+                        let mAcum = [], pExtra = 0;
+                        if(p.grupos_modificadores) {
+                            const gr = p.grupos_modificadores.split(',').map(g=>g.trim()).filter(Boolean);
+                            try {
+                                for(const g of gr) {
+                                    const op = menuData.opciones[g] || [];
+                                    if(op.length > 0) {
+                                        const s = await solicitarOpcion(`¿Qué ${g}?`, op);
+                                        mAcum.push(s); pExtra += s.precio_adicional;
+                                    }
+                                }
+                            } catch(e) { return; } // Si cancela el modal, no agrega nada
+                        }
+                        
+                        const modStr = mAcum.map(x=>x.valor).join(', ');
+                        carrito.push({ id: p.id, nombre: p.nombre_venta, precio: p.precio_base + pExtra, mods: modStr });
+                        renderCarrito();
+                    };
+                    menuArea.appendChild(btn);
+                });
+            };
+
+            // 2. CARRITO Y MATEMÁTICAS
+            const renderCarrito = () => {
+                listaCarrito.innerHTML = '';
+                if(carrito.length === 0) {
+                    listaCarrito.innerHTML = '<p style="text-align:center; color:gray; margin-top:20px;">Sin platillos</p>';
+                }
+                
+                carrito.forEach((item, index) => {
+                    listaCarrito.innerHTML += `
+                        <div class="cart-item">
+                            <div>
+                                <div class="cart-item-name">${item.nombre}</div>
+                                <div style="font-size:12px; color:gray;">${item.mods}</div>
+                            </div>
+                            <div style="display:flex; gap:15px; align-items:center;">
+                                <div class="cart-item-price">$${item.precio}</div>
+                                <button class="btn-del" onclick="quitarItem(${index})">X</button>
+                            </div>
+                        </div>`;
+                });
+                calcularTotal();
+            };
+
+            window.quitarItem = (idx) => { carrito.splice(idx, 1); renderCarrito(); };
+
+            const calcularTotal = () => {
+                const total = carrito.reduce((sum, item) => sum + item.precio, 0);
+                totalSpan.textContent = `$${total}`;
+                
+                const recibido = parseFloat(inputEfectivo.value) || 0;
+                if(recibido > 0 && recibido >= total) {
+                    cambioSpan.textContent = `$${recibido - total}`;
+                    cambioSpan.style.color = 'var(--success)';
+                } else {
+                    cambioSpan.textContent = `$0`;
+                    cambioSpan.style.color = 'var(--danger)';
+                }
+                return total;
+            };
+
+            inputEfectivo.addEventListener('input', calcularTotal);
+
+            // 3. IMPRESIÓN DE COMANDA (80mm FONT GIGANTE)
+            const imprimirComanda = (nombre, folio, total, recibido, cambio) => {
+                const ventana = window.open('', 'PRINT', 'height=600,width=400');
+                
+                let itemsHTML = '';
+                carrito.forEach(item => {
+                    itemsHTML += `
+                        <div style="margin-bottom: 10px; border-bottom: 2px dashed #000; padding-bottom: 10px;">
+                            <div style="font-size: 22px; font-weight: 900; text-transform: uppercase;">1x ${item.nombre}</div>
+                            <div style="font-size: 16px; font-weight: bold; margin-left: 20px;">${item.mods}</div>
+                        </div>`;
+                });
+
+                ventana.document.write(`
+                    <html>
+                    <head>
+                        <style>
+                            body { font-family: 'Arial', sans-serif; color: #000; width: 75mm; margin: 0 auto; padding: 0; }
+                            .titulo { font-size: 28px; font-weight: 900; text-align: center; border-bottom: 4px solid #000; margin-bottom: 10px; padding-bottom: 10px;}
+                            .nombre-gigante { font-size: 45px; font-weight: 900; text-align: center; text-transform: uppercase; background: #000; color: #fff; padding: 10px; border-radius: 8px; margin: 10px 0; word-wrap: break-word;}
+                            .folio { text-align: center; font-size: 18px; font-weight: bold; margin-bottom: 20px; }
+                            .resumen-pago { margin-top: 20px; border-top: 4px solid #000; padding-top: 10px; font-size: 18px; font-weight: 900; }
+                            @media print { @page { margin: 0; } body { margin: 0; } }
+                        </style>
+                    </head>
+                    <body>
+                        <div class="titulo">FIESTAS DEL PITIC</div>
+                        <div class="folio">Folio: #${folio.toString().padStart(4, '0')}</div>
+                        
+                        <div class="nombre-gigante">${nombre}</div>
+                        
+                        <div style="margin-top: 20px;">
+                            ${itemsHTML}
+                        </div>
+
+                        <div class="resumen-pago">
+                            <div>TOTAL: $${total}</div>
+                            <div>RECIBIDO: $${recibido}</div>
+                            <div>CAMBIO: $${cambio}</div>
+                        </div>
+                    </body>
+                    </html>
+                `);
+
+                ventana.document.close();
+                ventana.focus();
+                setTimeout(() => { ventana.print(); ventana.close(); }, 500);
+            };
+
+            // 4. GUARDAR Y COBRAR
+            btnCobrar.addEventListener('click', async () => {
+                if (carrito.length === 0) return;
+                const nombre = inputCliente.value.trim();
+                if (!nombre) {
+                    inputCliente.focus();
+                    return alert('¡Escribe el nombre del cliente para gritarle cuando esté listo!');
+                }
+
+                btnCobrar.disabled = true;
+                const total = calcularTotal();
+                const recibido = parseFloat(inputEfectivo.value) || total;
+                const cambio = recibido >= total ? recibido - total : 0;
+
+                // Agrupamos el carrito para enviarlo al servidor como pide la API
+                const itemsAgrupados = {};
+                carrito.forEach(i => {
+                    const key = i.id + '-' + i.mods;
+                    if(!itemsAgrupados[key]) itemsAgrupados[key] = { menu_producto_id: i.id, nombre_producto_completo: i.nombre + (i.mods ? ` (${i.mods})` : ''), cantidad: 0, precio_unitario: i.precio, notas: '' };
+                    itemsAgrupados[key].cantidad++;
+                });
+
+                const payload = {
+                    cliente: nombre,
+                    telefono: null, // No pedimos teléfono por rapidez
+                    canal_venta: 'Festival Pitic',
+                    metodo_pago: 'Efectivo',
+                    total_ajustado: total,
+                    tipo_consumo: 'Para Llevar',
+                    descuento: 0,
+                    items: Object.values(itemsAgrupados)
+                };
+
+                try {
+                    // Guardar en Base de Datos (Finanzas cuadradas)
+                    const res = await fetch(`${API_BASE}/pedidos`, { 
+                        method: 'POST', 
+                        headers: { 'Content-Type': 'application/json' }, 
+                        body: JSON.stringify(payload) 
+                    });
+                    
+                    if (!res.ok) throw new Error('Error de red');
+                    const data = await res.json();
+                    const folio = data.id;
+
+                    // Imprimir comanda física
+                    imprimirComanda(nombre, folio, total, recibido, cambio);
+
+                    // Limpiar rápido para el siguiente cliente
+                    carrito = [];
+                    inputCliente.value = '';
+                    inputEfectivo.value = '';
+                    renderCarrito();
+                    inputCliente.focus();
+
+                } catch (error) {
+                    alert('Error guardando la orden. Revisa el internet.');
+                } finally {
+                    btnCobrar.disabled = false;
+                }
+            });
+
+            // Modal Helper
+            const solicitarOpcion = (t, opcs) => { 
+                return new Promise((resolve) => { 
+                    document.getElementById('modal-mod-titulo').textContent = t; 
+                    const c = document.getElementById('modal-mod-opciones'); 
+                    c.innerHTML = ''; 
+                    const modal = document.getElementById('modalModificadores'); 
+                    
+                    opcs.forEach(o => { 
+                        const b = document.createElement('button'); 
+                        b.className = 'btn-opt'; 
+                        b.textContent = o.valor; 
+                        b.onclick = () => { modal.style.display='none'; resolve(o); }; 
+                        c.appendChild(b); 
+                    }); 
+                    modal.style.display = 'flex'; 
+                }); 
+            };
+
+            init();
+        });
+    </script>
+</body>
+</html>
