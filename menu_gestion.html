@@ -80,13 +80,20 @@
                             <option value="Aderezos">Aderezos</option>
                         </select>
                     </div>
-<div class="form-grid-full">
-    <label>Grupos de Modificadores:</label>
-    <div id="container-checks-grupos" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; border: 1px solid var(--border-color); padding: 15px; border-radius: 8px; max-height: 150px; overflow-y: auto; background: #F8F9F9;">
-        <span style="color: gray; font-size: 13px;">Cargando grupos...</span>
-    </div>
-    <small style="color: var(--secondary-text); font-size: 12px;">Selecciona los grupos que aplica este producto.</small>
-</div>
+                    
+                    <div class="form-grid-full">
+                        <label for="imagen-url">URL de la Imagen (Opcional):</label>
+                        <input type="text" id="imagen-url" placeholder="Ej: https://i.postimg.cc/.../foto.jpg">
+                        <small style="color: gray; font-size: 11px;">Sube tu foto a postimages.org y pega aquí el "Enlace Directo".</small>
+                    </div>
+
+                    <div class="form-grid-full">
+                        <label>Grupos de Modificadores:</label>
+                        <div id="container-checks-grupos" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; border: 1px solid var(--border-color); padding: 15px; border-radius: 8px; max-height: 150px; overflow-y: auto; background: #F8F9F9;">
+                            <span style="color: gray; font-size: 13px;">Cargando grupos...</span>
+                        </div>
+                        <small style="color: var(--secondary-text); font-size: 12px;">Selecciona los grupos que aplica este producto.</small>
+                    </div>
                     <div class="form-grid-full">
                         <label for="descripcion">Descripción:</label>
                         <textarea id="descripcion" rows="2"></textarea>
@@ -102,40 +109,40 @@
             <span class="close">&times;</span>
             <h3>Gestionar Modificadores</h3>
             <div style="margin-top: 20px;">
-<label>Seleccionar Grupo:</label>
-<div style="display: flex; gap: 10px; align-items: center; margin-bottom: 20px;">
-    <select id="mod-grupo-select">
-        </select>
+                <label>Seleccionar Grupo:</label>
+                <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 20px;">
+                    <select id="mod-grupo-select"></select>
 
-    <input type="text" id="mod-grupo-input" placeholder="Nombre del nuevo grupo" style="display: none; flex: 1;">
+                    <input type="text" id="mod-grupo-input" placeholder="Nombre del nuevo grupo" style="display: none; flex: 1;">
 
-    <button id="btn-toggle-grupo" class="btn btn-secondary" title="Crear Nuevo Grupo" style="padding: 10px 15px;">
-        +
-    </button>
+                    <button id="btn-toggle-grupo" class="btn btn-secondary" title="Crear Nuevo Grupo" style="padding: 10px 15px;">
+                        +
+                    </button>
 
-    <button id="btn-delete-grupo" class="btn btn-danger" title="Eliminar Grupo Actual" style="padding: 10px 15px;">
-        🗑️
-    </button>
-</div>
-            <div style="margin-top: 20px;">
-                <h4>Valores para "<strong id="nombre-grupo-actual">Salsa</strong>"</h4>
-                <ul id="lista-opciones-valores" class="option-list"></ul>
-            </div>
-            <hr style="border: 1px solid var(--bg-main); margin: 20px 0;">
-            <form id="form-agregar-opcion">
-                <h4>Agregar a "<span id="nombre-grupo-form">Salsa</span>"</h4>
-                <div class="form-grid">
-                    <div>
-                        <label for="valor-opcion">Valor (Ej: BBQ Picante):</label>
-                        <input type="text" id="valor-opcion" required>
-                    </div>
-                    <div>
-                        <label for="precio-adicional">Precio Adicional ($):</label>
-                        <input type="number" id="precio-adicional" value="0.00" step="0.01" min="0" required>
-                    </div>
+                    <button id="btn-delete-grupo" class="btn btn-danger" title="Eliminar Grupo Actual" style="padding: 10px 15px;">
+                        🗑️
+                    </button>
                 </div>
-                <button type="submit" class="btn btn-secondary" style="width: 100%; margin-top: 20px;">Añadir Valor</button>
-            </form>
+                <div style="margin-top: 20px;">
+                    <h4>Valores para "<strong id="nombre-grupo-actual">Salsa</strong>"</h4>
+                    <ul id="lista-opciones-valores" class="option-list"></ul>
+                </div>
+                <hr style="border: 1px solid var(--bg-main); margin: 20px 0;">
+                <form id="form-agregar-opcion">
+                    <h4>Agregar a "<span id="nombre-grupo-form">Salsa</span>"</h4>
+                    <div class="form-grid">
+                        <div>
+                            <label for="valor-opcion">Valor (Ej: BBQ Picante):</label>
+                            <input type="text" id="valor-opcion" required>
+                        </div>
+                        <div>
+                            <label for="precio-adicional">Precio Adicional ($):</label>
+                            <input type="number" id="precio-adicional" value="0.00" step="0.01" min="0" required>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-secondary" style="width: 100%; margin-top: 20px;">Añadir Valor</button>
+                </form>
+            </div>
         </div>
     </div>
     
@@ -159,7 +166,6 @@
         const token = localStorage.getItem('authToken');
         const role = localStorage.getItem('userRole');
         
-        // Verificación de seguridad básica
         if (!token || role !== 'Administrador') {
             alert('Acceso denegado. Solo Administradores.');
             window.location.href = 'index.html';
@@ -185,7 +191,7 @@
         const modalProducto = document.getElementById('modalProducto');
         const modalOpciones = document.getElementById('modalOpciones');
         const listaOpcionesValores = document.getElementById('lista-opciones-valores');
-        const containerChecksGrupos = document.getElementById('container-checks-grupos'); // NUEVO CONTAINER
+        const containerChecksGrupos = document.getElementById('container-checks-grupos'); 
 
         const formProducto = document.getElementById('form-producto');
         const formAgregarOpcion = document.getElementById('form-agregar-opcion');
@@ -203,6 +209,7 @@
         const nombreVentaInput = document.getElementById('nombre-venta');
         const precioBaseInput = document.getElementById('precio-base');
         const categoriaSelect = document.getElementById('categoria');
+        const imagenUrlInput = document.getElementById('imagen-url'); // NUEVO INPUT DE IMAGEN
         const descripcionTextarea = document.getElementById('descripcion');
 
         // Estado
@@ -214,27 +221,22 @@
         const abrirModal = (modal) => modal.style.display = 'flex';
         const cerrarModales = () => { modalProducto.style.display = 'none'; modalOpciones.style.display = 'none'; };
 
-        // --- NUEVA FUNCIÓN: RENDERIZAR CHECKBOXES DE GRUPOS ---
         const renderizarChecksGrupos = async (seleccionadosStr = "") => {
             containerChecksGrupos.innerHTML = '<span style="color:gray">Cargando...</span>';
             
             try {
-                // 1. Convertir string "Salsa,Aderezo" a array ['Salsa', 'Aderezo']
                 const seleccionados = seleccionadosStr ? seleccionadosStr.split(',').map(s => s.trim()) : [];
-                
-                // 2. Obtener grupos disponibles desde la API
                 const response = await fetch(API_MENU_POS_URL);
                 const data = await response.json();
-                const gruposDisponibles = Object.keys(data.opciones || {}); // ["Salsa", "Aderezo", "Papas"]
+                const gruposDisponibles = Object.keys(data.opciones || {}); 
 
-                containerChecksGrupos.innerHTML = ''; // Limpiar
+                containerChecksGrupos.innerHTML = ''; 
 
                 if (gruposDisponibles.length === 0) {
                     containerChecksGrupos.innerHTML = '<span style="font-size:12px">No hay grupos creados. Ve a "Gestionar Modificadores" primero.</span>';
                     return;
                 }
 
-                // 3. Crear un checkbox por cada grupo
                 gruposDisponibles.forEach(grupo => {
                     const label = document.createElement('label');
                     label.style.display = 'flex';
@@ -248,7 +250,6 @@
                     checkbox.value = grupo;
                     checkbox.name = 'grupos_check';
                     
-                    // Si el producto ya tenía este grupo, marcarlo
                     if (seleccionados.includes(grupo)) {
                         checkbox.checked = true;
                     }
@@ -264,7 +265,6 @@
             }
         };
 
-        // --- FUNCIONES DE CARGA DE DATOS ---
         const cargarGruposModificadores = async () => {
             try {
                 const response = await fetch(API_MENU_POS_URL);
@@ -338,7 +338,6 @@
             } catch (error) { console.error(error); }
         };
 
-        // --- GUARDADO DE PRODUCTOS ---
         const guardarProducto = async (data, isEdit) => {
             try {
                 const url = isEdit ? `${API_MENU_PRODUCTOS_URL}/${data.id}` : API_MENU_PRODUCTOS_URL;
@@ -359,21 +358,18 @@
 
         // --- MANEJADORES DE EVENTOS ---
         
-        // Botón "Agregar Nuevo Producto"
         document.getElementById('btn-agregar-producto').addEventListener('click', () => {
             document.getElementById('modal-titulo').textContent = 'Agregar Producto';
             formProducto.reset();
             productoIdInput.value = '';
-            // Renderizar checkboxes vacíos
+            imagenUrlInput.value = ''; // Limpiar campo imagen
             renderizarChecksGrupos(""); 
             abrirModal(modalProducto);
         });
 
-        // Submit del Formulario Producto (MODIFICADO PARA LEER CHECKBOXES)
         formProducto.addEventListener('submit', (e) => {
             e.preventDefault();
             
-            // Recolectar checkboxes marcados
             const checkboxes = document.querySelectorAll('input[name="grupos_check"]:checked');
             const gruposSeleccionados = Array.from(checkboxes).map(cb => cb.value).join(',');
 
@@ -383,7 +379,8 @@
                 nombre_venta: nombreVentaInput.value,
                 precio_base: parseFloat(precioBaseInput.value),
                 categoria: categoriaSelect.value,
-                grupos_modificadores: gruposSeleccionados, // Usamos la lista generada
+                grupos_modificadores: gruposSeleccionados, 
+                imagen_url: imagenUrlInput.value.trim() || null, // Guardar la URL de la imagen
                 descripcion: descripcionTextarea.value
             };
             
@@ -391,7 +388,6 @@
             guardarProducto(data, !!id);
         });
 
-        // Click en tabla (Editar / Eliminar)
         tablaBody.addEventListener('click', (e) => {
             const btn = e.target.closest('.btn');
             if (!btn) return;
@@ -405,9 +401,9 @@
                     nombreVentaInput.value = producto.nombre_venta;
                     precioBaseInput.value = producto.precio_base;
                     categoriaSelect.value = producto.categoria;
+                    imagenUrlInput.value = producto.imagen_url || ''; // Cargar URL guardada
                     descripcionTextarea.value = producto.descripcion || '';
                     
-                    // Renderizar checkboxes marcando los que ya tiene
                     renderizarChecksGrupos(producto.grupos_modificadores || "");
                     
                     abrirModal(modalProducto);
@@ -421,7 +417,6 @@
             }
         });
 
-        // Gestión de Modificadores (Lógica previa mantenida)
         document.getElementById('btn-gestionar-opciones').addEventListener('click', async () => {
             await cargarGruposModificadores();
             abrirModal(modalOpciones);
