@@ -38,6 +38,7 @@
         .cart-item-name { font-size: 18px; font-weight: 800; } 
         .cart-item-price { font-size: 18px; font-weight: 900; color: var(--success); } 
         .btn-del { background: var(--danger); color: white; border: none; width: 40px; height: 40px; border-radius: 8px; font-size: 18px; font-weight: 900; cursor: pointer; } 
+        .btn-nota { background: #4B5563; color: white; border: none; width: 40px; height: 40px; border-radius: 8px; font-size: 16px; font-weight: 900; cursor: pointer; } 
 
         .checkout-zone { padding: 20px; background: #111; border-top: 2px solid #333; } 
         .total-display { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 15px; } 
@@ -163,11 +164,11 @@
                                         mAcum.push(s); pExtra += s.precio_adicional; 
                                     } 
                                 } 
-                            } catch(e) { return; } 
+                            } catch(e) { return; } // Si cancela el modal, no agrega nada 
                         } 
                         
                         const modStr = mAcum.map(x=>x.valor).join(', '); 
-                        carrito.push({ id: p.id, nombre: p.nombre_venta, precio: p.precio_base + pExtra, mods: modStr }); 
+                        carrito.push({ id: p.id, nombre: p.nombre_venta, precio: p.precio_base + pExtra, mods: modStr, notas: '' }); 
                         renderCarrito(); 
                     }; 
                     menuArea.appendChild(btn); 
@@ -187,9 +188,11 @@
                             <div> 
                                 <div class="cart-item-name">${item.nombre}</div> 
                                 <div style="font-size:12px; color:gray;">${item.mods}</div> 
+                                ${item.notas ? `<div style="font-size:12px; color:var(--warning); font-weight:bold; margin-top:2px;">📝 ${item.notas}</div>` : ''}
                             </div> 
-                            <div style="display:flex; gap:15px; align-items:center;"> 
+                            <div style="display:flex; gap:10px; align-items:center;"> 
                                 <div class="cart-item-price">$${item.precio}</div> 
+                                <button class="btn-nota" onclick="addNota(${index})" title="Agregar Nota">✏️</button>
                                 <button class="btn-del" onclick="quitarItem(${index})">X</button> 
                             </div> 
                         </div>`; 
@@ -198,6 +201,12 @@
             }; 
 
             window.quitarItem = (idx) => { carrito.splice(idx, 1); renderCarrito(); }; 
+            
+            // Función para Notas
+            window.addNota = (idx) => { 
+                const n = prompt("Nota para cocina:", carrito[idx].notas); 
+                if(n !== null){ carrito[idx].notas = n.trim(); renderCarrito(); } 
+            };
 
             const calcularTotal = () => { 
                 const total = carrito.reduce((sum, item) => sum + item.precio, 0); 
@@ -216,7 +225,7 @@
 
             inputEfectivo.addEventListener('input', calcularTotal); 
 
-            // 3. IMPRESIÓN DE COMANDA (CORREGIDA CON TABLAS PARA TÉRMICA)
+            // 3. IMPRESIÓN DE COMANDA (CORREGIDA CON TABLAS Y FOLIO GIGANTE)
             const imprimirComanda = (nombre, folio, total, recibido, cambio) => { 
                 const ventana = window.open('', 'PRINT', 'height=600,width=400'); 
                 
@@ -227,7 +236,8 @@
                             <td style="width: 15%; font-size: 20px; font-weight: 900; vertical-align: top;">1x</td>
                             <td style="width: 85%; font-size: 18px; font-weight: bold; vertical-align: top;">
                                 ${item.nombre}
-                                ${item.mods ? `<br><small style="font-size: 14px;">${item.mods}</small>` : ''}
+                                ${item.mods ? `<br><small style="font-size: 14px; font-weight: normal;">${item.mods}</small>` : ''}
+                                ${item.notas ? `<br><small style="font-size: 15px; font-weight: bold; font-style: italic;">* ${item.notas}</small>` : ''}
                             </td>
                         </tr>
                         <tr><td colspan="2" style="border-bottom: 2px dashed #000; padding-bottom: 10px;"></td></tr>
@@ -241,9 +251,11 @@
                         <style> 
                             body { font-family: 'Arial', sans-serif; color: #000 !important; width: 75mm; margin: 0 auto; padding: 0; } 
                             .titulo { font-size: 28px; font-weight: 900; text-align: center; border-bottom: 4px solid #000; margin-bottom: 10px; padding-bottom: 10px;} 
-                            /* Evitamos el background negro invertido que da problemas de tinta */
+                            
+                            /* Folio Gigante para Prioridad */
+                            .folio { text-align: center; font-size: 24px; font-weight: 900; margin-bottom: 10px; } 
+                            
                             .nombre-gigante { font-size: 35px; font-weight: 900; text-align: center; text-transform: uppercase; border: 4px solid #000; padding: 10px; margin: 15px 0; word-wrap: break-word; color: #000;} 
-                            .folio { text-align: center; font-size: 18px; font-weight: bold; margin-bottom: 20px; } 
                             .items { width: 100%; border-collapse: collapse; }
                             .resumen-pago { margin-top: 20px; border-top: 4px solid #000; padding-top: 10px; font-size: 18px; font-weight: 900; text-align: right;} 
                             @media print { @page { margin: 0; } body { margin: 0; } } 
@@ -251,6 +263,8 @@
                     </head> 
                     <body> 
                         <div class="titulo">OLIMPOLLO</div> 
+                        
+                        <div class="folio">ORDEN #${folio.toString().padStart(4, '0')}</div>
                         
                         <div class="nombre-gigante">${nombre}</div> 
                         
@@ -269,11 +283,10 @@
 
                 ventana.document.close(); 
                 ventana.focus(); 
-                // Aumentamos a 800ms para asegurar renderizado de fuentes gruesas
                 setTimeout(() => { ventana.print(); ventana.close(); }, 800); 
             }; 
 
-            // 4. GUARDAR Y COBRAR (CON REPORTE DE ERRORES EXACTO) 
+            // 4. GUARDAR Y COBRAR (AGRUPACIÓN INCLUYE NOTAS)
             btnCobrar.addEventListener('click', async () => { 
                 if (carrito.length === 0) return; 
                 const nombre = inputCliente.value.trim(); 
@@ -289,11 +302,11 @@
                 const recibido = parseFloat(inputEfectivo.value) || total; 
                 const cambio = recibido >= total ? recibido - total : 0; 
 
-                // Agrupamos el carrito 
+                // Agrupamos el carrito tomando en cuenta si tienen notas diferentes
                 const itemsAgrupados = {}; 
                 carrito.forEach(i => { 
-                    const key = i.id + '-' + i.mods; 
-                    if(!itemsAgrupados[key]) itemsAgrupados[key] = { menu_producto_id: i.id, nombre_producto_completo: i.nombre + (i.mods ? ` (${i.mods})` : ''), cantidad: 0, precio_unitario: i.precio, notas: '' }; 
+                    const key = i.id + '-' + i.mods + '-' + i.notas; 
+                    if(!itemsAgrupados[key]) itemsAgrupados[key] = { menu_producto_id: i.id, nombre_producto_completo: i.nombre + (i.mods ? ` (${i.mods})` : ''), cantidad: 0, precio_unitario: i.precio, notas: i.notas }; 
                     itemsAgrupados[key].cantidad++; 
                 }); 
 
