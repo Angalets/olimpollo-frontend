@@ -400,11 +400,18 @@
                     
                     abrirModal(modalProducto);
                 }
-            } else if (btn.classList.contains('btn-eliminar-producto')) {
-                if (confirm("¿Eliminar producto?")) {
+} else if (btn.classList.contains('btn-eliminar-producto')) {
+                if (confirm("¿Estás seguro de eliminar este producto del POS?")) {
                     fetch(`${API_MENU_PRODUCTOS_URL}/${id}`, { method: "DELETE" })
-                        .then(() => fetchProductos())
-                        .catch(e => alert(e.message));
+                        .then(async (res) => {
+                            if (!res.ok) {
+                                const err = await res.json();
+                                throw new Error(err.error || "Error al intentar borrar en la base de datos.");
+                            }
+                            fetchProductos();
+                            alert("🗑️ Producto eliminado exitosamente del menú.");
+                        })
+                        .catch(e => alert("Error: " + e.message));
                 }
             }
         });
