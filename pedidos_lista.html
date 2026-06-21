@@ -158,7 +158,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 let colorEstado = '';
                 if (pedido.estado === 'Entregado') colorEstado = 'style="background-color: #d4edda; font-weight: bold;"';
                 else if (pedido.estado === 'Cancelado') colorEstado = 'style="background-color: #f8d7da; text-decoration: line-through;"';
-
+                // AÑADIDO: Distintivo visual para estado "Listo"
+                else if (pedido.estado === 'Listo') colorEstado = 'style="background-color: #fff3cd; font-weight: bold; color: #856404;"';
                 // Distintivo visual en la tabla si tiene recompensa
                 const estrella = pedido.recompensa ? '⭐ ' : '';
 
@@ -355,13 +356,14 @@ document.addEventListener('DOMContentLoaded', () => {
             <ul>${itemsHTML}</ul>
         `;
 
-        let botonesHTML = `<button id="btn-imprimir-ticket" class="btn btn-secondary" style="background-color: #34495e; color: white; width:100%;">🖨️ Imprimir Ticket</button>`;
+let botonesHTML = `<button id="btn-imprimir-ticket" class="btn btn-secondary" style="background-color: #34495e; color: white; width:100%;">🖨️ Imprimir Ticket</button>`;
 
-        if (pedidoSeleccionado.estado === 'Pendiente') {
+        // AÑADIDO: Ahora se pueden editar y cobrar pedidos "Pendientes" Y "Listos"
+        if (pedidoSeleccionado.estado === 'Pendiente' || pedidoSeleccionado.estado === 'Listo') {
             botonesHTML += `
                 <button id="btn-editar-pedido" class="btn btn-warning" style="width:100%; margin-top: 10px;" data-id="${id}">✏️ Editar en POS</button>
                 <div style="display:flex; gap:10px; margin-top: 10px;">
-                    <button id="btn-marcar-entregado" class="btn btn-success" style="flex:1;" data-id="${id}">Marcar Entregado</button>
+                    <button id="btn-marcar-entregado" class="btn btn-success" style="flex:1;" data-id="${id}">Marcar Entregado (Cerrar Orden)</button>
                     <button id="btn-marcar-cancelado" class="btn btn-danger" style="flex:1;" data-id="${id}">Marcar Cancelado</button>
                 </div>
             `;
