@@ -1,3 +1,12 @@
+¡Tienes toda la razón! Tener que editar el código fuente cada vez que se te ocurra una nueva categoría (como "Postres", "Desayunos" o "Especiales") es muy poco práctico.
+
+Como en tu base de datos las categorías se agrupan automáticamente basándose en los platillos que ya tienes, la solución más elegante es hacer lo mismo que hicimos con los "Modificadores": **poner un botón `+` al lado de la lista de categorías.**
+
+De esta forma, el sistema leerá las categorías que ya tienes registradas y te dejará seleccionar una, o presionar el `+` para escribir una totalmente nueva. Al guardar el platillo, la nueva categoría nacerá automáticamente en tu POS.
+
+Aquí tienes tu archivo **`menu_gestion.html`** completo y actualizado con esta nueva función. Reemplaza todo tu código con este:
+
+```html
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -71,15 +80,17 @@
                         <label for="precio-base">Precio Base:</label>
                         <input type="number" id="precio-base" min="0" step="0.01" required>
                     </div>
+                    
                     <div class="form-grid-full">
-                        <label for="categoria">Categoría:</label>
-                        <select id="categoria" required>
-                            <option value="Platos Fuertes">Platos Fuertes</option>
-                            <option value="Sides">Sides</option>
-                            <option value="Bebidas">Bebidas</option>
-                            <option value="Promos">Promos</option>
-                            <option value="Aderezos">Aderezos</option>
-                        </select>
+                        <label>Categoría:</label>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <select id="categoria-select" required style="flex: 1; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; font-family: 'Poppins', sans-serif;">
+                                </select>
+                            <input type="text" id="categoria-input" placeholder="Nombre de la nueva categoría" style="display: none; flex: 1; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; font-family: 'Poppins', sans-serif;">
+                            <button type="button" id="btn-toggle-categoria" class="btn btn-secondary" title="Crear Nueva Categoría" style="padding: 10px 15px; border-radius: 8px;">
+                                +
+                            </button>
+                        </div>
                     </div>
                     
                     <div class="form-grid-full">
@@ -113,16 +124,9 @@
                 <label>Seleccionar Grupo:</label>
                 <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 20px;">
                     <select id="mod-grupo-select"></select>
-
                     <input type="text" id="mod-grupo-input" placeholder="Nombre del nuevo grupo" style="display: none; flex: 1;">
-
-                    <button id="btn-toggle-grupo" class="btn btn-secondary" title="Crear Nuevo Grupo" style="padding: 10px 15px;">
-                        +
-                    </button>
-
-                    <button id="btn-delete-grupo" class="btn btn-danger" title="Eliminar Grupo Actual" style="padding: 10px 15px;">
-                        🗑️
-                    </button>
+                    <button id="btn-toggle-grupo" class="btn btn-secondary" title="Crear Nuevo Grupo" style="padding: 10px 15px;">+</button>
+                    <button id="btn-delete-grupo" class="btn btn-danger" title="Eliminar Grupo Actual" style="padding: 10px 15px;">🗑️</button>
                 </div>
                 <div style="margin-top: 20px;">
                     <h4>Valores para "<strong id="nombre-grupo-actual">Salsa</strong>"</h4>
@@ -204,7 +208,13 @@
         const productoIdInput = document.getElementById('producto-id');
         const nombreVentaInput = document.getElementById('nombre-venta');
         const precioBaseInput = document.getElementById('precio-base');
-        const categoriaSelect = document.getElementById('categoria');
+        
+        // Elementos de la nueva Categoría Dinámica
+        const selectCategoria = document.getElementById('categoria-select');
+        const inputCategoria = document.getElementById('categoria-input');
+        const btnToggleCategoria = document.getElementById('btn-toggle-categoria');
+        let modoNuevaCategoria = false;
+
         const imagenUrlInput = document.getElementById('imagen-url'); 
         const descripcionTextarea = document.getElementById('descripcion');
 
@@ -215,9 +225,28 @@
         const abrirModal = (modal) => modal.style.display = 'flex';
         const cerrarModales = () => { modalProducto.style.display = 'none'; modalOpciones.style.display = 'none'; };
 
+        // --- TOGGLE CATEGORÍA ---
+        btnToggleCategoria.addEventListener('click', () => {
+            modoNuevaCategoria = !modoNuevaCategoria;
+            if (modoNuevaCategoria) {
+                selectCategoria.style.display = 'none';
+                selectCategoria.removeAttribute('required');
+                inputCategoria.style.display = 'block';
+                inputCategoria.setAttribute('required', 'true');
+                inputCategoria.value = '';
+                inputCategoria.focus();
+                btnToggleCategoria.textContent = 'Cancelar';
+            } else {
+                selectCategoria.style.display = 'block';
+                selectCategoria.setAttribute('required', 'true');
+                inputCategoria.style.display = 'none';
+                inputCategoria.removeAttribute('required');
+                btnToggleCategoria.textContent = '+';
+            }
+        });
+
         const renderizarChecksGrupos = async (seleccionadosStr = "") => {
             containerChecksGrupos.innerHTML = '<span style="color:gray">Cargando...</span>';
-            
             try {
                 const seleccionados = seleccionadosStr ? seleccionadosStr.split(',').map(s => s.trim()) : [];
                 const response = await fetch(API_MENU_POS_URL);
@@ -243,16 +272,12 @@
                     checkbox.type = 'checkbox';
                     checkbox.value = grupo;
                     checkbox.name = 'grupos_check';
-                    
-                    if (seleccionados.includes(grupo)) {
-                        checkbox.checked = true;
-                    }
+                    if (seleccionados.includes(grupo)) checkbox.checked = true;
 
                     label.appendChild(checkbox);
                     label.appendChild(document.createTextNode(grupo));
                     containerChecksGrupos.appendChild(label);
                 });
-
             } catch (error) {
                 console.error("Error cargando grupos para checks:", error);
                 containerChecksGrupos.innerHTML = '<span style="color:red">Error al cargar grupos.</span>';
@@ -302,6 +327,22 @@
 
         const renderProductos = (productos) => {
             productosData = productos; 
+            
+            // Llenar selector de Categorías dinámicamente
+            const categoriasUnicas = [...new Set(productos.map(p => p.categoria))];
+            selectCategoria.innerHTML = '';
+            if (categoriasUnicas.length === 0) {
+                // Categorías por defecto si la base de datos está vacía
+                ['Platos Fuertes', 'Sides', 'Bebidas'].forEach(c => {
+                    const opt = document.createElement('option'); opt.value = c; opt.textContent = c; selectCategoria.appendChild(opt);
+                });
+            } else {
+                categoriasUnicas.forEach(c => {
+                    const opt = document.createElement('option'); opt.value = c; opt.textContent = c; selectCategoria.appendChild(opt);
+                });
+            }
+
+            // Pintar tabla
             tablaBody.innerHTML = '';
             productos.forEach(p => {
                 const tr = document.createElement('tr');
@@ -355,6 +396,10 @@
             formProducto.reset();
             productoIdInput.value = '';
             imagenUrlInput.value = ''; 
+            
+            // Regresar el selector de categoría a la normalidad si estaba en modo "Nuevo"
+            if(modoNuevaCategoria) btnToggleCategoria.click();
+
             renderizarChecksGrupos(""); 
             abrirModal(modalProducto);
         });
@@ -364,13 +409,17 @@
             
             const checkboxes = document.querySelectorAll('input[name="grupos_check"]:checked');
             const gruposSeleccionados = Array.from(checkboxes).map(cb => cb.value).join(',');
+            
+            // Definir qué categoría se guardará
+            const categoriaFinal = modoNuevaCategoria ? inputCategoria.value.trim() : selectCategoria.value;
+            if(!categoriaFinal) return alert("Debes seleccionar o escribir una categoría.");
 
             const id = productoIdInput.value;
             const data = {
                 id: id ? parseInt(id) : null,
                 nombre_venta: nombreVentaInput.value,
                 precio_base: parseFloat(precioBaseInput.value),
-                categoria: categoriaSelect.value,
+                categoria: categoriaFinal,
                 grupos_modificadores: gruposSeleccionados, 
                 imagen_url: imagenUrlInput.value.trim() || null, 
                 descripcion: descripcionTextarea.value
@@ -392,7 +441,19 @@
                     productoIdInput.value = producto.id;
                     nombreVentaInput.value = producto.nombre_venta;
                     precioBaseInput.value = producto.precio_base;
-                    categoriaSelect.value = producto.categoria;
+                    
+                    if(modoNuevaCategoria) btnToggleCategoria.click();
+
+                    // Asegurarnos de que la categoría exista en el selector
+                    let exists = Array.from(selectCategoria.options).some(opt => opt.value === producto.categoria);
+                    if (!exists) {
+                        const opt = document.createElement('option');
+                        opt.value = producto.categoria;
+                        opt.textContent = producto.categoria;
+                        selectCategoria.appendChild(opt);
+                    }
+                    selectCategoria.value = producto.categoria;
+
                     imagenUrlInput.value = producto.imagen_url || ''; 
                     descripcionTextarea.value = producto.descripcion || '';
                     
@@ -400,7 +461,7 @@
                     
                     abrirModal(modalProducto);
                 }
-} else if (btn.classList.contains('btn-eliminar-producto')) {
+            } else if (btn.classList.contains('btn-eliminar-producto')) {
                 if (confirm("¿Estás seguro de eliminar este producto del POS?")) {
                     fetch(`${API_MENU_PRODUCTOS_URL}/${id}`, { method: "DELETE" })
                         .then(async (res) => {
@@ -498,3 +559,5 @@
 </script>
 </body>
 </html>
+
+```
