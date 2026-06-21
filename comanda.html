@@ -123,7 +123,7 @@
             // FUNCIÓN PRINCIPAL DE BÚSQUEDA (PEDIDOS Y ALERTAS)
             const fetchData = async () => {
                 try {
-                    // 1. Buscar Pedidos
+                    // 1. Buscar Pedidos (SOLO LOS PENDIENTES)
                     const resPedidos = await fetch(`${API_PEDIDOS_URL}?estado=Pendiente`);
                     let pedidos = await resPedidos.json();
                     
@@ -144,7 +144,7 @@
                         const maxIdA = Math.max(...alertas.map(a => a.id));
                         if (esPrimeraCarga) ultimoIdAlerta = maxIdA;
                         else if (maxIdA > ultimoIdAlerta) {
-                            sonidoAlerta.play().catch(e=>{}); // SUENA EL ZUMBADOR
+                            sonidoAlerta.play().catch(e=>{}); 
                             ultimoIdAlerta = maxIdA;
                         }
                     }
@@ -209,7 +209,6 @@
                     const tipoHTML = tipoConsumo === 'Comedor' 
                         ? '<span style="background:#F39C12; color:white; padding: 4px 8px; border-radius:6px; font-weight:bold; font-size: 0.8em; margin-left: 10px;">🍽️ COMEDOR</span>' 
                         : '<span style="background:#3498DB; color:white; padding: 4px 8px; border-radius:6px; font-weight:bold; font-size: 0.8em; margin-left: 10px;">🛍️ PARA LLEVAR</span>';
-                    
                     let itemsHTML = '';
                     pedido.items.forEach(item => {
                         const match = item.nombre_producto.match(/(.*)\s\((.*)\)/);
@@ -221,25 +220,17 @@
                         itemsHTML += `<li><strong>${item.cantidad}x</strong> ${nombreBase} ${modificadores ? `<span class="mods">${modificadores}</span>` : ''} ${notaHTML}</li>`;
                     });
 
-                    // AQUI FUE LA CORRECCIÓN DEL ESTRUCTURA HTML PARA QUE NO SE DUPLIQUE EL ID
                     card.innerHTML = `
                         <div class="comanda-header">
-                            <div>
+                            <div><span class="comanda-id">#${pedido.id.toString().padStart(3, '0')}</span><div>
                                 <span class="comanda-id">#${pedido.id.toString().padStart(3, '0')}</span>
                                 ${tipoHTML}
-                                <br>
                                 <div class="timer-badge">00:00</div>
-                            </div>
-                            <div class="comanda-info">
-                                <span>Cliente: <strong>${pedido.cliente}</strong></span>
-                                <span>Canal: ${pedido.canal_venta || 'Mostrador'}</span>
-                                <span>Hora: ${hora}</span>
-                            </div>
+                            </div></div>
+                            <div class="comanda-info"><span>Cliente: <strong>${pedido.cliente}</strong></span><span>Canal: ${pedido.canal_venta || 'Mostrador'}</span><span>Hora: ${hora}</span></div>
                         </div>
                         <ul class="comanda-items">${itemsHTML}</ul>
-                        <div class="comanda-actions">
-                            <button class="btn-entregado" data-id="${pedido.id}">✔ LISTO</button>
-                        </div>
+                        <div class="comanda-actions"><button class="btn-entregado" data-id="${pedido.id}">✔ LISTO</button></div>
                     `;
                     comandasContainer.appendChild(card);
                 });
@@ -265,10 +256,11 @@
             comandasContainer.addEventListener('click', async (e) => {
                 if (e.target.classList.contains('btn-entregado')) {
                     const id = e.target.dataset.id;
-                    if (!confirm(`¿Confirmas que el pedido #${id} está listo?`)) return;
+                    if (!confirm(`¿Confirmas que el pedido #${id} está listo para entregarse?`)) return;
                     try {
                         e.target.closest('.comanda-card').style.opacity = '0.5';
-                        await fetch(`${API_PEDIDOS_URL}/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ estado: 'Entregado' }) });
+                        // AHORA MANDA ESTADO "Listo" EN LUGAR DE "Entregado"
+                        await fetch(`${API_PEDIDOS_URL}/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ estado: 'Listo' }) });
                         fetchData(); 
                     } catch (error) { alert('Error al actualizar.'); }
                 }
