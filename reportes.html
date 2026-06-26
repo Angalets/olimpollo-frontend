@@ -51,6 +51,7 @@
                        <option value="insumos_teoricos">Uso de Insumos (Teórico)</option>
                         <option value="historico_inventario">Inventario Histórico</option>
                         <option value="semanal_gerencial">Resumen Semanal Gerencial</option>
+                        <option value="cogs">KPI: Porcentaje COGS</option>
                     </select>
                 </div>
                 <div>
@@ -220,6 +221,49 @@
                     mensajeElemento.style.color = 'green';
                 } catch (error) { resultadosDiv.innerHTML = `<p style="color:red; font-weight:bold;">${error.message}</p>`; }
             };
+
+            // KPI
+            const generarReporteCOGS = async (fechaInicio, fechaFin) => {
+    resultadosDiv.innerHTML = '<h4>Calculando Costo de Alimentos (COGS)...</h4>';
+    resultadosDiv.style.display = 'block';
+
+    try {
+        // 1. Obtenemos el costo total de insumos del periodo
+        const resCogs = await fetch(`${API_URL}/cogs?fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`);
+        const dataCogs = await resCogs.json();
+        
+        // 2. Obtenemos la venta bruta del mismo periodo (usamos tu endpoint de ventas existente)
+        const resVentas = await fetch(`${API_URL}/ventas?fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`);
+        const dataVentas = await resVentas.json();
+
+        if (!resCogs.ok || !resVentas.ok) throw new Error("Error al obtener datos financieros.");
+
+        const ventaBruta = parseFloat(dataVentas.ventas_totales || 0);
+        const costoTotal = parseFloat(dataCogs.costo_total || 0);
+        
+        // Fórmula del KPI
+        const porcentajeCOGS = ventaBruta > 0 ? (costoTotal / ventaBruta) * 100 : 0;
+
+        resultadosDiv.innerHTML = `
+            <h4>Resultado del KPI: Porcentaje COGS</h4>
+            <div style="padding: 25px; background: #fff; border: 2px solid #ddd; border-radius: 12px; text-align: center;">
+                <p><strong>Periodo:</strong> ${fechaInicio} al ${fechaFin}</p>
+                <div style="font-size: 4em; font-weight: 900; color: ${porcentajeCOGS > 35 ? 'var(--accent-color)' : '#27AE60'}; margin: 15px 0;">
+                    ${porcentajeCOGS.toFixed(2)}%
+                </div>
+                <p>Costo total de insumos: <strong>$${costoTotal.toFixed(2)}</strong></p>
+                <p>Venta bruta total: <strong>$${ventaBruta.toFixed(2)}</strong></p>
+                <p style="margin-top: 15px; color: var(--secondary-text); font-size: 0.9em;">
+                    ${porcentajeCOGS > 35 ? '⚠️ Tu costo de alimentos es alto. Revisa desperdicios o precios de compra.' : '✅ Tu costo de alimentos está saludable.'}
+                </p>
+            </div>
+        `;
+        mensajeElemento.textContent = 'KPI calculado correctamente.';
+        mensajeElemento.style.color = 'green';
+    } catch (error) {
+        resultadosDiv.innerHTML = `<p style="color:red; font-weight:bold;">${error.message}</p>`;
+    }
+};
 
             // E. REPORTE SEMANAL GERENCIAL MEJORADO 📊
             const generarReporteSemanal = async (fechaInicio, fechaFin) => {
@@ -464,6 +508,15 @@
                         return;
                     }
                     generarReporteInsumosTeoricos(fechaInicio, fechaFin);
+
+                    } else if (tipoReporte === 'cogs') {
+    if (!fechaInicio || !fechaFin) {
+        mensajeElemento.textContent = 'Selecciona fecha inicio y fin para calcular el KPI.';
+        mensajeElemento.style.color = 'red';
+        return;
+    }
+    generarReporteCOGS(fechaInicio, fechaFin);
+}
 
                 } else if (tipoReporte === 'historico_inventario') {
                     if (!fechaInicio) {
