@@ -3,33 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <title>Olimpollo - Reportes</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
-        :root{--bg-main:#ECF0F1;--accent-color:#db3434;} body{font-family: sans-serif; background: var(--bg-main); padding: 20px;}
-        .card{background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); margin-bottom: 20px;}
-        .filtros-grid{display:grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;}
-        table{width:100%; border-collapse: collapse; margin-top: 15px;}
-        th, td{padding: 10px; border-bottom: 1px solid #ddd; text-align: left;}
-        .btn{padding: 10px; cursor: pointer; border: none; border-radius: 4px; background: var(--accent-color); color: white;}
+        :root{--bg-main:#ECF0F1;--bg-header:#FFFFFF;--card-bg:#FFFFFF;--primary-text:#502c2c;--accent-color:#db3434;}
+        body{margin:0;font-family:'Poppins', sans-serif;background-color:var(--bg-main);padding:40px;}
+        .card{background:var(--card-bg);padding:25px;border-radius:12px;box-shadow:0 4px 15px rgba(0,0,0,0.08);margin-bottom:25px;}
+        .filtros-grid{display:grid;grid-template-columns:repeat(auto-fit, minmax(200px, 1fr));gap:20px;align-items:flex-end;}
+        .btn{padding:12px;border:none;border-radius:8px;cursor:pointer;background:var(--accent-color);color:white;font-weight:600;}
+        table{width:100%;border-collapse:collapse;margin-top:20px;}th,td{padding:12px;border-bottom:1px solid #eee;text-align:left;}
     </style>
 </head>
 <body>
     <main>
-        <h2>Reportes</h2>
+        <h2 class="page-title">Generador de Reportes</h2>
         <div class="card">
             <div class="filtros-grid">
-                <select id="select-tipo-reporte">
-                    <option value="">Seleccionar Tipo</option>
-                    <option value="ventas">Reporte de Ventas</option>
-                    <option value="platillos">Popularidad de Platillos</option>
-                    <option value="insumos_teoricos">Uso Insumos Teórico</option>
-                    <option value="cogs">KPI: Porcentaje COGS</option>
-                    <option value="semanal_gerencial">Resumen Semanal</option>
-                </select>
-                <input type="date" id="fechaInicio">
-                <input type="date" id="fechaFin">
-                <button id="btn-generar" class="btn">Generar Reporte</button>
+                <div>
+                    <label>Tipo de Reporte:</label>
+                    <select id="select-tipo-reporte" style="width:100%; padding:10px;">
+                        <option value="">Seleccionar Tipo</option>
+                        <option value="platillos">Conteo de Platillos</option>
+                        <option value="ventas">Reporte de Ventas</option>
+                        <option value="insumos_teoricos">Uso de Insumos (Teórico)</option>
+                        <option value="historico_inventario">Inventario Histórico</option>
+                        <option value="semanal_gerencial">Resumen Semanal Gerencial</option>
+                        <option value="cogs">KPI: Porcentaje COGS</option>
+                    </select>
+                </div>
+                <div><label>Fecha Inicio / Única:</label><input type="date" id="fechaInicio" style="width:100%; padding:10px;"></div>
+                <div><label>Fecha Fin:</label><input type="date" id="fechaFin" style="width:100%; padding:10px;"></div>
+                <div><button id="btn-generar" class="btn" style="width: 100%;">Generar Reporte</button></div>
             </div>
-            <p id="mensaje-reporte"></p>
+            <p id="mensaje-reporte" style="margin-top: 15px; text-align: center;"></p>
         </div>
         <div id="resultados-reporte" class="card" style="display: none;"></div>
     </main>
@@ -37,37 +42,47 @@
 <script>
     document.addEventListener('DOMContentLoaded', () => {
         const API_URL = 'https://olimpollo-api.onrender.com/api/reportes';
-        
+        const botonGenerar = document.getElementById('btn-generar');
+        const resultadosDiv = document.getElementById('resultados-reporte');
+        const mensajeElemento = document.getElementById('mensaje-reporte');
+
+        // Función centralizada para calcular COGS
         const generarReporteCOGS = async (fIni, fFin) => {
+            resultadosDiv.innerHTML = '<h4>Calculando Costo de Alimentos (COGS)...</h4>';
+            resultadosDiv.style.display = 'block';
             try {
-                const resCogs = await fetch(`${API_URL}/cogs?fechaInicio=${fIni}&fechaFin=${fFin}`);
-                const resVentas = await fetch(`${API_URL}/ventas?fechaInicio=${fIni}&fechaFin=${fFin}`);
+                const [resCogs, resVentas] = await Promise.all([
+                    fetch(`${API_URL}/cogs?fechaInicio=${fIni}&fechaFin=${fFin}`),
+                    fetch(`${API_URL}/ventas?fechaInicio=${fIni}&fechaFin=${fFin}`)
+                ]);
                 const dataCogs = await resCogs.json();
                 const dataVentas = await resVentas.json();
-                
+
                 const ventaBruta = parseFloat(dataVentas.ventas_totales || 0);
                 const costoTotal = parseFloat(dataCogs.costo_total || 0);
                 const porcentaje = ventaBruta > 0 ? (costoTotal / ventaBruta) * 100 : 0;
-                
-                document.getElementById('resultados-reporte').innerHTML = `
-                    <h3>KPI: COGS</h3>
-                    <div style="font-size: 2em; color: ${porcentaje > 35 ? 'red' : 'green'}">${porcentaje.toFixed(2)}%</div>
-                    <p>Costo: $${costoTotal.toFixed(2)} | Venta: $${ventaBruta.toFixed(2)}</p>`;
-                document.getElementById('resultados-reporte').style.display = 'block';
-            } catch (e) { alert(e.message); }
+
+                resultadosDiv.innerHTML = `
+                    <h3>KPI: Porcentaje COGS</h3>
+                    <div style="text-align:center; padding:20px;">
+                        <div style="font-size: 3em; font-weight: 900; color: ${porcentaje > 35 ? 'red' : 'green'}">${porcentaje.toFixed(2)}%</div>
+                        <p>Costo Insumos: <strong>$${costoTotal.toFixed(2)}</strong> | Venta Bruta: <strong>$${ventaBruta.toFixed(2)}</strong></p>
+                    </div>`;
+                mensajeElemento.textContent = 'KPI calculado.';
+            } catch (e) { alert("Error al generar KPI: " + e.message); }
         };
 
-        document.getElementById('btn-generar').addEventListener('click', () => {
+        botonGenerar.addEventListener('click', () => {
             const tipo = document.getElementById('select-tipo-reporte').value;
             const fIni = document.getElementById('fechaInicio').value;
             const fFin = document.getElementById('fechaFin').value;
-            
-            if(!tipo || !fIni || !fFin) return alert("Selecciona tipo y fechas");
-            
-            if(tipo === 'cogs') {
+
+            if(!tipo || !fIni) return alert("Selecciona tipo y fecha de inicio");
+
+            if (tipo === 'cogs') {
                 generarReporteCOGS(fIni, fFin);
             } else {
-                alert("Esta función requiere la implementación de los otros reportes ya existentes.");
+                alert("Reporte no implementado en esta vista. Selecciona COGS.");
             }
         });
     });
