@@ -190,6 +190,7 @@
         const API_MENU_PRODUCTOS_URL = 'https://olimpollo-api.onrender.com/api/menu/productos';
         const API_MENU_OPCIONES_URL = 'https://olimpollo-api.onrender.com/api/menu/opciones';
         const API_MENU_POS_URL = 'https://olimpollo-api.onrender.com/api/menu/pos';
+        const API_INVENTARIO_URL = 'https://olimpollo-api.onrender.com/api/inventario';
 
         const tablaBody = document.getElementById('tabla-productos-body');
         const modalProducto = document.getElementById('modalProducto');
@@ -307,6 +308,21 @@
                     selectGrupoMod.appendChild(option);
                 }
             } catch (error) { console.error(error); }
+        };
+
+        const cargarInsumosParaOpciones = async () => {
+            try {
+                const response = await fetch(API_INVENTARIO_URL);
+                const insumos = await response.json();
+                const selectInsumo = document.getElementById('insumo-select-opcion');
+                selectInsumo.innerHTML = '<option value="">Ninguno (No descontar)</option>';
+                insumos.forEach(insumo => {
+                    const opt = document.createElement('option');
+                    opt.value = insumo.id;
+                    opt.textContent = `${insumo.nombre} (${insumo.unidad})`;
+                    selectInsumo.appendChild(opt);
+                });
+            } catch (error) { console.error("Error cargando insumos:", error); }
         };
 
         const renderOpcionesValores = () => {
@@ -516,7 +532,9 @@
                     body: JSON.stringify({
                         nombre_opcion: nombreGrupo,
                         valor: document.getElementById('valor-opcion').value,
-                        precio_adicional: document.getElementById('precio-adicional').value
+                        precio_adicional: document.getElementById('precio-adicional').value,
+                        insumo_id: document.getElementById('insumo-select-opcion').value || null,
+                        cantidad_insumo: document.getElementById('cantidad-insumo-opcion').value || 0
                     })
                 });
                 if (res.ok) {
@@ -557,9 +575,8 @@
         window.onclick = (e) => { if (e.target.classList.contains('modal')) cerrarModales(); };
 
         fetchProductos();
+        cargarInsumosParaOpciones();
     });
 </script>
 </body>
 </html>
-
-```
