@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Olimpollo - Producción Interna</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root{--bg-main:#ECF0F1;--bg-header:#FFFFFF;--card-bg:#FFFFFF;--primary-text:#502c2c;--secondary-text:#808B96;--accent-color:#db3434;--accent-hover:#b92929;--border-color:#D5D8DC;--shadow-light:0 4px 15px rgba(0, 0, 0, 0.08);}
+        body{margin:0;font-family:'Poppins', sans-serif;background-color:var(--bg-main);color:var(--primary-text);display:flex;flex-direction:column;min-height:100vh;}
+        header{background:var(--bg-header);padding:15px 40px;box-shadow:0 2px 10px rgba(0, 0, 0, 0.05);display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border-color);}
+        .logo{font-size:24px;font-weight:600;text-decoration:none;color:var(--primary-text);}
+        nav{display:flex;gap:20px;}nav a{text-decoration:none;color:var(--secondary-text);font-weight:500;}
+        main{flex:1;padding:40px;max-width:1200px;margin:0 auto;width:100%;}
+        .card{background:var(--card-bg);border-radius:12px;padding:25px;box-shadow:var(--shadow-light);margin-bottom:25px; border-top: 5px solid var(--accent-color);}
+        .card-green{border-top-color: #2ECC71;}
+        .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:end;}
+        .btn{padding:12px 20px;border:none;border-radius:8px;cursor:pointer;font-weight:600;color:white;width:100%; font-family: 'Poppins';}
+        .btn-primary{background-color:var(--accent-color);} .btn-success{background-color:#2ECC71;} .btn-danger{background-color:#E74C3C;}
+        table{width:100%;border-collapse:collapse;margin-top:15px;}th,td{padding:12px;border-bottom:1px solid #eee;text-align:left;}
+        input, select{width:100%;padding:10px;border:1px solid var(--border-color);border-radius:8px;box-sizing:border-box;}
+        label{display:block;margin-bottom:5px;font-weight:500;font-size:14px;}
+        .ingredientes-lista { list-style: none; padding: 0; margin-top: 15px; }
+        .ingrediente-item { background: #f9f9f9; padding: 10px; border-radius: 6px; margin-bottom: 5px; display: flex; justify-content: space-between;}
+    </style>
+</head>
+<body>
+    <header>
+        <a href="index.html" class="logo">Olimpollo</a>
+        <nav>
+            <a href="pedidos.html">POS</a>
+            <a href="inventario.html">Inventario</a>
+            <a href="produccion.html" style="color:var(--accent-color);">Producción</a>
+            <a href="reportes.html">Reportes</a>
+        </nav>
+    </header>
+
+    <main>
+        <h2 style="margin-bottom: 25px;">Producción de Sub-recetas</h2>
+
+        <!-- PANEL OPERATIVO (Hacer Tandas) -->
+        <div class="card card-green">
+            <h3>👨‍🍳 Registrar Producción Diaria</h3>
+            <p style="font-size: 14px; color: gray;">Selecciona la preparación y el sistema descontará la materia prima cruda para sumar el producto preparado a tu inventario.</p>
+            <div class="form-grid" style="margin-top: 20px;">
+                <div>
+                    <label>¿Qué preparaste?</label>
+                    <select id="select-receta-ejecutar">
+                        <option value="">Cargando preparaciones...</option>
+                    </select>
+                </div>
+                <div>
+                    <label>Cantidad de Tandas (Multiplicador):</label>
+                    <input type="number" id="input-tandas" value="1" step="0.5" min="0.5">
+                </div>
+                <div style="grid-column: 1 / -1;">
+                    <button id="btn-ejecutar" class="btn btn-success">✅ Registrar Producción en Inventario</button>
+                </div>
+            </div>
+            <div id="resultado-ejecucion" style="margin-top: 15px; font-weight: bold; text-align: center;"></div>
+        </div>
+
+        <!-- PANEL ADMINISTRATIVO (Crear Recetas) -->
+        <div class="card" id="panel-admin" style="display: none;">
+            <h3>⚙️ Crear Nueva Receta de Producción</h3>
+            <div class="form-grid">
+                <div style="grid-column: 1 / -1;">
+                    <label>Nombre de la Preparación (Ej: Tanda de Aderezo Ranch 4L)</label>
+                    <input type="text" id="nueva-nombre">
+                </div>
+                <div>
+                    <label>Insumo que se Genera (Producto Final)</label>
+                    <select id="nueva-insumo-resultado"></select>
+                </div>
+                <div>
+                    <label>Cantidad que Genera (Ej: 4 litros)</label>
+                    <input type="number" id="nueva-cantidad-resultado" step="0.01">
+                </div>
+            </div>
+
+            <div style="background: #fdfdfd; border: 1px solid #ddd; padding: 15px; border-radius: 8px; margin-top: 20px;">
+                <h4>Materia Prima (Crudos a descontar)</h4>
+                <div style="display: flex; gap: 10px; align-items: end;">
+                    <div style="flex: 2;">
+                        <label>Ingrediente</label>
+                        <select id="nuevo-ing-select"></select>
+                    </div>
+                    <div style="flex: 1;">
+                        <label>Cantidad</label>
+                        <input type="number" id="nuevo-ing-cant" step="0.01">
+                    </div>
+                    <button id="btn-add-ingrediente" class="btn btn-secondary" style="width: auto; background: #808B96;">Agregar</button>
+                </div>
+                <ul id="lista-ingredientes-temp" class="ingredientes-lista"></ul>
+            </div>
+
+            <button id="btn-guardar-receta" class="btn btn-primary" style="margin-top: 20px;">💾 Guardar Receta de Producción</button>
+
+            <h3 style="margin-top: 40px; border-top: 1px solid #eee; padding-top: 20px;">Preparaciones Existentes</h3>
+            <div id="tabla-recetas-existentes"></div>
+        </div>
+    </main>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const API_PRODUCCION = 'https://olimpollo-api.onrender.com/api/produccion';
+        const API_INVENTARIO = 'https://olimpollo-api.onrender.com/api/inventario';
+        
+        let insumosDB = [];
+        let ingredientesTemp = [];
+
+        // Verificación de acceso
+        const token = localStorage.getItem('authToken');
+        const role = localStorage.getItem('userRole');
+        if (!token) { window.location.href = 'login.html'; return; }
+        if (role === 'Administrador') { document.getElementById('panel-admin').style.display = 'block'; }
+
+        // Inicialización
+        const cargarDatos = async () => {
+            try {
+                const [resInsumos, resRecetas] = await Promise.all([
+                    fetch(API_INVENTARIO), fetch(`${API_PRODUCCION}/recetas`)
+                ]);
+                insumosDB = await resInsumos.json();
+                const recetas = await resRecetas.json();
+
+                // Llenar selectores de inventario
+                const selectResultado = document.getElementById('nueva-insumo-resultado');
+                const selectIngrediente = document.getElementById('nuevo-ing-select');
+                let optionsHtml = '<option value="">Selecciona un insumo...</option>';
+                insumosDB.forEach(i => optionsHtml += `<option value="${i.id}">${i.nombre} (${i.unidad})</option>`);
+                
+                selectResultado.innerHTML = optionsHtml;
+                selectIngrediente.innerHTML = optionsHtml;
+
+                // Llenar selector operativo
+                const selectOperativo = document.getElementById('select-receta-ejecutar');
+                selectOperativo.innerHTML = '<option value="">Selecciona preparación...</option>';
+                let tablaHtml = '<table><tr><th>Nombre</th><th>Genera</th><th>Materia Prima</th><th>Acción</th></tr>';
+                
+                recetas.forEach(r => {
+                    selectOperativo.innerHTML += `<option value="${r.id}">${r.nombre}</option>`;
+                    let ings = (r.ingredientes || []).map(i => `${i.cantidad_necesaria} ${i.unidad} de ${i.nombre}`).join('<br>');
+                    tablaHtml += `<tr>
+                        <td><strong>${r.nombre}</strong></td>
+                        <td style="color:#27ae60;">+${r.cantidad_resultado} ${r.unidad_resultado} de ${r.nombre_resultado}</td>
+                        <td style="color:#c0392b; font-size: 12px;">${ings}</td>
+                        <td><button class="btn btn-danger btn-eliminar-receta" data-id="${r.id}" style="padding: 5px 10px;">X</button></td>
+                    </tr>`;
+                });
+                document.getElementById('tabla-recetas-existentes').innerHTML = tablaHtml + '</table>';
+
+            } catch (e) { console.error("Error", e); }
+        };
+
+        // --- FUNCIONES ADMINISTRATIVAS ---
+        document.getElementById('btn-add-ingrediente').addEventListener('click', () => {
+            const select = document.getElementById('nuevo-ing-select');
+            const cant = document.getElementById('nuevo-ing-cant').value;
+            if (!select.value || !cant) return alert("Selecciona ingrediente y cantidad.");
+            
+            const insumoName = select.options[select.selectedIndex].text;
+            ingredientesTemp.push({ insumo_id: select.value, cantidad: cant, nombre: insumoName });
+            
+            document.getElementById('lista-ingredientes-temp').innerHTML += `<li class="ingrediente-item">➖ Restará ${cant} de ${insumoName}</li>`;
+            select.value = ''; document.getElementById('nuevo-ing-cant').value = '';
+        });
+
+        document.getElementById('btn-guardar-receta').addEventListener('click', async () => {
+            const payload = {
+                nombre: document.getElementById('nueva-nombre').value,
+                insumo_resultado_id: document.getElementById('nueva-insumo-resultado').value,
+                cantidad_resultado: document.getElementById('nueva-cantidad-resultado').value,
+                ingredientes: ingredientesTemp
+            };
+
+            if (!payload.nombre || !payload.insumo_resultado_id || ingredientesTemp.length === 0) return alert("Completa todos los campos.");
+
+            try {
+                const res = await fetch(`${API_PRODUCCION}/recetas`, {
+                    method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload)
+                });
+                if (res.ok) {
+                    alert("Receta Guardada");
+                    ingredientesTemp = [];
+                    document.getElementById('lista-ingredientes-temp').innerHTML = '';
+                    document.getElementById('nueva-nombre').value = '';
+                    document.getElementById('nueva-cantidad-resultado').value = '';
+                    cargarDatos();
+                }
+            } catch (e) { alert("Error: " + e.message); }
+        });
+
+        document.getElementById('tabla-recetas-existentes').addEventListener('click', async (e) => {
+            if(e.target.classList.contains('btn-eliminar-receta') && confirm("¿Borrar receta?")) {
+                await fetch(`${API_PRODUCCION}/recetas/${e.target.dataset.id}`, { method: 'DELETE' });
+                cargarDatos();
+            }
+        });
+
+        // --- FUNCIÓN OPERATIVA (BOTÓN MÁGICO) ---
+        document.getElementById('btn-ejecutar').addEventListener('click', async () => {
+            const receta_id = document.getElementById('select-receta-ejecutar').value;
+            const tandas = document.getElementById('input-tandas').value;
+            const mensaje = document.getElementById('resultado-ejecucion');
+
+            if(!receta_id) return alert("Selecciona qué vas a preparar.");
+            if(!confirm(`¿Estás seguro de registrar ${tandas} tanda(s)? Esto modificará tu inventario inmediatamente.`)) return;
+
+            mensaje.textContent = "Procesando inventario...";
+            mensaje.style.color = "orange";
+
+            try {
+                const res = await fetch(`${API_PRODUCCION}/ejecutar`, {
+                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ receta_produccion_id: receta_id, tandas: tandas })
+                });
+                const data = await res.json();
+                if(res.ok) {
+                    mensaje.textContent = "✅ ¡Producción registrada! Inventario actualizado.";
+                    mensaje.style.color = "green";
+                    document.getElementById('input-tandas').value = 1;
+                    document.getElementById('select-receta-ejecutar').value = "";
+                } else throw new Error(data.error);
+            } catch (e) {
+                mensaje.textContent = "❌ Error: " + e.message;
+                mensaje.style.color = "red";
+            }
+        });
+
+        cargarDatos();
+    });
+</script>
+</body>
+</html>
