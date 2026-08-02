@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Menú - Olimpollo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-main: #f8f9fa;
+            --bg-header: #FFFFFF;
+            --card-bg: #FFFFFF;
+            --primary-text: #2c3e50;
+            --secondary-text: #7f8c8d;
+            --accent-color: #db3434;
+            --shadow-light: 0 4px 15px rgba(0, 0, 0, 0.05);
+            --border-color: #eee;
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Poppins', sans-serif;
+            background-color: var(--bg-main);
+            color: var(--primary-text);
+            padding-bottom: 40px;
+        }
+
+        /* HEADER & HERO */
+        header {
+            background: var(--bg-header);
+            padding: 20px;
+            text-align: center;
+            box-shadow: var(--shadow-light);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 26px;
+            font-weight: 700;
+            color: var(--accent-color);
+            margin: 0;
+            letter-spacing: -0.5px;
+        }
+
+        .hero {
+            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?q=80&w=2070&auto=format&fit=crop') center/cover;
+            color: white;
+            text-align: center;
+            padding: 50px 20px;
+            margin-bottom: 20px;
+        }
+
+        .hero h1 {
+            margin: 0 0 10px 0;
+            font-size: 28px;
+        }
+
+        .hero p {
+            margin: 0;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        /* NAVEGACIÓN DE CATEGORÍAS */
+        .category-nav {
+            display: flex;
+            overflow-x: auto;
+            gap: 10px;
+            padding: 10px 20px;
+            scrollbar-width: none; /* Firefox */
+        }
+        .category-nav::-webkit-scrollbar { display: none; } /* Chrome/Safari */
+
+        .cat-pill {
+            background: white;
+            border: 1px solid var(--border-color);
+            padding: 8px 16px;
+            border-radius: 20px;
+            white-space: nowrap;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--primary-text);
+            text-decoration: none;
+            transition: all 0.3s ease;
+        }
+
+        .cat-pill.active, .cat-pill:hover {
+            background: var(--accent-color);
+            color: white;
+            border-color: var(--accent-color);
+        }
+
+        /* CONTENEDOR DEL MENÚ */
+        main {
+            padding: 0 20px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .categoria-section {
+            margin-top: 30px;
+            scroll-margin-top: 80px; /* Para que el sticky header no tape el título */
+        }
+
+        .categoria-titulo {
+            font-size: 22px;
+            font-weight: 600;
+            border-bottom: 2px solid var(--accent-color);
+            padding-bottom: 5px;
+            margin-bottom: 20px;
+            display: inline-block;
+        }
+
+        .productos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .producto-card {
+            background: var(--card-bg);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: var(--shadow-light);
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.2s ease;
+        }
+
+        .producto-card:active {
+            transform: scale(0.98);
+        }
+
+        .producto-img {
+            width: 100%;
+            height: 180px;
+            object-fit: cover;
+            background-color: #eee;
+        }
+
+        .producto-info {
+            padding: 15px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .producto-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 8px;
+        }
+
+        .producto-nombre {
+            font-size: 16px;
+            font-weight: 600;
+            margin: 0;
+            line-height: 1.2;
+        }
+
+        .producto-precio {
+            font-weight: 700;
+            color: var(--accent-color);
+            font-size: 16px;
+            margin-left: 10px;
+        }
+
+        .producto-desc {
+            font-size: 13px;
+            color: var(--secondary-text);
+            margin: 0 0 12px 0;
+            line-height: 1.4;
+            flex: 1;
+        }
+
+        .producto-mods {
+            font-size: 11px;
+            background: #fff0f0;
+            color: var(--accent-color);
+            padding: 4px 8px;
+            border-radius: 4px;
+            display: inline-block;
+            align-self: flex-start;
+            font-weight: 500;
+        }
+
+        /* LOADER */
+        .loader {
+            text-align: center;
+            padding: 50px;
+            color: var(--secondary-text);
+        }
+    </style>
+</head>
+<body>
+
+    <header>
+        <h1 class="logo">Olimpollo</h1>
+    </header>
+
+    <div class="hero">
+        <h1>Los Boneless del Olimpo</h1>
+        <p>Calidad divina, sabor legendario.</p>
+    </div>
+
+    <!-- Navegación de categorías dinámica -->
+    <div class="category-nav" id="nav-categorias">
+        <!-- Se llena con JS -->
+    </div>
+
+    <main id="menu-container">
+        <div class="loader" id="loader">
+            <h2>Cargando menú... 🍗</h2>
+        </div>
+        <!-- Los productos se inyectan aquí -->
+    </main>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const API_URL = 'https://olimpollo-api.onrender.com/api/menu/pos';
+            const contenedorMenu = document.getElementById('menu-container');
+            const navCategorias = document.getElementById('nav-categorias');
+            const loader = document.getElementById('loader');
+
+            const cargarMenu = async () => {
+                try {
+                    const response = await fetch(API_URL);
+                    if (!response.ok) throw new Error("No se pudo cargar el menú");
+                    
+                    const data = await response.json();
+                    const productos = data.productos;
+                    
+                    if (productos.length === 0) {
+                        loader.innerHTML = "<h3>El menú está vacío por el momento.</h3>";
+                        return;
+                    }
+
+                    // Agrupar productos por categoría
+                    const menuAgrupado = {};
+                    productos.forEach(p => {
+                        if (!menuAgrupado[p.categoria]) {
+                            menuAgrupado[p.categoria] = [];
+                        }
+                        menuAgrupado[p.categoria].push(p);
+                    });
+
+                    // Limpiar loader
+                    loader.style.display = 'none';
+
+                    // Generar HTML
+                    for (const [categoria, items] of Object.entries(menuAgrupado)) {
+                        
+                        // 1. Crear botón de navegación
+                        const navId = `cat-${categoria.replace(/\s+/g, '-').toLowerCase()}`;
+                        const pill = document.createElement('a');
+                        pill.href = `#${navId}`;
+                        pill.className = 'cat-pill';
+                        pill.textContent = categoria;
+                        navCategorias.appendChild(pill);
+
+                        // 2. Crear sección de productos
+                        const section = document.createElement('div');
+                        section.className = 'categoria-section';
+                        section.id = navId;
+                        
+                        let html = `
+                            <h2 class="categoria-titulo">${categoria}</h2>
+                            <div class="productos-grid">
+                        `;
+
+                        items.forEach(item => {
+                            // Validar imagen por defecto
+                            const imagen = item.imagen_url ? item.imagen_url : 'https://placehold.co/400x300/ecf0f1/a0a0a0?text=Olimpollo';
+                            const descripcion = item.descripcion ? item.descripcion : '';
+                            const mods = item.grupos_modificadores ? `<span class="producto-mods">+ Personalizable</span>` : '';
+
+                            html += `
+                                <div class="producto-card">
+                                    <img src="${imagen}" alt="${item.nombre_venta}" class="producto-img" loading="lazy">
+                                    <div class="producto-info">
+                                        <div class="producto-header">
+                                            <h3 class="producto-nombre">${item.nombre_venta}</h3>
+                                            <span class="producto-precio">$${parseFloat(item.precio_base).toFixed(2)}</span>
+                                        </div>
+                                        <p class="producto-desc">${descripcion}</p>
+                                        ${mods}
+                                    </div>
+                                </div>
+                            `;
+                        });
+
+                        html += `</div>`; // Cierre grid
+                        section.innerHTML = html;
+                        contenedorMenu.appendChild(section);
+                    }
+
+                    // Pequeño script para resaltar la categoría activa al hacer scroll
+                    marcarPillActiva();
+
+                } catch (error) {
+                    console.error("Error:", error);
+                    loader.innerHTML = "<h3 style='color:red;'>Ocurrió un error al cargar nuestro menú. Intenta refrescar la página.</h3>";
+                }
+            };
+
+            const marcarPillActiva = () => {
+                const pills = document.querySelectorAll('.cat-pill');
+                if(pills.length > 0) pills[0].classList.add('active'); // Activar primera por defecto
+
+                pills.forEach(pill => {
+                    pill.addEventListener('click', function(e) {
+                        pills.forEach(p => p.classList.remove('active'));
+                        this.classList.add('active');
+                    });
+                });
+            };
+
+            cargarMenu();
+        });
+    </script>
+</body>
+</html>
