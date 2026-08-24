@@ -277,7 +277,7 @@
             // --- 2. INIT & EDIT MODE ---
             const init = async () => {
                 try {
-                    const res = await fetch(`${API_BASE}/menu/pos`); 
+                    const res = await fetch(`${API_BASE}/menu/pos`, { headers: { 'Authorization': `Bearer ${token}` } });
                     menuData = await res.json();
                     renderCategorias(); 
                     renderMenuCompleto('Todos');
@@ -346,7 +346,7 @@
                 const tel = inputTelefono.value.trim();
                 if (tel.length < 7) return alert("Número inválido");
                 try {
-                    const res = await fetch(`${API_BASE}/clientes/exacto/${tel}`);
+                    const res = await fetch(`${API_BASE}/clientes/exacto/${tel}`, { headers: { 'Authorization': `Bearer ${token}` } });
                     if (res.ok) {
                         const c = await res.json();
                         inputClienteNombre.value = c.nombre;
@@ -571,7 +571,7 @@
                     let url = `${API_BASE}/pedidos`; let method = 'POST';
                     if (editModeId) { url = `${API_BASE}/pedidos/${editModeId}`; method = 'PUT'; }
 
-                    const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+                    const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify(payload) });
                     if (!res.ok) throw new Error('Error al guardar');
                     const data = await res.json();
                     
@@ -591,7 +591,7 @@
             document.getElementById('btn-enviar-alerta').onclick = async () => {
                 const msj = document.getElementById('input-alerta').value.trim();
                 if (!msj) return;
-                try { await fetch(`${API_BASE}/alertas`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ mensaje: msj }) }); document.getElementById('modalIntercom').style.display = 'none'; alert('✅ Alerta enviada a cocina.'); } catch (e) {}
+                try { await fetch(`${API_BASE}/alertas`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify({ mensaje: msj }) }); document.getElementById('modalIntercom').style.display = 'none'; alert('✅ Alerta enviada a cocina.'); } catch (e) {}
             };
 
             const solicitarOpcion = (t, opcs) => { return new Promise((res, rej) => { document.getElementById('modal-mod-titulo').textContent = t; const c = document.getElementById('modal-mod-opciones'); c.innerHTML=''; const m = document.getElementById('modalModificadores'); const cl = () => m.style.display='none'; opcs.forEach(o => { const b = document.createElement('button'); b.className = 'btn-opt'; b.innerHTML = `<span>${o.valor}</span> ${o.precio_adicional>0?`<span style="color:var(--success)">+$${o.precio_adicional}</span>`:''}`; b.onclick = () => { cl(); res(o); }; c.appendChild(b); }); document.getElementById('btn-cancelar-mod').onclick = () => { cl(); rej(new Error('Cancelado')); }; m.style.display='flex'; }); };

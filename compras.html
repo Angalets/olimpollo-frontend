@@ -120,7 +120,7 @@
 
             // 1. CARGAR INSUMOS
             try {
-                const res = await fetch(`${API_URL}/inventario`); // Reutilizamos endpoint de inventario
+                const res = await fetch(`${API_URL}/inventario`, { headers: { 'Authorization': `Bearer ${token}` } }); // Reutilizamos endpoint de inventario
                 insumosLista = await res.json();
                 
                 selectInsumo.innerHTML = '<option value="">Selecciona un insumo...</option>';
@@ -210,7 +210,7 @@
                 try {
                     const response = await fetch(`${API_URL}/compras`, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                         body: JSON.stringify(data)
                     });
 

@@ -252,7 +252,7 @@
             containerChecksGrupos.innerHTML = '<span style="color:gray">Cargando...</span>';
             try {
                 const seleccionados = seleccionadosStr ? seleccionadosStr.split(',').map(s => s.trim()) : [];
-                const response = await fetch(API_MENU_POS_URL);
+                const response = await fetch(API_MENU_POS_URL, { headers: { 'Authorization': `Bearer ${token}` } });
                 const data = await response.json();
                 const gruposDisponibles = Object.keys(data.opciones || {}); 
 
@@ -289,7 +289,7 @@
 
         const cargarGruposModificadores = async () => {
             try {
-                const response = await fetch(API_MENU_POS_URL);
+                const response = await fetch(API_MENU_POS_URL, { headers: { 'Authorization': `Bearer ${token}` } });
                 const data = await response.json();
                 const grupos = Object.keys(data.opciones);
                 
@@ -312,7 +312,7 @@
 
         const cargarInsumosParaOpciones = async () => {
             try {
-                const response = await fetch(API_INVENTARIO_URL);
+                const response = await fetch(API_INVENTARIO_URL, { headers: { 'Authorization': `Bearer ${token}` } });
                 const insumos = await response.json();
                 const selectInsumo = document.getElementById('insumo-select-opcion');
                 selectInsumo.innerHTML = '<option value="">Ninguno (No descontar)</option>';
@@ -371,7 +371,7 @@
 
         const fetchProductos = async () => {
             try {
-                const response = await fetch(API_MENU_PRODUCTOS_URL);
+                const response = await fetch(API_MENU_PRODUCTOS_URL, { headers: { 'Authorization': `Bearer ${token}` } });
                 if (!response.ok) throw new Error("Error");
                 const productos = await response.json();
                 renderProductos(productos);
@@ -385,7 +385,7 @@
             nombreGrupoActual.textContent = grupo;
             nombreGrupoForm.textContent = grupo;
             try {
-                const response = await fetch(API_MENU_OPCIONES_URL + `?nombre_opcion=${encodeURIComponent(grupo)}`);
+                const response = await fetch(API_MENU_OPCIONES_URL + `?nombre_opcion=${encodeURIComponent(grupo)}`, { headers: { 'Authorization': `Bearer ${token}` } });
                 opcionesData = await response.json();
                 renderOpcionesValores();
             } catch (error) { console.error(error); }
@@ -397,7 +397,7 @@
                 const method = isEdit ? 'PUT' : 'POST';
                 const response = await fetch(url, {
                     method: method,
-                    headers: { "Content-Type": "application/json" },
+                    headers: { "Content-Type": "application/json", "Authorization": `Bearer ${token}` },
                     body: JSON.stringify(data)
                 });
                 if (!response.ok) throw new Error("Error al guardar.");
@@ -481,7 +481,7 @@
                 }
             } else if (btn.classList.contains('btn-eliminar-producto')) {
                 if (confirm("¿Estás seguro de eliminar este producto del POS?")) {
-                    fetch(`${API_MENU_PRODUCTOS_URL}/${id}`, { method: "DELETE" })
+                    fetch(`${API_MENU_PRODUCTOS_URL}/${id}`, { method: "DELETE", headers: { "Authorization": `Bearer ${token}` } })
                         .then(async (res) => {
                             if (!res.ok) {
                                 const err = await res.json();
@@ -528,7 +528,7 @@
             try {
                 const res = await fetch(API_MENU_OPCIONES_URL, {
                     method: "POST",
-                    headers: {"Content-Type":"application/json"},
+                    headers: {"Content-Type":"application/json", "Authorization": `Bearer ${token}`},
                     body: JSON.stringify({
                         nombre_opcion: nombreGrupo,
                         valor: document.getElementById('valor-opcion').value,
@@ -557,7 +557,7 @@
         btnDeleteGroup.addEventListener('click', async () => {
             const grp = selectGrupoMod.value;
             if (confirm(`¿Eliminar grupo "${grp}" y todas sus opciones?`)) {
-                await fetch(`https://olimpollo-api.onrender.com/api/menu/opciones/grupo/${encodeURIComponent(grp)}`, { method: 'DELETE' });
+                await fetch(`https://olimpollo-api.onrender.com/api/menu/opciones/grupo/${encodeURIComponent(grp)}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
                 cargarGruposModificadores();
             }
         });
@@ -565,7 +565,7 @@
         listaOpcionesValores.addEventListener('click', (e) => {
             if (e.target.classList.contains('btn-eliminar-opcion')) {
                 if(confirm("¿Eliminar opción?")) {
-                    fetch(`${API_MENU_OPCIONES_URL}/${e.target.dataset.id}`, { method: "DELETE" })
+                    fetch(`${API_MENU_OPCIONES_URL}/${e.target.dataset.id}`, { method: "DELETE", headers: { "Authorization": `Bearer ${token}` } })
                         .then(() => fetchOpcionesPorGrupo(selectGrupoMod.value));
                 }
             }

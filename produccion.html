@@ -117,8 +117,9 @@
         // Inicialización
         const cargarDatos = async () => {
             try {
+                const authHeaders = { headers: { 'Authorization': `Bearer ${token}` } };
                 const [resInsumos, resRecetas] = await Promise.all([
-                    fetch(API_INVENTARIO), fetch(`${API_PRODUCCION}/recetas`)
+                    fetch(API_INVENTARIO, authHeaders), fetch(`${API_PRODUCCION}/recetas`, authHeaders)
                 ]);
                 insumosDB = await resInsumos.json();
                 const recetas = await resRecetas.json();
@@ -177,7 +178,7 @@
 
             try {
                 const res = await fetch(`${API_PRODUCCION}/recetas`, {
-                    method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload)
+                    method: 'POST', headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`}, body: JSON.stringify(payload)
                 });
                 if (res.ok) {
                     alert("Receta Guardada");
@@ -192,7 +193,7 @@
 
         document.getElementById('tabla-recetas-existentes').addEventListener('click', async (e) => {
             if(e.target.classList.contains('btn-eliminar-receta') && confirm("¿Borrar receta?")) {
-                await fetch(`${API_PRODUCCION}/recetas/${e.target.dataset.id}`, { method: 'DELETE' });
+                await fetch(`${API_PRODUCCION}/recetas/${e.target.dataset.id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
                 cargarDatos();
             }
         });
@@ -211,7 +212,7 @@
 
             try {
                 const res = await fetch(`${API_PRODUCCION}/ejecutar`, {
-                    method: 'POST', headers: {'Content-Type': 'application/json'},
+                    method: 'POST', headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`},
                     body: JSON.stringify({ receta_produccion_id: receta_id, tandas: tandas })
                 });
                 const data = await res.json();

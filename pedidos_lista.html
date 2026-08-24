@@ -139,7 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const url = queryString ? `${API_PEDIDOS_URL}?${queryString}` : API_PEDIDOS_URL;
 
         try {
-            const response = await fetch(url);
+            const response = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
             if (!response.ok) throw new Error('Error al cargar pedidos.');
 
             pedidos = await response.json();
@@ -393,7 +393,7 @@ let botonesHTML = `<button id="btn-imprimir-ticket" class="btn btn-secondary" st
         else if (e.target.id === 'btn-eliminar-registro') {
             if (confirm(`⚠️ ¿Estás seguro de ELIMINAR DEFINITIVAMENTE el Pedido #${id}?`)) {
                 try {
-                    const response = await fetch(`${API_PEDIDOS_URL}/${id}`, { method: 'DELETE' });
+                    const response = await fetch(`${API_PEDIDOS_URL}/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
                     if (!response.ok) throw new Error('No se pudo eliminar.');
                     alert('Pedido eliminado del historial.');
                     renderPedidos(); mostrarDetalles(null);
@@ -405,7 +405,7 @@ let botonesHTML = `<button id="btn-imprimir-ticket" class="btn btn-secondary" st
     const cambiarEstado = async (id, nuevoEstado) => {
         try {
             const response = await fetch(`${API_PEDIDOS_URL}/${id}`, {
-                method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ estado: nuevoEstado }) 
+                method: 'PUT', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify({ estado: nuevoEstado })
             });
             if (!response.ok) throw new Error('Error al actualizar estado.');
             alert(`Pedido #${id} actualizado a ${nuevoEstado} con éxito.`);

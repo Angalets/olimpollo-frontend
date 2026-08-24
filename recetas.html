@@ -129,6 +129,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const API_INSUMOS_URL = `${API_BASE_URL}/inventario`;
     const API_MENU_PRODUCTOS_URL = `${API_BASE_URL}/menu/productos`;
 
+    const token = localStorage.getItem('authToken');
+    if (!token) { window.location.href = 'login.html'; return; }
+
     let recetas = [];
     let insumosDisponibles = [];
     let productosVenta = [];
@@ -196,8 +199,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const cargarDatosIniciales = async () => {
         try {
             const [resInsumos, resProductos] = await Promise.all([
-                fetch(API_INSUMOS_URL),
-                fetch(API_MENU_PRODUCTOS_URL)
+                fetch(API_INSUMOS_URL, { headers: { 'Authorization': `Bearer ${token}` } }),
+                fetch(API_MENU_PRODUCTOS_URL, { headers: { 'Authorization': `Bearer ${token}` } })
             ]);
             if (!resInsumos.ok || !resProductos.ok) throw new Error('Fallo al cargar datos iniciales.');
 
@@ -232,7 +235,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const renderRecetas = async () => {
         try {
-            const response = await fetch(API_RECETAS_URL);
+            const response = await fetch(API_RECETAS_URL, { headers: { 'Authorization': `Bearer ${token}` } });
             if (!response.ok) throw new Error('Error al cargar recetas');
             recetas = await response.json();
 
@@ -271,7 +274,7 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const response = await fetch(url, {
                 method: method,
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                 body: JSON.stringify(recetaData)
             });
 
@@ -292,7 +295,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const eliminarReceta = async (id) => {
         try {
-            const response = await fetch(`${API_RECETAS_URL}/${id}`, { method: 'DELETE' });
+            const response = await fetch(`${API_RECETAS_URL}/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
             if (!response.ok) throw new Error('No se pudo eliminar la receta.');
             
             alert('Receta eliminada exitosamente.');

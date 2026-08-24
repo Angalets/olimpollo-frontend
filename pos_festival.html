@@ -111,10 +111,12 @@
     </div> 
 
     <script> 
-        document.addEventListener('DOMContentLoaded', () => { 
-            const API_BASE = 'https://olimpollo-api.onrender.com/api'; 
-            let menuData = { productos: [], opciones: {} }; 
-            let carrito = []; 
+        document.addEventListener('DOMContentLoaded', () => {
+            const API_BASE = 'https://olimpollo-api.onrender.com/api';
+            const token = localStorage.getItem('authToken');
+            if (!token) { window.location.href = 'login.html'; return; }
+            let menuData = { productos: [], opciones: {} };
+            let carrito = [];
 
             // DOM Elements 
             const menuArea = document.getElementById('menu-area'); 
@@ -128,7 +130,7 @@
             // 1. CARGAR MENÚ DEL FESTIVAL 
             const init = async () => { 
                 try { 
-                    const res = await fetch(`${API_BASE}/menu/pos`);  
+                    const res = await fetch(`${API_BASE}/menu/pos`, { headers: { 'Authorization': `Bearer ${token}` } });
                     const data = await res.json(); 
                     
                     // IMPORTANTE: Solo carga platillos que en tu sistema tengan categoría "Festival" 
@@ -322,11 +324,11 @@
                 }; 
 
                 try { 
-                    const res = await fetch(`${API_BASE}/pedidos`, {  
-                        method: 'POST',  
-                        headers: { 'Content-Type': 'application/json' },  
-                        body: JSON.stringify(payload)  
-                    }); 
+                    const res = await fetch(`${API_BASE}/pedidos`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                        body: JSON.stringify(payload)
+                    });
                     
                     if (!res.ok) { 
                         const errorDb = await res.json(); 

@@ -124,7 +124,7 @@
             const fetchData = async () => {
                 try {
                     // 1. Buscar Pedidos (SOLO LOS PENDIENTES)
-                    const resPedidos = await fetch(`${API_PEDIDOS_URL}?estado=Pendiente`);
+                    const resPedidos = await fetch(`${API_PEDIDOS_URL}?estado=Pendiente`, { headers: { 'Authorization': `Bearer ${token}` } });
                     let pedidos = await resPedidos.json();
                     
                     if (pedidos.length > 0) {
@@ -137,7 +137,7 @@
                     }
 
                     // 2. Buscar Alertas de Intercomunicador
-                    const resAlertas = await fetch(API_ALERTAS_URL);
+                    const resAlertas = await fetch(API_ALERTAS_URL, { headers: { 'Authorization': `Bearer ${token}` } });
                     let alertas = await resAlertas.json();
 
                     if (alertas.length > 0) {
@@ -180,7 +180,7 @@
 
             window.completarAlerta = async (id) => {
                 try {
-                    await fetch(`${API_ALERTAS_URL}/${id}`, { method: 'PUT' });
+                    await fetch(`${API_ALERTAS_URL}/${id}`, { method: 'PUT', headers: { 'Authorization': `Bearer ${token}` } });
                     fetchData(); // Refrescar rápido
                 } catch (error) { console.error(error); }
             };
@@ -260,7 +260,7 @@
                     try {
                         e.target.closest('.comanda-card').style.opacity = '0.5';
                         // AHORA MANDA ESTADO "Listo" EN LUGAR DE "Entregado"
-                        await fetch(`${API_PEDIDOS_URL}/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ estado: 'Listo' }) });
+                        await fetch(`${API_PEDIDOS_URL}/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify({ estado: 'Listo' }) });
                         fetchData(); 
                     } catch (error) { alert('Error al actualizar.'); }
                 }

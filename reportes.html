@@ -133,7 +133,7 @@
                 resultadosDiv.style.display = 'block';
                 try {
                     const url = `${API_URL}/inventario?fecha=${fecha}`;
-                    const response = await fetch(url);
+                    const response = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
                     const data = await response.json();
                     if (!response.ok) throw new Error(data.mensaje || 'Error al generar reporte histórico');
                     
@@ -154,7 +154,7 @@
                 resultadosDiv.style.display = 'block';
                 const url = `${API_URL}/ventas?fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`;
                 try {
-                    const response = await fetch(url);
+                    const response = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
                     const data = await response.json();
                     if (!response.ok) throw new Error(data.error || 'Error desconocido al generar reporte');
                     
@@ -183,7 +183,7 @@
                 resultadosDiv.style.display = 'block';
                 const url = `${API_URL}/platillos?fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`;
                 try {
-                    const response = await fetch(url);
+                    const response = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
                     const data = await response.json();
                     if (!response.ok) throw new Error(data.error || 'Error al obtener datos');
                     if (data.length === 0) { resultadosDiv.innerHTML = '<p>No hay ventas registradas en este periodo.</p>'; return; }
@@ -208,7 +208,7 @@
                 resultadosDiv.style.display = 'block';
                 const url = `${API_URL}/insumos-teoricos?fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`;
                 try {
-                    const response = await fetch(url);
+                    const response = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
                     const data = await response.json();
                     if (!response.ok) throw new Error(data.error || 'Error al obtener datos');
                     if (data.length === 0) { resultadosDiv.innerHTML = '<p>No se encontraron datos. Asegúrate de tener recetas configuradas.</p>'; return; }
@@ -229,11 +229,11 @@
 
     try {
         // 1. Obtenemos el costo total de insumos del periodo
-        const resCogs = await fetch(`${API_URL}/cogs?fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`);
+        const resCogs = await fetch(`${API_URL}/cogs?fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`, { headers: { 'Authorization': `Bearer ${token}` } });
         const dataCogs = await resCogs.json();
-        
+
         // 2. Obtenemos la venta bruta del mismo periodo (usamos tu endpoint de ventas existente)
-        const resVentas = await fetch(`${API_URL}/ventas?fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`);
+        const resVentas = await fetch(`${API_URL}/ventas?fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`, { headers: { 'Authorization': `Bearer ${token}` } });
         const dataVentas = await resVentas.json();
 
         if (!resCogs.ok || !resVentas.ok) throw new Error("Error al obtener datos financieros.");
@@ -271,9 +271,9 @@
                 resultadosDiv.style.display = 'block';
 
                 const url = `${API_URL}/semanal?fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`;
-                
+
                 try {
-                    const response = await fetch(url);
+                    const response = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
                     const data = await response.json();
 
                     if (!response.ok) throw new Error(data.error || 'Error al generar reporte gerencial');

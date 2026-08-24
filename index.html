@@ -178,9 +178,10 @@
     });
 
     async function cargarMetricas() {
+        const authHeaders = { headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` } };
         try {
             // A. VENTAS DEL TURNO (NUEVO ENDPOINT QUE CREAMOS)
-            const resVentas = await fetch(`${API_URL}/reportes/ventas-turno`);
+            const resVentas = await fetch(`${API_URL}/reportes/ventas-turno`, authHeaders);
             
             if (resVentas.ok) {
                 const dataVentas = await resVentas.json();
@@ -197,7 +198,7 @@
             }
 
             // B. PEDIDOS PENDIENTES
-            const resPedidos = await fetch(`${API_URL}/pedidos`); 
+            const resPedidos = await fetch(`${API_URL}/pedidos`, authHeaders);
             
             if (resPedidos.ok) {
                 let dataPedidos = await resPedidos.json();
@@ -211,7 +212,7 @@
             }
 
             // C. STOCK BAJO
-            const resStock = await fetch(`${API_URL}/inventario`); 
+            const resStock = await fetch(`${API_URL}/inventario`, authHeaders);
             if (resStock.ok) {
                 const dataStock = await resStock.json();
                 if(Array.isArray(dataStock)) {
