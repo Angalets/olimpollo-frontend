@@ -2,25 +2,50 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Olimpollo - Producción Interna</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="design-system.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
     <style>
-        :root{--bg-main:#ECF0F1;--bg-header:#FFFFFF;--card-bg:#FFFFFF;--primary-text:#502c2c;--secondary-text:#808B96;--accent-color:#db3434;--accent-hover:#b92929;--border-color:#D5D8DC;--shadow-light:0 4px 15px rgba(0, 0, 0, 0.08);}
-        body{margin:0;font-family:'Poppins', sans-serif;background-color:var(--bg-main);color:var(--primary-text);display:flex;flex-direction:column;min-height:100vh;}
-        header{background:var(--bg-header);padding:15px 40px;box-shadow:0 2px 10px rgba(0, 0, 0, 0.05);display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border-color);}
-        .logo{font-size:24px;font-weight:600;text-decoration:none;color:var(--primary-text);}
-        nav{display:flex;gap:20px;}nav a{text-decoration:none;color:var(--secondary-text);font-weight:500;}
-        main{flex:1;padding:40px;max-width:1200px;margin:0 auto;width:100%;}
-        .card{background:var(--card-bg);border-radius:12px;padding:25px;box-shadow:var(--shadow-light);margin-bottom:25px; border-top: 5px solid var(--accent-color);}
-        .card-green{border-top-color: #2ECC71;}
-        .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:end;}
-        .btn{padding:12px 20px;border:none;border-radius:8px;cursor:pointer;font-weight:600;color:white;width:100%; font-family: 'Poppins';}
-        .btn-primary{background-color:var(--accent-color);} .btn-success{background-color:#2ECC71;} .btn-danger{background-color:#E74C3C;}
-        table{width:100%;border-collapse:collapse;margin-top:15px;}th,td{padding:12px;border-bottom:1px solid #eee;text-align:left;}
-        input, select{width:100%;padding:10px;border:1px solid var(--border-color);border-radius:8px;box-sizing:border-box;}
-        label{display:block;margin-bottom:5px;font-weight:500;font-size:14px;}
-        .ingredientes-lista { list-style: none; padding: 0; margin-top: 15px; }
-        .ingrediente-item { background: #f9f9f9; padding: 10px; border-radius: 6px; margin-bottom: 5px; display: flex; justify-content: space-between;}
+        body { display: flex; flex-direction: column; min-height: 100vh; }
+        header { background: var(--color-surface); padding: 15px 40px; box-shadow: var(--shadow-sm); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--color-border); }
+        header .logo { font-family: var(--font-display); font-size: 22px; font-weight: 700; text-decoration: none; color: var(--color-text); }
+        header nav { display: flex; gap: 20px; }
+        header nav a { text-decoration: none; color: var(--color-text-muted); font-weight: 600; font-size: 14px; transition: color 0.2s; }
+        header nav a:hover { color: var(--color-brand); }
+        .user-info { display: flex; align-items: center; gap: 16px; }
+        #user-identifier { font-weight: 600; background: var(--color-surface-alt); padding: 5px 12px; border-radius: var(--radius-full); font-size: 13px; }
+
+        main { flex: 1; padding: 40px; max-width: 1200px; margin: 0 auto; width: 100%; box-sizing: border-box; }
+        .page-title { margin-bottom: 30px; font-size: 26px; }
+        .card { background: var(--color-surface); border-radius: var(--radius-lg); padding: 25px; box-shadow: var(--shadow-sm); margin-bottom: 25px; border-top: 4px solid var(--color-border); }
+        .card-accent-success { border-top-color: var(--color-success); }
+        .card-accent-brand { border-top-color: var(--color-brand); }
+        .card h3 { margin-top: 0; }
+        .card p.help { font-size: 13px; color: var(--color-text-muted); }
+
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: end; }
+        .form-grid label { display: block; margin-bottom: 6px; font-size: 13px; font-weight: 600; color: var(--color-text-muted); }
+
+        table { width: 100%; border-collapse: collapse; background: var(--color-surface); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-sm); margin-top: 15px; }
+        th, td { padding: 14px 15px; text-align: left; border-bottom: 1px solid var(--color-border); }
+        th { font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: 0.03em; color: var(--color-text-muted); background: var(--color-surface-alt); }
+        tr:hover td { background: var(--color-brand-tint); }
+
+        .ing-panel { background: var(--color-surface-alt); border: 1px solid var(--color-border); padding: var(--space-4); border-radius: var(--radius-md); margin-top: 20px; }
+        .ing-adder { display: flex; gap: 10px; align-items: end; }
+        .ing-adder > div:first-child { flex: 2; }
+        .ing-adder > div:nth-child(2) { flex: 1; }
+        .ingredientes-lista { list-style: none; padding: 0; margin: 15px 0 0; }
+        .ingrediente-item { background: var(--color-surface); padding: 10px 14px; border-radius: var(--radius-sm); margin-bottom: 6px; display: flex; justify-content: space-between; align-items: center; font-size: 14px; }
+
+        #resultado-ejecucion { margin-top: 15px; font-weight: 700; text-align: center; }
+        .resultado-ok { color: var(--color-success); }
+        .resultado-error { color: var(--color-brand); }
+        .resultado-pending { color: var(--color-warning); }
+
+        footer { text-align: center; padding: 20px; font-size: 13px; color: var(--color-text-muted); margin-top: auto; }
     </style>
 </head>
 <body>
@@ -29,77 +54,84 @@
         <nav>
             <a href="pedidos.html">POS</a>
             <a href="inventario.html">Inventario</a>
-            <a href="produccion.html" style="color:var(--accent-color);">Producción</a>
+            <a href="produccion.html" style="color: var(--color-brand);">Producción</a>
             <a href="reportes.html">Reportes</a>
         </nav>
+        <div class="user-info">
+            <span id="user-identifier"></span>
+            <button class="btn btn-secondary btn-sm" id="btn-logout">Cerrar Sesión</button>
+        </div>
     </header>
 
     <main>
-        <h2 style="margin-bottom: 25px;">Producción de Sub-recetas</h2>
+        <h2 class="page-title ds-display">Producción de Sub-recetas</h2>
 
         <!-- PANEL OPERATIVO (Hacer Tandas) -->
-        <div class="card card-green">
-            <h3>👨‍🍳 Registrar Producción Diaria</h3>
-            <p style="font-size: 14px; color: gray;">Selecciona la preparación y el sistema descontará la materia prima cruda para sumar el producto preparado a tu inventario.</p>
+        <div class="card card-accent-success">
+            <h3><i class="fas fa-kitchen-set"></i> Registrar Producción Diaria</h3>
+            <p class="help">Selecciona la preparación y el sistema descontará la materia prima cruda para sumar el producto preparado a tu inventario.</p>
             <div class="form-grid" style="margin-top: 20px;">
                 <div>
                     <label>¿Qué preparaste?</label>
-                    <select id="select-receta-ejecutar">
+                    <select id="select-receta-ejecutar" class="select">
                         <option value="">Cargando preparaciones...</option>
                     </select>
                 </div>
                 <div>
                     <label>Cantidad de Tandas (Multiplicador):</label>
-                    <input type="number" id="input-tandas" value="1" step="0.5" min="0.5">
+                    <input type="number" id="input-tandas" class="input" value="1" step="0.5" min="0.5">
                 </div>
                 <div style="grid-column: 1 / -1;">
-                    <button id="btn-ejecutar" class="btn btn-success">✅ Registrar Producción en Inventario</button>
+                    <button id="btn-ejecutar" class="btn btn-primary btn-lg" style="width: 100%;"><i class="fas fa-check"></i> Registrar Producción en Inventario</button>
                 </div>
             </div>
-            <div id="resultado-ejecucion" style="margin-top: 15px; font-weight: bold; text-align: center;"></div>
+            <div id="resultado-ejecucion"></div>
         </div>
 
         <!-- PANEL ADMINISTRATIVO (Crear Recetas) -->
-        <div class="card" id="panel-admin" style="display: none;">
-            <h3>⚙️ Crear Nueva Receta de Producción</h3>
+        <div class="card card-accent-brand" id="panel-admin" style="display: none;">
+            <h3><i class="fas fa-gear"></i> Crear Nueva Receta de Producción</h3>
             <div class="form-grid">
                 <div style="grid-column: 1 / -1;">
                     <label>Nombre de la Preparación (Ej: Tanda de Aderezo Ranch 4L)</label>
-                    <input type="text" id="nueva-nombre">
+                    <input type="text" id="nueva-nombre" class="input">
                 </div>
                 <div>
                     <label>Insumo que se Genera (Producto Final)</label>
-                    <select id="nueva-insumo-resultado"></select>
+                    <select id="nueva-insumo-resultado" class="select"></select>
                 </div>
                 <div>
                     <label>Cantidad que Genera (Ej: 4 litros)</label>
-                    <input type="number" id="nueva-cantidad-resultado" step="0.01">
+                    <input type="number" id="nueva-cantidad-resultado" class="input" step="0.01">
                 </div>
             </div>
 
-            <div style="background: #fdfdfd; border: 1px solid #ddd; padding: 15px; border-radius: 8px; margin-top: 20px;">
-                <h4>Materia Prima (Crudos a descontar)</h4>
-                <div style="display: flex; gap: 10px; align-items: end;">
-                    <div style="flex: 2;">
+            <div class="ing-panel">
+                <h4 style="margin-top:0;">Materia Prima (Crudos a descontar)</h4>
+                <div class="ing-adder">
+                    <div>
                         <label>Ingrediente</label>
-                        <select id="nuevo-ing-select"></select>
+                        <select id="nuevo-ing-select" class="select"></select>
                     </div>
-                    <div style="flex: 1;">
+                    <div>
                         <label>Cantidad</label>
-                        <input type="number" id="nuevo-ing-cant" step="0.01">
+                        <input type="number" id="nuevo-ing-cant" class="input" step="0.01">
                     </div>
-                    <button id="btn-add-ingrediente" class="btn btn-secondary" style="width: auto; background: #808B96;">Agregar</button>
+                    <button id="btn-add-ingrediente" class="btn btn-secondary">Agregar</button>
                 </div>
                 <ul id="lista-ingredientes-temp" class="ingredientes-lista"></ul>
             </div>
 
-            <button id="btn-guardar-receta" class="btn btn-primary" style="margin-top: 20px;">💾 Guardar Receta de Producción</button>
+            <button id="btn-guardar-receta" class="btn btn-primary" style="margin-top: 20px; width: 100%;"><i class="fas fa-floppy-disk"></i> Guardar Receta de Producción</button>
 
-            <h3 style="margin-top: 40px; border-top: 1px solid #eee; padding-top: 20px;">Preparaciones Existentes</h3>
+            <h3 style="margin-top: 40px; border-top: 1px solid var(--color-border); padding-top: 20px;">Preparaciones Existentes</h3>
             <div id="tabla-recetas-existentes"></div>
         </div>
     </main>
 
+    <footer>&copy; 2026 Los Boneless del Olimpo - Software de Gestión</footer>
+
+    <script src="design-system.js"></script>
 <script>
     (function() {
         const originalFetch = window.fetch;
@@ -113,10 +145,13 @@
             return response;
         };
     })();
+
+    function parseJwt(token) { try { return JSON.parse(decodeURIComponent(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')).split('').map(c=>'%'+('00'+c.charCodeAt(0).toString(16)).slice(-2)).join(''))); } catch(e){return null;} }
+
     document.addEventListener('DOMContentLoaded', () => {
         const API_PRODUCCION = 'https://olimpollo-api.onrender.com/api/produccion';
         const API_INVENTARIO = 'https://olimpollo-api.onrender.com/api/inventario';
-        
+
         let insumosDB = [];
         let ingredientesTemp = [];
 
@@ -125,6 +160,15 @@
         const role = localStorage.getItem('userRole');
         if (!token) { window.location.href = 'login.html'; return; }
         if (role === 'Administrador') { document.getElementById('panel-admin').style.display = 'block'; }
+
+        const userData = parseJwt(token);
+        if (userData && userData.username) document.getElementById('user-identifier').textContent = userData.username;
+
+        document.getElementById('btn-logout').addEventListener('click', () => {
+            localStorage.removeItem('authToken');
+            localStorage.removeItem('userRole');
+            window.location.href = 'login.html';
+        });
 
         // Inicialización
         const cargarDatos = async () => {
@@ -141,7 +185,7 @@
                 const selectIngrediente = document.getElementById('nuevo-ing-select');
                 let optionsHtml = '<option value="">Selecciona un insumo...</option>';
                 insumosDB.forEach(i => optionsHtml += `<option value="${i.id}">${i.nombre} (${i.unidad})</option>`);
-                
+
                 selectResultado.innerHTML = optionsHtml;
                 selectIngrediente.innerHTML = optionsHtml;
 
@@ -149,31 +193,31 @@
                 const selectOperativo = document.getElementById('select-receta-ejecutar');
                 selectOperativo.innerHTML = '<option value="">Selecciona preparación...</option>';
                 let tablaHtml = '<table><tr><th>Nombre</th><th>Genera</th><th>Materia Prima</th><th>Acción</th></tr>';
-                
+
                 recetas.forEach(r => {
                     selectOperativo.innerHTML += `<option value="${r.id}">${r.nombre}</option>`;
                     let ings = (r.ingredientes || []).map(i => `${i.cantidad_necesaria} ${i.unidad} de ${i.nombre}`).join('<br>');
                     tablaHtml += `<tr>
                         <td><strong>${r.nombre}</strong></td>
-                        <td style="color:#27ae60;">+${r.cantidad_resultado} ${r.unidad_resultado} de ${r.nombre_resultado}</td>
-                        <td style="color:#c0392b; font-size: 12px;">${ings}</td>
-                        <td><button class="btn btn-danger btn-eliminar-receta" data-id="${r.id}" style="padding: 5px 10px;">X</button></td>
+                        <td style="color:var(--color-success);">+${r.cantidad_resultado} ${r.unidad_resultado} de ${r.nombre_resultado}</td>
+                        <td style="color:var(--color-brand); font-size: 12px;">${ings}</td>
+                        <td><button class="btn btn-danger-outline btn-sm btn-eliminar-receta" data-id="${r.id}">Eliminar</button></td>
                     </tr>`;
                 });
                 document.getElementById('tabla-recetas-existentes').innerHTML = tablaHtml + '</table>';
 
-            } catch (e) { console.error("Error", e); }
+            } catch (e) { console.error("Error", e); DS.toast('No se pudieron cargar los datos de producción.', { type: 'error', duration: 0 }); }
         };
 
         // --- FUNCIONES ADMINISTRATIVAS ---
         document.getElementById('btn-add-ingrediente').addEventListener('click', () => {
             const select = document.getElementById('nuevo-ing-select');
             const cant = document.getElementById('nuevo-ing-cant').value;
-            if (!select.value || !cant) return alert("Selecciona ingrediente y cantidad.");
-            
+            if (!select.value || !cant) { DS.toast('Selecciona ingrediente y cantidad.', { type: 'warning' }); return; }
+
             const insumoName = select.options[select.selectedIndex].text;
             ingredientesTemp.push({ insumo_id: select.value, cantidad: cant, nombre: insumoName });
-            
+
             document.getElementById('lista-ingredientes-temp').innerHTML += `<li class="ingrediente-item">➖ Restará ${cant} de ${insumoName}</li>`;
             select.value = ''; document.getElementById('nuevo-ing-cant').value = '';
         });
@@ -186,28 +230,33 @@
                 ingredientes: ingredientesTemp
             };
 
-            if (!payload.nombre || !payload.insumo_resultado_id || ingredientesTemp.length === 0) return alert("Completa todos los campos.");
+            if (!payload.nombre || !payload.insumo_resultado_id || ingredientesTemp.length === 0) { DS.toast('Completa todos los campos.', { type: 'warning' }); return; }
 
             try {
                 const res = await fetch(`${API_PRODUCCION}/recetas`, {
                     method: 'POST', headers: {'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`}, body: JSON.stringify(payload)
                 });
                 if (res.ok) {
-                    alert("Receta Guardada");
+                    DS.toast('Receta guardada exitosamente.', { type: 'success' });
                     ingredientesTemp = [];
                     document.getElementById('lista-ingredientes-temp').innerHTML = '';
                     document.getElementById('nueva-nombre').value = '';
                     document.getElementById('nueva-cantidad-resultado').value = '';
                     cargarDatos();
+                } else {
+                    const data = await res.json().catch(() => ({}));
+                    DS.toast('Error: ' + (data.error || 'No se pudo guardar la receta.'), { type: 'error', duration: 0 });
                 }
-            } catch (e) { alert("Error: " + e.message); }
+            } catch (e) { DS.toast('Error: ' + e.message, { type: 'error', duration: 0 }); }
         });
 
         document.getElementById('tabla-recetas-existentes').addEventListener('click', async (e) => {
-            if(e.target.classList.contains('btn-eliminar-receta') && confirm("¿Borrar receta?")) {
-                await fetch(`${API_PRODUCCION}/recetas/${e.target.dataset.id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
-                cargarDatos();
-            }
+            if (!e.target.classList.contains('btn-eliminar-receta')) return;
+            const ok = await DS.confirm('¿Seguro que deseas borrar esta receta de producción?', { title: 'Eliminar receta', confirmText: 'Eliminar', danger: true });
+            if (!ok) return;
+            await fetch(`${API_PRODUCCION}/recetas/${e.target.dataset.id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
+            DS.toast('Receta eliminada.', { type: 'success' });
+            cargarDatos();
         });
 
         // --- FUNCIÓN OPERATIVA (BOTÓN MÁGICO) ---
@@ -216,11 +265,12 @@
             const tandas = document.getElementById('input-tandas').value;
             const mensaje = document.getElementById('resultado-ejecucion');
 
-            if(!receta_id) return alert("Selecciona qué vas a preparar.");
-            if(!confirm(`¿Estás seguro de registrar ${tandas} tanda(s)? Esto modificará tu inventario inmediatamente.`)) return;
+            if (!receta_id) { DS.toast('Selecciona qué vas a preparar.', { type: 'warning' }); return; }
+            const ok = await DS.confirm(`¿Estás seguro de registrar ${tandas} tanda(s)? Esto modificará tu inventario inmediatamente.`, { title: 'Confirmar producción', confirmText: 'Registrar' });
+            if (!ok) return;
 
             mensaje.textContent = "Procesando inventario...";
-            mensaje.style.color = "orange";
+            mensaje.className = 'resultado-pending';
 
             try {
                 const res = await fetch(`${API_PRODUCCION}/ejecutar`, {
@@ -228,15 +278,15 @@
                     body: JSON.stringify({ receta_produccion_id: receta_id, tandas: tandas })
                 });
                 const data = await res.json();
-                if(res.ok) {
+                if (res.ok) {
                     mensaje.textContent = "✅ ¡Producción registrada! Inventario actualizado.";
-                    mensaje.style.color = "green";
+                    mensaje.className = 'resultado-ok';
                     document.getElementById('input-tandas').value = 1;
                     document.getElementById('select-receta-ejecutar').value = "";
                 } else throw new Error(data.error);
             } catch (e) {
                 mensaje.textContent = "❌ Error: " + e.message;
-                mensaje.style.color = "red";
+                mensaje.className = 'resultado-error';
             }
         });
 
