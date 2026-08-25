@@ -41,6 +41,18 @@
         .btn-guardar:hover { transform: scale(1.05); background: #d35400; }
         
         textarea { width: 100%; margin-top: 20px; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; resize: none; }
+
+        .btn-historial { background: transparent; border: 1px solid white; color: white; padding: 5px 15px; border-radius: 20px; cursor: pointer; font-size: 14px; margin-right: 10px; }
+
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 100; padding: 20px; }
+        .modal-historial { background: white; border-radius: 15px; width: 100%; max-width: 1000px; max-height: 85vh; display: flex; flex-direction: column; overflow: hidden; }
+        .modal-historial-header { background: #34495e; color: white; padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; }
+        .modal-historial-body { padding: 20px 25px; overflow-y: auto; }
+        table.tabla-historial { width: 100%; border-collapse: collapse; font-size: 13px; }
+        table.tabla-historial th { text-align: left; padding: 8px; background: #f8f9fa; color: #7f8c8d; text-transform: uppercase; font-size: 11px; position: sticky; top: 0; }
+        table.tabla-historial td { padding: 8px; border-bottom: 1px solid #eee; }
+        table.tabla-historial td.dif-ok { color: var(--green); font-weight: 600; }
+        table.tabla-historial td.dif-bad { color: var(--red); font-weight: 600; }
     </style>
 </head>
 <body>
@@ -48,7 +60,10 @@
     <div class="corte-container">
         <div class="header">
             <h1>Cierre de Turno 🔐</h1>
-            <a href="index.html" class="btn-close">Cancelar / Salir</a>
+            <div>
+                <button type="button" class="btn-historial" id="btn-ver-historial">📜 Ver Historial</button>
+                <a href="index.html" class="btn-close">Cancelar / Salir</a>
+            </div>
         </div>
 
         <div class="grid-layout">
@@ -104,6 +119,30 @@
         </div>
     </div>
 
+    <div class="modal-overlay" id="modal-historial">
+        <div class="modal-historial">
+            <div class="modal-historial-header">
+                <h2 style="margin:0; font-size:18px;">Historial de Cortes de Caja</h2>
+                <button type="button" class="btn-close" id="btn-cerrar-historial">Cerrar</button>
+            </div>
+            <div class="modal-historial-body">
+                <table class="tabla-historial">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th><th>Usuario</th><th>Venta Total</th>
+                            <th>Esp. Efectivo</th><th>Real Efectivo</th>
+                            <th>Esp. Tarjeta</th><th>Real Tarjeta</th>
+                            <th>Diferencia</th><th>Observaciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabla-historial-body">
+                        <tr><td colspan="9" style="text-align:center; color:gray;">Cargando...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
     <script>
         (function() {
             const originalFetch = window.fetch;
@@ -117,21 +156,16 @@
                 return response;
             };
         })();
-        function parseJwt(token) { try { const base64Url = token.split('.')[1]; const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/'); const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join('')); return JSON.parse(jsonPayload); } catch (e) { return null; } }
-
         document.addEventListener('DOMContentLoaded', async () => {
             const API_PREVIEW = 'https://olimpollo-api.onrender.com/api/corte/preview';
             const API_GUARDAR = 'https://olimpollo-api.onrender.com/api/corte';
-            
+            const API_HISTORIAL = 'https://olimpollo-api.onrender.com/api/corte/historial';
+
             let esperados = {};
-            let usuarioActual = 'Desconocido';
 
             // Auth
             const token = localStorage.getItem('authToken');
-            if(token) {
-                const u = parseJwt(token);
-                if(u) usuarioActual = u.username;
-            } else window.location.href = 'login.html';
+            if (!token) window.location.href = 'login.html';
 
             // Cargar datos
             try {
@@ -182,27 +216,29 @@
             }
 
             // Guardar Corte
-            document.getElementById('btn-cerrar-caja').addEventListener('click', async () => {
+            const btnCerrarCaja = document.getElementById('btn-cerrar-caja');
+            btnCerrarCaja.addEventListener('click', async () => {
                 const realEfectivo = parseFloat(document.getElementById('real-efectivo').value) || 0;
                 const realTarjeta = parseFloat(document.getElementById('real-tarjeta').value) || 0;
                 const obs = document.getElementById('observaciones').value;
 
                 if (!confirm('¿Estás seguro de cerrar el turno? Esta acción guardará el corte.')) return;
 
+                // El servidor recalcula lo esperado con datos frescos de la BD; aquí solo mandamos
+                // el conteo real. Deshabilitar el botón de inmediato evita un doble clic accidental.
+                btnCerrarCaja.disabled = true;
                 const payload = {
-                    usuario: usuarioActual,
-                    totales_esperados: esperados,
                     totales_reales: { efectivo: realEfectivo, tarjeta: realTarjeta },
                     observaciones: obs
                 };
 
-try {
+                try {
                     const res = await fetch(API_GUARDAR, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
                         body: JSON.stringify(payload)
                     });
-                    
+
                     // Leemos la respuesta del servidor (sea éxito o error)
                     const data = await res.json();
 
@@ -216,7 +252,58 @@ try {
                     }
                 } catch (e) {
                     alert('🛑 Ocurrió un error: ' + e.message);
+                    btnCerrarCaja.disabled = false;
                 }
+            });
+
+            // Historial de cortes
+            const modalHistorial = document.getElementById('modal-historial');
+            const tablaHistorialBody = document.getElementById('tabla-historial-body');
+
+            const formatoMoneda = (v) => `$${parseFloat(v || 0).toFixed(2)}`;
+            const formatoFecha = (f) => new Date(f).toLocaleString('es-MX', { dateStyle: 'short', timeStyle: 'short' });
+
+            const cargarHistorial = async () => {
+                tablaHistorialBody.innerHTML = '<tr><td colspan="9" style="text-align:center; color:gray;">Cargando...</td></tr>';
+                try {
+                    const res = await fetch(API_HISTORIAL, { headers: { 'Authorization': `Bearer ${token}` } });
+                    const cortes = await res.json();
+                    if (!res.ok) throw new Error(cortes.error || 'Error al cargar el historial.');
+
+                    if (cortes.length === 0) {
+                        tablaHistorialBody.innerHTML = '<tr><td colspan="9" style="text-align:center; color:gray;">No hay cortes registrados.</td></tr>';
+                        return;
+                    }
+
+                    tablaHistorialBody.innerHTML = cortes.map(c => {
+                        const dif = parseFloat(c.diferencia || 0);
+                        const claseDif = Math.abs(dif) < 1 ? '' : (dif > 0 ? 'dif-ok' : 'dif-bad');
+                        return `<tr>
+                            <td>${formatoFecha(c.fecha_corte)}</td>
+                            <td>${c.usuario || '-'}</td>
+                            <td>${formatoMoneda(c.total_ventas)}</td>
+                            <td>${formatoMoneda(c.esperado_efectivo)}</td>
+                            <td>${formatoMoneda(c.real_efectivo)}</td>
+                            <td>${formatoMoneda(c.esperado_tarjeta)}</td>
+                            <td>${formatoMoneda(c.real_tarjeta)}</td>
+                            <td class="${claseDif}">${formatoMoneda(c.diferencia)}</td>
+                            <td>${c.observaciones || ''}</td>
+                        </tr>`;
+                    }).join('');
+                } catch (e) {
+                    tablaHistorialBody.innerHTML = `<tr><td colspan="9" style="text-align:center; color:var(--red);">${e.message}</td></tr>`;
+                }
+            };
+
+            document.getElementById('btn-ver-historial').addEventListener('click', () => {
+                modalHistorial.style.display = 'flex';
+                cargarHistorial();
+            });
+            document.getElementById('btn-cerrar-historial').addEventListener('click', () => {
+                modalHistorial.style.display = 'none';
+            });
+            modalHistorial.addEventListener('click', (e) => {
+                if (e.target === modalHistorial) modalHistorial.style.display = 'none';
             });
         });
     </script>
