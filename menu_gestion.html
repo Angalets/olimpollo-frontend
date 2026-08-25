@@ -121,6 +121,13 @@
                         </label>
                     </div>
 
+                    <div class="form-grid-full">
+                        <label class="combo-toggle" for="visible-menu-check">
+                            <input type="checkbox" id="visible-menu-check" checked>
+                            <span><strong>Se muestra en el menú digital</strong> — desmárcalo para productos de uso interno que no deben verse en el QR de clientes.</span>
+                        </label>
+                    </div>
+
                     <div class="form-grid-full" id="seccion-grupos-simples">
                         <label>Grupos de Modificadores:</label>
                         <div id="container-checks-grupos" class="checks-grid">
@@ -269,6 +276,7 @@
 
         const imagenUrlInput = document.getElementById('imagen-url');
         const descripcionTextarea = document.getElementById('descripcion');
+        const visibleMenuCheck = document.getElementById('visible-menu-check');
 
         // Elementos de combo/componentes
         const esComboCheck = document.getElementById('es-combo-check');
@@ -455,8 +463,10 @@
             tablaBody.innerHTML = '';
             productos.forEach(p => {
                 const esCombo = Array.isArray(p.componentes) && p.componentes.length > 0;
+                const oculto = p.visible_menu === false;
+                const badges = `${esCombo ? '<span class="badge badge-brand">Combo</span> ' : ''}${oculto ? '<span class="badge badge-neutral">Oculto del menú</span> ' : ''}`;
                 const tr = document.createElement('tr');
-                tr.innerHTML = `<td>${p.id}</td><td>${esCombo ? '<span class="badge badge-brand">Combo</span> ' : ''}${p.nombre_venta}</td><td>${p.categoria}</td><td>$${parseFloat(p.precio_base).toFixed(2)}</td><td>${p.receta_id || "-"}</td><td style="display:flex; gap:8px;"><button type="button" class="btn btn-secondary btn-sm btn-editar-producto" data-id="${p.id}">Editar</button> <button type="button" class="btn btn-danger-outline btn-sm btn-eliminar-producto" data-id="${p.id}">Eliminar</button></td>`;
+                tr.innerHTML = `<td>${p.id}</td><td>${badges}${p.nombre_venta}</td><td>${p.categoria}</td><td>$${parseFloat(p.precio_base).toFixed(2)}</td><td>${p.receta_id || "-"}</td><td style="display:flex; gap:8px;"><button type="button" class="btn btn-secondary btn-sm btn-editar-producto" data-id="${p.id}">Editar</button> <button type="button" class="btn btn-danger-outline btn-sm btn-eliminar-producto" data-id="${p.id}">Eliminar</button></td>`;
                 tablaBody.appendChild(tr);
             });
         };
@@ -545,7 +555,8 @@
                 grupos_modificadores: gruposSeleccionados,
                 componentes,
                 imagen_url: imagenUrlInput.value.trim() || null,
-                descripcion: descripcionTextarea.value
+                descripcion: descripcionTextarea.value,
+                visible_menu: visibleMenuCheck.checked
             };
 
             if (isNaN(data.precio_base) || data.precio_base < 0) return DS.toast('Precio inválido.', { type: 'warning' });
@@ -579,6 +590,7 @@
 
                     imagenUrlInput.value = producto.imagen_url || '';
                     descripcionTextarea.value = producto.descripcion || '';
+                    visibleMenuCheck.checked = producto.visible_menu !== false;
 
                     await prepararSeccionesModificadores(producto);
 

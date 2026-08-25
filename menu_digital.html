@@ -4,51 +4,33 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Menú - Olimpollo</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
-    <style>
-        :root {
-            --bg-main: #f8f9fa;
-            --bg-header: #FFFFFF;
-            --card-bg: #FFFFFF;
-            --primary-text: #2c3e50;
-            --secondary-text: #7f8c8d;
-            --accent-color: #db3434;
-            --shadow-light: 0 4px 15px rgba(0, 0, 0, 0.05);
-            --border-color: #eee;
-        }
+    <link rel="stylesheet" href="design-system.css">
 
-        body {
-            margin: 0;
-            font-family: 'Poppins', sans-serif;
-            background-color: var(--bg-main);
-            color: var(--primary-text);
-            padding-bottom: 40px;
-        }
+    <style>
+        body { padding-bottom: 40px; }
 
         /* HEADER & HERO */
         header {
-            background: var(--bg-header);
+            background: var(--color-surface);
             padding: 20px;
             text-align: center;
-            box-shadow: var(--shadow-light);
+            box-shadow: var(--shadow-sm);
             position: sticky;
             top: 0;
             z-index: 100;
         }
 
         .logo {
-            font-size: 26px;
+            font-family: var(--font-display);
+            font-size: 24px;
             font-weight: 700;
-            color: var(--accent-color);
+            color: var(--color-brand);
             margin: 0;
             letter-spacing: -0.5px;
         }
 
         .hero {
-            background: linear-gradient(rgba(0,0,0,0.6), rgba(0,0,0,0.6)), url('https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?q=80&w=2070&auto=format&fit=crop') center/cover;
+            background: linear-gradient(rgba(15,17,21,0.65), rgba(15,17,21,0.65)), url('https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?q=80&w=2070&auto=format&fit=crop') center/cover;
             color: white;
             text-align: center;
             padding: 50px 20px;
@@ -56,8 +38,9 @@
         }
 
         .hero h1 {
+            font-family: var(--font-display);
             margin: 0 0 10px 0;
-            font-size: 28px;
+            font-size: 26px;
         }
 
         .hero p {
@@ -77,22 +60,22 @@
         .category-nav::-webkit-scrollbar { display: none; } /* Chrome/Safari */
 
         .cat-pill {
-            background: white;
-            border: 1px solid var(--border-color);
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
             padding: 8px 16px;
-            border-radius: 20px;
+            border-radius: var(--radius-full);
             white-space: nowrap;
             font-size: 14px;
-            font-weight: 500;
-            color: var(--primary-text);
+            font-weight: 600;
+            color: var(--color-text);
             text-decoration: none;
-            transition: all 0.3s ease;
+            transition: all 0.2s ease;
         }
 
         .cat-pill.active, .cat-pill:hover {
-            background: var(--accent-color);
+            background: var(--color-brand);
             color: white;
-            border-color: var(--accent-color);
+            border-color: var(--color-brand);
         }
 
         /* CONTENEDOR DEL MENÚ */
@@ -108,9 +91,11 @@
         }
 
         .categoria-titulo {
+            font-family: var(--font-display);
             font-size: 22px;
-            font-weight: 600;
-            border-bottom: 2px solid var(--accent-color);
+            font-weight: 700;
+            color: var(--color-text);
+            border-bottom: 2px solid var(--color-brand);
             padding-bottom: 5px;
             margin-bottom: 20px;
             display: inline-block;
@@ -123,13 +108,14 @@
         }
 
         .producto-card {
-            background: var(--card-bg);
-            border-radius: 16px;
+            background: var(--color-surface);
+            border: 1px solid var(--color-border);
+            border-radius: var(--radius-lg);
             overflow: hidden;
-            box-shadow: var(--shadow-light);
+            box-shadow: var(--shadow-sm);
             display: flex;
             flex-direction: column;
-            transition: transform 0.2s ease;
+            transition: transform 0.15s ease;
         }
 
         .producto-card:active {
@@ -140,7 +126,7 @@
             width: 100%;
             height: 180px;
             object-fit: cover;
-            background-color: #eee;
+            background-color: var(--color-surface-alt);
         }
 
         .producto-info {
@@ -159,21 +145,24 @@
 
         .producto-nombre {
             font-size: 16px;
-            font-weight: 600;
+            font-weight: 700;
+            color: var(--color-text);
             margin: 0;
             line-height: 1.2;
         }
 
         .producto-precio {
+            font-family: var(--font-display);
             font-weight: 700;
-            color: var(--accent-color);
+            color: var(--color-brand);
             font-size: 16px;
             margin-left: 10px;
+            white-space: nowrap;
         }
 
         .producto-desc {
             font-size: 13px;
-            color: var(--secondary-text);
+            color: var(--color-text-muted);
             margin: 0 0 12px 0;
             line-height: 1.4;
             flex: 1;
@@ -181,20 +170,20 @@
 
         .producto-mods {
             font-size: 11px;
-            background: #fff0f0;
-            color: var(--accent-color);
+            background: var(--color-brand-tint);
+            color: var(--color-brand);
             padding: 4px 8px;
-            border-radius: 4px;
+            border-radius: var(--radius-sm);
             display: inline-block;
             align-self: flex-start;
-            font-weight: 500;
+            font-weight: 600;
         }
 
         /* LOADER */
         .loader {
             text-align: center;
             padding: 50px;
-            color: var(--secondary-text);
+            color: var(--color-text-muted);
         }
     </style>
 </head>
@@ -223,7 +212,7 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const API_URL = 'https://olimpollo-api.onrender.com/api/menu/pos';
+            const API_URL = 'https://olimpollo-api.onrender.com/api/menu/digital';
             const contenedorMenu = document.getElementById('menu-container');
             const navCategorias = document.getElementById('nav-categorias');
             const loader = document.getElementById('loader');
@@ -278,7 +267,8 @@
                             // Validar imagen por defecto
                             const imagen = item.imagen_url ? item.imagen_url : 'https://placehold.co/400x300/ecf0f1/a0a0a0?text=Olimpollo';
                             const descripcion = item.descripcion ? item.descripcion : '';
-                            const mods = item.grupos_modificadores ? `<span class="producto-mods">+ Personalizable</span>` : '';
+                            const esPersonalizable = !!item.grupos_modificadores || (Array.isArray(item.componentes) && item.componentes.length > 0);
+                            const mods = esPersonalizable ? `<span class="producto-mods">+ Personalizable</span>` : '';
 
                             html += `
                                 <div class="producto-card">
@@ -305,7 +295,7 @@
 
                 } catch (error) {
                     console.error("Error:", error);
-                    loader.innerHTML = "<h3 style='color:red;'>Ocurrió un error al cargar nuestro menú. Intenta refrescar la página.</h3>";
+                    loader.innerHTML = "<h3 style='color:var(--color-brand);'>Ocurrió un error al cargar nuestro menú. Intenta refrescar la página.</h3>";
                 }
             };
 
