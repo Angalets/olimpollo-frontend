@@ -114,6 +114,7 @@
         .btn-opt { background: var(--bg-main); border: 2px solid transparent; padding: 15px; border-radius: 10px; font-weight: 700; font-size: 14px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; color: var(--text-main);}
         .btn-opt.active { background: #EFF6FF; border-color: var(--primary); color: var(--primary); }
     </style>
+    <script src="pos-common.js"></script>
 </head>
 <body>
 
@@ -574,19 +575,14 @@
                 
                 btnCobrar.disabled = true; const t = calcularTotal();
                 
-                const payload = { 
+                const payload = {
                     cliente: n, telefono: inputTelefono.value.trim(), canal_venta: selectedCanal, metodo_pago: selectedPago, total_ajustado: t, tipo_consumo: selectedTipo, descuento: parseInt(selectDescuento.value)||0,
-                    items: carrito.map(i => ({ menu_producto_id: i.id, nombre_producto_completo: i.nombre + (i.mods ? ` (${i.mods})` : ''), cantidad: i.cantidad, precio_unitario: i.precio, notas: i.notas })) 
+                    items: buildPedidoItems(carrito)
                 };
 
                 try {
-                    let url = `${API_BASE}/pedidos`; let method = 'POST';
-                    if (editModeId) { url = `${API_BASE}/pedidos/${editModeId}`; method = 'PUT'; }
+                    const data = await enviarPedido(API_BASE, token, payload, editModeId);
 
-                    const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify(payload) });
-                    const data = await res.json().catch(() => ({}));
-                    if (!res.ok) throw new Error(data.error || 'Error al guardar');
-                    
                     let msj = editModeId ? '✅ Pedido actualizado.' : '✅ Pedido cobrado con éxito.';
                     if (data.recompensa) msj += '\n\n🎉 ¡ESTE CLIENTE ALCANZÓ SU 8VA VISITA!\nEl cupón saldrá en el ticket.';
                     alert(msj);

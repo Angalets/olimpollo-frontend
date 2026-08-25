@@ -60,9 +60,10 @@
         .modal-content { background: #1F2937; padding: 30px; border-radius: 20px; width: 90%; max-width: 500px; } 
         .opt-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 20px; } 
         .btn-opt { background: #374151; border: none; padding: 25px; border-radius: 12px; font-weight: 900; font-size: 18px; color: white; cursor: pointer; } 
-    </style> 
-</head> 
-<body> 
+    </style>
+    <script src="pos-common.js"></script>
+</head>
+<body>
 
     <header> 
         <div class="logo"><i class="fas fa-fire"></i> FESTIVAL PITIC</div> 
@@ -316,39 +317,20 @@
                 const recibido = parseFloat(inputEfectivo.value) || total; 
                 const cambio = recibido >= total ? recibido - total : 0; 
 
-                // Agrupamos el carrito tomando en cuenta si tienen notas diferentes
-                const itemsAgrupados = {}; 
-                carrito.forEach(i => { 
-                    const key = i.id + '-' + i.mods + '-' + i.notas; 
-                    if(!itemsAgrupados[key]) itemsAgrupados[key] = { menu_producto_id: i.id, nombre_producto_completo: i.nombre + (i.mods ? ` (${i.mods})` : ''), cantidad: 0, precio_unitario: i.precio, notas: i.notas }; 
-                    itemsAgrupados[key].cantidad++; 
-                }); 
+                const payload = {
+                    cliente: nombre,
+                    telefono: null,
+                    canal_venta: 'OyR',
+                    metodo_pago: 'Efectivo',
+                    total_ajustado: total,
+                    tipo_consumo: 'Para Llevar',
+                    descuento: 0,
+                    items: buildPedidoItems(carrito)
+                };
 
-                const payload = { 
-                    cliente: nombre, 
-                    telefono: null,  
-                    canal_venta: 'OyR', 
-                    metodo_pago: 'Efectivo', 
-                    total_ajustado: total, 
-                    tipo_consumo: 'Para Llevar', 
-                    descuento: 0, 
-                    items: Object.values(itemsAgrupados) 
-                }; 
-
-                try { 
-                    const res = await fetch(`${API_BASE}/pedidos`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
-                        body: JSON.stringify(payload)
-                    });
-                    
-                    if (!res.ok) { 
-                        const errorDb = await res.json(); 
-                        throw new Error(errorDb.error || 'Error desconocido del servidor'); 
-                    } 
-                    
-                    const data = await res.json(); 
-                    const folio = data.id; 
+                try {
+                    const data = await enviarPedido(API_BASE, token, payload);
+                    const folio = data.id;
 
                     // Imprimir comanda física 
                     imprimirComanda(nombre, folio, total, recibido, cambio); 
