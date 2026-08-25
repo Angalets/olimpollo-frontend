@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Olimpollo — Guía de estilo</title>
+<link rel="stylesheet" href="design-system.css">
+<style>
+    body { padding: var(--space-8); max-width: 960px; margin: 0 auto; }
+    .sg-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-10); }
+    .sg-section { margin-bottom: var(--space-10); }
+    .sg-section h2 { margin: 0 0 var(--space-5); font-size: 20px; }
+    .sg-row { display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; margin-bottom: var(--space-4); }
+    .sg-label { font-size: 12px; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: var(--space-2); }
+    .sg-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--space-4); }
+</style>
+</head>
+<body>
+
+<div class="sg-header">
+    <h1 class="ds-display">Olimpollo — Guía de estilo</h1>
+    <button class="btn btn-secondary" id="theme-toggle">Cambiar tema</button>
+</div>
+
+<div class="sg-section">
+    <h2>Botones</h2>
+    <div class="sg-label">Primario (CTA) · Secundario (neutro) · Outline destructivo · Ghost</div>
+    <div class="sg-row">
+        <button class="btn btn-primary">Guardar pedido</button>
+        <button class="btn btn-secondary">Cancelar</button>
+        <button class="btn btn-danger-outline">Eliminar producto</button>
+        <button class="btn btn-ghost">Ver detalle</button>
+    </div>
+    <div class="sg-label">Tamaños</div>
+    <div class="sg-row">
+        <button class="btn btn-primary btn-sm">Pequeño</button>
+        <button class="btn btn-primary">Normal</button>
+        <button class="btn btn-primary btn-lg">Grande</button>
+        <button class="btn btn-primary" disabled>Deshabilitado</button>
+    </div>
+</div>
+
+<div class="sg-section">
+    <h2>Badges</h2>
+    <div class="sg-row">
+        <span class="badge badge-brand">Marca</span>
+        <span class="badge badge-success">Pagado</span>
+        <span class="badge badge-warning">Pendiente</span>
+        <span class="badge badge-info">Info</span>
+        <span class="badge badge-neutral">Neutral</span>
+    </div>
+</div>
+
+<div class="sg-section">
+    <h2>Chips (modificadores)</h2>
+    <div class="sg-row">
+        <button class="chip selected">Sin cebolla</button>
+        <button class="chip">Extra salsa</button>
+        <button class="chip">Papas grandes</button>
+        <button class="chip">Sin chile</button>
+    </div>
+</div>
+
+<div class="sg-section">
+    <h2>Campos de formulario</h2>
+    <div class="sg-grid">
+        <div class="field">
+            <label class="field-label">Nombre del cliente</label>
+            <input class="input" type="text" placeholder="Ej. Juan Pérez">
+        </div>
+        <div class="field">
+            <label class="field-label">Método de pago</label>
+            <select class="select">
+                <option>Efectivo</option>
+                <option>Tarjeta</option>
+                <option>Mixto</option>
+            </select>
+        </div>
+        <div class="field">
+            <label class="field-label">Motivo de cancelación</label>
+            <input class="input has-error" type="text" value="">
+            <span class="field-error">Este campo es obligatorio</span>
+        </div>
+        <div class="field">
+            <label class="field-label">Notas</label>
+            <textarea class="textarea" placeholder="Instrucciones especiales..."></textarea>
+        </div>
+    </div>
+</div>
+
+<div class="sg-section">
+    <h2>Card</h2>
+    <div class="card" style="max-width: 360px;">
+        <div class="card-header">Corte de caja — Turno matutino</div>
+        <div class="card-body">Total vendido: $4,230.00<br>Propinas: $185.00</div>
+        <div class="card-footer">
+            <button class="btn btn-secondary btn-sm">Ver detalle</button>
+            <button class="btn btn-primary btn-sm">Cerrar corte</button>
+        </div>
+    </div>
+</div>
+
+<div class="sg-section">
+    <h2>Toast (reemplazo de alert)</h2>
+    <div class="sg-row">
+        <button class="btn btn-secondary" data-toast="success">Éxito</button>
+        <button class="btn btn-secondary" data-toast="error">Error</button>
+        <button class="btn btn-secondary" data-toast="warning">Advertencia</button>
+        <button class="btn btn-secondary" data-toast="info">Info</button>
+    </div>
+</div>
+
+<div class="sg-section">
+    <h2>Modal — Confirm / Prompt (reemplazo de confirm/prompt)</h2>
+    <div class="sg-row">
+        <button class="btn btn-secondary" id="btn-confirm">Cancelar pedido #1042</button>
+        <button class="btn btn-secondary" id="btn-confirm-danger">Eliminar producto (destructivo)</button>
+        <button class="btn btn-secondary" id="btn-prompt">Pedir motivo de cancelación</button>
+    </div>
+    <p id="modal-result" style="color: var(--color-text-muted); font-size: 14px;"></p>
+</div>
+
+<script src="design-system.js"></script>
+<script>
+    document.getElementById('theme-toggle').addEventListener('click', () => {
+        const root = document.documentElement;
+        root.dataset.theme = root.dataset.theme === 'dark' ? 'light' : 'dark';
+    });
+
+    document.querySelectorAll('[data-toast]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+            const messages = {
+                success: 'Pedido guardado correctamente.',
+                error: 'No se pudo conectar con el servidor.',
+                warning: 'El corte de caja ya fue realizado hoy.',
+                info: 'Se sincronizaron 3 pedidos pendientes.',
+            };
+            DS.toast(messages[btn.dataset.toast], { type: btn.dataset.toast });
+        });
+    });
+
+    document.getElementById('btn-confirm').addEventListener('click', async () => {
+        const ok = await DS.confirm('¿Confirmas cancelar el pedido #1042?', { title: 'Cancelar pedido' });
+        document.getElementById('modal-result').textContent = 'Resultado: ' + ok;
+    });
+    document.getElementById('btn-confirm-danger').addEventListener('click', async () => {
+        const ok = await DS.confirm('Esta acción no se puede deshacer.', { title: 'Eliminar producto', confirmText: 'Eliminar', danger: true });
+        document.getElementById('modal-result').textContent = 'Resultado: ' + ok;
+    });
+    document.getElementById('btn-prompt').addEventListener('click', async () => {
+        const value = await DS.prompt('¿Por qué se cancela este pedido?', { title: 'Motivo de cancelación', placeholder: 'Ej. Cliente cambió de opinión' });
+        document.getElementById('modal-result').textContent = 'Resultado: ' + JSON.stringify(value);
+    });
+</script>
+
+</body>
+</html>
