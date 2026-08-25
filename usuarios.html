@@ -77,6 +77,32 @@
         </div>
     </div>
 
+    <div id="modalEditar" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h3>Editar Usuario</h3>
+            <form id="form-editar" style="margin-top: 20px; display: grid; gap: 15px;">
+                <div>
+                    <label>Usuario:</label>
+                    <input type="text" id="username-editar" disabled>
+                </div>
+                <div>
+                    <label for="password-editar">Nueva Contraseña (dejar en blanco para no cambiarla):</label>
+                    <input type="password" id="password-editar">
+                </div>
+                <div>
+                    <label for="rol-editar">Rol:</label>
+                    <select id="rol-editar" required>
+                        <option value="Empleado">Empleado</option>
+                        <option value="Gerente">Gerente</option>
+                        <option value="Administrador">Administrador</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary" style="margin-top: 10px;">Guardar Cambios</button>
+            </form>
+        </div>
+    </div>
+
     <div id="modalEliminar" class="modal">
         <div class="modal-content" style="text-align: center;">
             <span class="close">&times;</span>
@@ -121,8 +147,10 @@
             const API_URL = 'https://olimpollo-api.onrender.com/api/usuarios';
             const tablaBody = document.getElementById('tabla-usuarios-body');
             const modalUsuario = document.getElementById('modalUsuario');
+            const modalEditar = document.getElementById('modalEditar');
             const modalEliminar = document.getElementById('modalEliminar');
             const formAgregar = document.getElementById('form-agregar');
+            const formEditar = document.getElementById('form-editar');
             let usuarioIdActual = null;
 
             // --- 1. Control de Acceso y Sesión ---
@@ -167,6 +195,7 @@
                         <td>${usuario.username}</td>
                         <td>${usuario.rol}</td>
                         <td>
+                            <button class="btn btn-secondary btn-editar" data-id="${usuario.id}" data-username="${usuario.username}" data-rol="${usuario.rol}">Editar</button>
                             <button class="btn btn-danger btn-eliminar" data-id="${usuario.id}" data-username="${usuario.username}">Eliminar</button>
                         </td>
                     `;
@@ -203,7 +232,43 @@
                 }
             });
 
-            // --- 4. Lógica para Eliminar Usuario (DELETE) ---
+            // --- 4. Lógica para Editar Usuario (PUT) ---
+            tablaBody.addEventListener('click', (e) => {
+                if (e.target.classList.contains('btn-editar')) {
+                    usuarioIdActual = e.target.dataset.id;
+                    formEditar.reset();
+                    document.getElementById('username-editar').value = e.target.dataset.username;
+                    document.getElementById('rol-editar').value = e.target.dataset.rol;
+                    modalEditar.style.display = 'flex';
+                }
+            });
+
+            formEditar.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const password = document.getElementById('password-editar').value;
+                const rol = document.getElementById('rol-editar').value;
+                const body = { rol };
+                if (password) body.password = password;
+
+                try {
+                    const response = await fetch(`${API_URL}/${usuarioIdActual}`, {
+                        method: 'PUT',
+                        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+                        body: JSON.stringify(body)
+                    });
+                    const data = await response.json();
+                    if (!response.ok) throw new Error(data.error || 'Error al editar el usuario.');
+
+                    alert(`Usuario ${data.username} actualizado exitosamente.`);
+                    cerrarModales();
+                    fetchUsuarios();
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert('Error al editar el usuario: ' + error.message);
+                }
+            });
+
+            // --- 5. Lógica para Eliminar Usuario (DELETE) ---
             tablaBody.addEventListener('click', (e) => {
                 if (e.target.classList.contains('btn-eliminar')) {
                     usuarioIdActual = e.target.dataset.id;
@@ -234,9 +299,10 @@
                 }
             });
 
-            // --- 5. Lógica de Modales ---
+            // --- 6. Lógica de Modales ---
             const cerrarModales = () => {
                 modalUsuario.style.display = 'none';
+                modalEditar.style.display = 'none';
                 modalEliminar.style.display = 'none';
             };
             document.querySelectorAll('.close, .btn-cancelar').forEach(el => el.addEventListener('click', cerrarModales));
@@ -244,7 +310,7 @@
                 if (e.target.classList.contains('modal')) cerrarModales();
             });
 
-            // --- 6. INICIALIZACIÓN ---
+            // --- 7. INICIALIZACIÓN ---
             fetchUsuarios();
         });
     </script>
