@@ -314,13 +314,18 @@
             document.getElementById('btn-logout').addEventListener('click', () => { localStorage.clear(); window.location.href='login.html'; });
 
             // --- 2. INIT & EDIT MODE ---
+            let pedidoRequestIdPendiente = null;
+
             const init = async () => {
                 try {
-                    const res = await fetch(`${API_BASE}/menu/pos`, { headers: { 'Authorization': `Bearer ${token}` } });
+                    const res = await fetchConReintento(`${API_BASE}/menu/pos`, { headers: { 'Authorization': `Bearer ${token}` } }, {
+                        onReintento: (intento, ms) => mostrarEstadoConexion(`🔌 Sin conexión, reintentando cargar el menú (${Math.floor(ms/1000)}s)...`)
+                    });
+                    ocultarEstadoConexion();
                     menuData = await res.json();
-                    renderCategorias(); 
+                    renderCategorias();
                     renderMenuCompleto('Todos');
-                    
+
                     const editData = localStorage.getItem('editPedidoData');
                     if (editData) {
                         const p = JSON.parse(editData);
@@ -366,7 +371,7 @@
                             document.getElementById('mesa-banner').style.display = 'block';
                         }
                     }
-                } catch (e) { menuArea.innerHTML = '<p style="padding:20px; color:red;">Error de red.</p>'; }
+                } catch (e) { ocultarEstadoConexion(); menuArea.innerHTML = `<p style="padding:20px; color:red;">${e.message || 'Error de red.'}</p>`; }
             };
 
             window.cancelarEdicion = () => { localStorage.removeItem('editPedidoData'); window.location.href = 'pedidos_lista.html'; };
@@ -662,19 +667,32 @@
                     payload.monto_no_efectivo = resto;
                 }
 
+                if (!editModeId) pedidoRequestIdPendiente = pedidoRequestIdPendiente || generarRequestId();
+
                 btnCobrar.disabled = true;
 
                 try {
-                    const data = await enviarPedido(API_BASE, token, payload, editModeId);
+                    const data = await enviarPedido(API_BASE, token, payload, editModeId, pedidoRequestIdPendiente, (intento, ms) => {
+                        mostrarEstadoConexion(`🔌 Sin conexión, reintentando el cobro (${Math.floor(ms/1000)}s)... no cierres esta pantalla.`);
+                    });
+                    ocultarEstadoConexion();
+                    pedidoRequestIdPendiente = null;
 
                     let msj = editModeId ? '✅ Pedido actualizado.' : '✅ Pedido cobrado con éxito.';
                     if (data.recompensa) msj += '\n\n🎉 ¡ESTE CLIENTE ALCANZÓ SU 8VA VISITA!\nEl cupón saldrá en el ticket.';
                     alert(msj);
-                    
+
                     if(editModeId) { localStorage.removeItem('editPedidoData'); window.location.href = 'pedidos_lista.html'; }
                     else if (mesaIdActual) { window.location.href = 'mesas.html'; }
                     else { window.location.reload(); }
-                } catch (e) { alert('Error: ' + e.message); btnCobrar.disabled = false; }
+                } catch (e) {
+                    ocultarEstadoConexion();
+                    // pedidoRequestIdPendiente se conserva a propósito: si esto fue por falta de
+                    // conexión, el próximo clic en Cobrar reintenta con el mismo id y el backend
+                    // evita crear un pedido duplicado si el primer intento sí se había guardado.
+                    alert('Error: ' + e.message);
+                    btnCobrar.disabled = false;
+                }
             });
 
             // Alertas KDS

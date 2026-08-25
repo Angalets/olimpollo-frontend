@@ -140,25 +140,31 @@
             const inputCliente = document.getElementById('nombre-cliente'); 
             const btnCobrar = document.getElementById('btn-cobrar'); 
 
-            // 1. CARGAR MENÚ DEL FESTIVAL 
-            const init = async () => { 
-                try { 
-                    const res = await fetch(`${API_BASE}/menu/pos`, { headers: { 'Authorization': `Bearer ${token}` } });
-                    const data = await res.json(); 
-                    
-                    // IMPORTANTE: Solo carga platillos que en tu sistema tengan categoría "Festival" 
-                    menuData.productos = data.productos.filter(p => p.categoria === 'Festival'); 
-                    menuData.opciones = data.opciones; 
+            // 1. CARGAR MENÚ DEL FESTIVAL
+            let pedidoRequestIdPendiente = null;
 
-                    if(menuData.productos.length === 0) { 
-                        menuArea.innerHTML = `<p style="grid-column:1/-1; text-align:center; color:gray;">No hay productos con la categoría "Festival". Ve a Gestión de Menú y asigna esa categoría a los combos.</p>`; 
-                    } else { 
-                        renderProductos(); 
-                    } 
-                } catch (e) {  
-                    menuArea.innerHTML = '<p style="color:red;">Error de conexión.</p>';  
-                } 
-            }; 
+            const init = async () => {
+                try {
+                    const res = await fetchConReintento(`${API_BASE}/menu/pos`, { headers: { 'Authorization': `Bearer ${token}` } }, {
+                        onReintento: (intento, ms) => mostrarEstadoConexion(`🔌 Sin conexión, reintentando cargar el menú (${Math.floor(ms/1000)}s)...`)
+                    });
+                    ocultarEstadoConexion();
+                    const data = await res.json();
+
+                    // IMPORTANTE: Solo carga platillos que en tu sistema tengan categoría "Festival"
+                    menuData.productos = data.productos.filter(p => p.categoria === 'Festival');
+                    menuData.opciones = data.opciones;
+
+                    if(menuData.productos.length === 0) {
+                        menuArea.innerHTML = `<p style="grid-column:1/-1; text-align:center; color:gray;">No hay productos con la categoría "Festival". Ve a Gestión de Menú y asigna esa categoría a los combos.</p>`;
+                    } else {
+                        renderProductos();
+                    }
+                } catch (e) {
+                    ocultarEstadoConexion();
+                    menuArea.innerHTML = `<p style="color:red;">${e.message || 'Error de conexión.'}</p>`;
+                }
+            };
 
             const renderProductos = () => { 
                 menuArea.innerHTML = ''; 
@@ -328,27 +334,36 @@
                     items: buildPedidoItems(carrito)
                 };
 
+                pedidoRequestIdPendiente = pedidoRequestIdPendiente || generarRequestId();
+
                 try {
-                    const data = await enviarPedido(API_BASE, token, payload);
+                    const data = await enviarPedido(API_BASE, token, payload, null, pedidoRequestIdPendiente, (intento, ms) => {
+                        mostrarEstadoConexion(`🔌 Sin conexión, reintentando el cobro (${Math.floor(ms/1000)}s)... no cierres esta pantalla.`);
+                    });
+                    ocultarEstadoConexion();
                     const folio = data.id;
+                    pedidoRequestIdPendiente = null;
 
-                    // Imprimir comanda física 
-                    imprimirComanda(nombre, folio, total, recibido, cambio); 
+                    // Imprimir comanda física
+                    imprimirComanda(nombre, folio, total, recibido, cambio);
 
-                    // Limpiar rápido para el siguiente cliente 
-                    carrito = []; 
-                    inputCliente.value = ''; 
-                    inputEfectivo.value = ''; 
-                    renderCarrito(); 
-                    inputCliente.focus(); 
+                    // Limpiar rápido para el siguiente cliente
+                    carrito = [];
+                    inputCliente.value = '';
+                    inputEfectivo.value = '';
+                    renderCarrito();
+                    inputCliente.focus();
 
-                } catch (error) { 
-                    alert('ERROR DE BASE DE DATOS: ' + error.message); 
-                } finally { 
-                    btnCobrar.disabled = false; 
-                    btnCobrar.textContent = "COBRAR Y COMANDA"; 
-                } 
-            }); 
+                } catch (error) {
+                    ocultarEstadoConexion();
+                    // pedidoRequestIdPendiente se conserva a propósito: si el cajero vuelve a
+                    // presionar Cobrar tras un corte de conexión, se evita duplicar la venta.
+                    alert('ERROR: ' + error.message);
+                } finally {
+                    btnCobrar.disabled = false;
+                    btnCobrar.textContent = "COBRAR Y COMANDA";
+                }
+            });
 
             // Modal Helper 
             const solicitarOpcion = (t, opcs) => {  
