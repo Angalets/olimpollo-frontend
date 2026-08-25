@@ -3,56 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <title>Olimpollo - Corte de Caja</title>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="design-system.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
-        :root{--bg-main:#ECF0F1;--card-bg:#FFFFFF;--text:#2c3e50;--accent:#e67e22;--green:#27ae60;--red:#c0392b;}
-        body{font-family:'Poppins',sans-serif;background:var(--bg-main);color:var(--text);margin:0;padding:20px;display:flex;justify-content:center;align-items:center;min-height:100vh;}
-        
-        .corte-container { background: var(--card-bg); width: 100%; max-width: 900px; border-radius: 15px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); overflow: hidden; display: flex; flex-direction: column; }
-        .header { background: #34495e; color: white; padding: 20px 30px; display: flex; justify-content: space-between; align-items: center; }
-        .header h1 { margin: 0; font-size: 24px; }
-        .btn-close { background: transparent; border: 1px solid white; color: white; padding: 5px 15px; border-radius: 20px; cursor: pointer; text-decoration: none; font-size: 14px; }
-        
-        .grid-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
-        
-        /* Columna Izquierda: SISTEMA */
-        .panel-sistema { background: #f8f9fa; padding: 30px; border-right: 1px solid #eee; }
-        .panel-sistema h3 { color: #7f8c8d; text-transform: uppercase; font-size: 14px; letter-spacing: 1px; margin-bottom: 20px; border-bottom: 2px solid #bdc3c7; padding-bottom: 10px; display: inline-block; }
-        
-        /* Columna Derecha: USUARIO */
-        .panel-usuario { background: white; padding: 30px; }
-        .panel-usuario h3 { color: var(--accent); text-transform: uppercase; font-size: 14px; letter-spacing: 1px; margin-bottom: 20px; border-bottom: 2px solid var(--accent); padding-bottom: 10px; display: inline-block; }
+        :root { --chrome-bg: #111827; }
+        body { display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 20px; box-sizing: border-box; }
 
-        .fila-dato { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 10px; background: white; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .corte-container { background: var(--color-surface); color: var(--color-text); width: 100%; max-width: 900px; border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); overflow: hidden; display: flex; flex-direction: column; }
+        .header { background: var(--chrome-bg); color: white; padding: 20px 30px; display: flex; justify-content: space-between; align-items: center; }
+        .header h1 { margin: 0; font-size: 22px; font-family: var(--font-display); }
+        .btn-close { background: transparent; border: 1px solid rgba(255,255,255,0.4); color: white; padding: 5px 15px; border-radius: var(--radius-full); cursor: pointer; text-decoration: none; font-size: 14px; }
+        .btn-close:hover { background: rgba(255,255,255,0.1); }
+
+        .grid-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 0; }
+
+        /* Columna Izquierda: SISTEMA */
+        .panel-sistema { background: var(--color-surface-alt); padding: 30px; border-right: 1px solid var(--color-border); }
+        .panel-sistema h3 { color: var(--color-text-muted); text-transform: uppercase; font-size: 13px; letter-spacing: 0.05em; margin-bottom: 20px; border-bottom: 2px solid var(--color-border); padding-bottom: 10px; display: inline-block; }
+
+        /* Columna Derecha: USUARIO */
+        .panel-usuario { background: var(--color-surface); padding: 30px; }
+        .panel-usuario h3 { color: var(--color-brand); text-transform: uppercase; font-size: 13px; letter-spacing: 0.05em; margin-bottom: 20px; border-bottom: 2px solid var(--color-brand); padding-bottom: 10px; display: inline-block; }
+
+        .fila-dato { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding: 10px; background: var(--color-surface); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); }
         .fila-dato label { font-weight: 500; }
-        .valor-sistema { font-size: 18px; font-weight: 700; color: #2c3e50; }
-        
-        .input-conteo { width: 120px; padding: 10px; font-size: 18px; text-align: right; border: 2px solid #ddd; border-radius: 8px; color: #2c3e50; font-weight: 600; outline: none; transition: border 0.3s; }
-        .input-conteo:focus { border-color: var(--accent); }
-        
-        .resumen-final { background: #2c3e50; color: white; padding: 20px 30px; display: flex; justify-content: space-between; align-items: center; }
+        .valor-sistema { font-family: var(--font-display); font-size: 18px; font-weight: 700; color: var(--color-text); }
+
+        .input-conteo { width: 120px; padding: 10px; font-size: 18px; text-align: right; border: 2px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface); color: var(--color-text); font-weight: 600; outline: none; transition: border 0.2s; }
+        .input-conteo:focus { border-color: var(--color-brand); }
+
+        .resumen-final { background: var(--chrome-bg); color: white; padding: 20px 30px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; }
         .diferencia-box { text-align: right; }
         .lbl-dif { font-size: 12px; opacity: 0.8; display: block; }
-        .val-dif { font-size: 24px; font-weight: 700; }
-        .val-dif.ok { color: var(--green); } /* Sobra o Exacto */
-        .val-dif.bad { color: var(--red); }   /* Falta */
+        .val-dif { font-family: var(--font-display); font-size: 24px; font-weight: 700; }
+        .val-dif.ok { color: var(--color-success); } /* Sobra o Exacto */
+        .val-dif.bad { color: var(--color-brand); }   /* Falta */
 
-        .btn-guardar { background: var(--accent); color: white; border: none; padding: 15px 40px; font-size: 16px; font-weight: 600; border-radius: 30px; cursor: pointer; transition: transform 0.2s; }
-        .btn-guardar:hover { transform: scale(1.05); background: #d35400; }
-        
-        textarea { width: 100%; margin-top: 20px; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-family: inherit; resize: none; }
+        .btn-guardar { background: var(--color-brand); color: white; border: none; padding: 15px 40px; font-size: 16px; font-weight: 700; font-family: var(--font-display); border-radius: var(--radius-full); cursor: pointer; transition: transform 0.15s, background 0.15s; }
+        .btn-guardar:hover:not(:disabled) { transform: scale(1.03); background: var(--color-brand-hover); }
+        .btn-guardar:disabled { opacity: 0.6; cursor: not-allowed; }
 
-        .btn-historial { background: transparent; border: 1px solid white; color: white; padding: 5px 15px; border-radius: 20px; cursor: pointer; font-size: 14px; margin-right: 10px; }
+        textarea { width: 100%; margin-top: 20px; padding: 10px; border: 1px solid var(--color-border); border-radius: var(--radius-md); background: var(--color-surface); color: var(--color-text); font-family: inherit; resize: none; }
 
-        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 100; padding: 20px; }
-        .modal-historial { background: white; border-radius: 15px; width: 100%; max-width: 1000px; max-height: 85vh; display: flex; flex-direction: column; overflow: hidden; }
-        .modal-historial-header { background: #34495e; color: white; padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; }
+        .btn-historial { background: transparent; border: 1px solid rgba(255,255,255,0.4); color: white; padding: 5px 15px; border-radius: var(--radius-full); cursor: pointer; font-size: 14px; margin-right: 10px; }
+        .btn-historial:hover { background: rgba(255,255,255,0.1); }
+
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(15, 17, 21, 0.6); align-items: center; justify-content: center; z-index: 100; padding: 20px; }
+        .modal-historial { background: var(--color-surface); color: var(--color-text); border-radius: var(--radius-lg); width: 100%; max-width: 1000px; max-height: 85vh; display: flex; flex-direction: column; overflow: hidden; box-shadow: var(--shadow-lg); }
+        .modal-historial-header { background: var(--chrome-bg); color: white; padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; }
         .modal-historial-body { padding: 20px 25px; overflow-y: auto; }
         table.tabla-historial { width: 100%; border-collapse: collapse; font-size: 13px; }
-        table.tabla-historial th { text-align: left; padding: 8px; background: #f8f9fa; color: #7f8c8d; text-transform: uppercase; font-size: 11px; position: sticky; top: 0; }
-        table.tabla-historial td { padding: 8px; border-bottom: 1px solid #eee; }
-        table.tabla-historial td.dif-ok { color: var(--green); font-weight: 600; }
-        table.tabla-historial td.dif-bad { color: var(--red); font-weight: 600; }
+        table.tabla-historial th { text-align: left; padding: 8px; background: var(--color-surface-alt); color: var(--color-text-muted); text-transform: uppercase; font-size: 11px; position: sticky; top: 0; }
+        table.tabla-historial td { padding: 8px; border-bottom: 1px solid var(--color-border); }
+        table.tabla-historial td.dif-ok { color: var(--color-success); font-weight: 600; }
+        table.tabla-historial td.dif-bad { color: var(--color-brand); font-weight: 600; }
     </style>
 </head>
 <body>
@@ -140,13 +144,14 @@
                         </tr>
                     </thead>
                     <tbody id="tabla-historial-body">
-                        <tr><td colspan="10" style="text-align:center; color:gray;">Cargando...</td></tr>
+                        <tr><td colspan="10" style="text-align:center; color:var(--color-text-muted);">Cargando...</td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
     </div>
 
+    <script src="design-system.js"></script>
     <script>
         (function() {
             const originalFetch = window.fetch;
@@ -188,7 +193,7 @@
                 document.getElementById('sys-propinas').textContent = `$${(data.propinas || 0).toFixed(2)}`;
 
             } catch (e) {
-                alert('Error conectando con servidor: ' + e.message);
+                DS.toast('Error conectando con servidor: ' + e.message, { type: 'error', duration: 0 });
             }
 
             // Cálculo en tiempo real
@@ -208,15 +213,15 @@
                 if (Math.abs(diff) < 1) {
                     display.className = 'val-dif ok';
                     text.textContent = '(Exacto)';
-                    text.style.color = '#2ecc71';
+                    text.style.color = 'var(--color-success)';
                 } else if (diff > 0) {
                     display.className = 'val-dif ok';
                     text.textContent = '(Sobra dinero)';
-                    text.style.color = '#2ecc71';
+                    text.style.color = 'var(--color-success)';
                 } else {
                     display.className = 'val-dif bad';
                     text.textContent = '(Falta dinero)';
-                    text.style.color = '#e74c3c';
+                    text.style.color = 'var(--color-brand)';
                 }
             }
 
@@ -227,7 +232,8 @@
                 const realTarjeta = parseFloat(document.getElementById('real-tarjeta').value) || 0;
                 const obs = document.getElementById('observaciones').value;
 
-                if (!confirm('¿Estás seguro de cerrar el turno? Esta acción guardará el corte.')) return;
+                const ok = await DS.confirm('¿Estás seguro de cerrar el turno? Esta acción guardará el corte.', { title: 'Cerrar turno' });
+                if (!ok) return;
 
                 // El servidor recalcula lo esperado con datos frescos de la BD; aquí solo mandamos
                 // el conteo real. Deshabilitar el botón de inmediato evita un doble clic accidental.
@@ -248,7 +254,7 @@
                     const data = await res.json();
 
                     if (res.ok) {
-                        alert('✅ Corte de caja guardado exitosamente.');
+                        await DS.notice('Corte de caja guardado exitosamente.', { title: 'Éxito', okText: 'Continuar' });
                         window.location.href = 'index.html';
                     } else {
                         // Aquí mostramos el error EXACTO que manda el servidor
@@ -256,7 +262,7 @@
                         throw new Error(data.error || 'Error desconocido en el servidor');
                     }
                 } catch (e) {
-                    alert('🛑 Ocurrió un error: ' + e.message);
+                    await DS.notice('Ocurrió un error: ' + e.message, { title: 'No se pudo cerrar el turno' });
                     btnCerrarCaja.disabled = false;
                 }
             });
@@ -269,14 +275,14 @@
             const formatoFecha = (f) => new Date(f).toLocaleString('es-MX', { dateStyle: 'short', timeStyle: 'short' });
 
             const cargarHistorial = async () => {
-                tablaHistorialBody.innerHTML = '<tr><td colspan="10" style="text-align:center; color:gray;">Cargando...</td></tr>';
+                tablaHistorialBody.innerHTML = '<tr><td colspan="10" style="text-align:center; color:var(--color-text-muted);">Cargando...</td></tr>';
                 try {
                     const res = await fetch(API_HISTORIAL, { headers: { 'Authorization': `Bearer ${token}` } });
                     const cortes = await res.json();
                     if (!res.ok) throw new Error(cortes.error || 'Error al cargar el historial.');
 
                     if (cortes.length === 0) {
-                        tablaHistorialBody.innerHTML = '<tr><td colspan="10" style="text-align:center; color:gray;">No hay cortes registrados.</td></tr>';
+                        tablaHistorialBody.innerHTML = '<tr><td colspan="10" style="text-align:center; color:var(--color-text-muted);">No hay cortes registrados.</td></tr>';
                         return;
                     }
 
@@ -297,7 +303,7 @@
                         </tr>`;
                     }).join('');
                 } catch (e) {
-                    tablaHistorialBody.innerHTML = `<tr><td colspan="10" style="text-align:center; color:var(--red);">${e.message}</td></tr>`;
+                    tablaHistorialBody.innerHTML = `<tr><td colspan="10" style="text-align:center; color:var(--color-brand);">${e.message}</td></tr>`;
                 }
             };
 

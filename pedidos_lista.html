@@ -3,23 +3,38 @@
 <head>
   <meta charset="UTF-8">
   <title>Olimpollo - Lista de Pedidos</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
-  
+  <link rel="stylesheet" href="design-system.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
   <style>
-    :root{--bg-main:#ECF0F1;--bg-header:#FFFFFF;--card-bg:#FFFFFF;--primary-text:#502c2c;--secondary-text:#808B96;--accent-color:#db3434;--accent-hover:#b92929;--border-color:#D5D8DC;--shadow-light:0 4px 15px rgba(0, 0, 0, 0.08);--shadow-heavy:0 10px 20px rgba(0, 0, 0, 0.12);}body{margin:0;font-family:'Poppins', sans-serif;background-color:var(--bg-main);color:var(--primary-text);display:flex;flex-direction:column;min-height:100vh;}header{background:var(--bg-header);padding:15px 40px;box-shadow:0 2px 10px rgba(0, 0, 0, 0.05);display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border-color);}header .logo{font-size:24px;font-weight:600;text-decoration:none;color:var(--primary-text);}header nav{display:flex;gap:20px;}header nav a{text-decoration:none;color:var(--secondary-text);font-weight:500;transition:color 0.3s;}header nav a:hover{color:var(--accent-color);}.user-info{display:flex;align-items:center;gap:20px;}#user-identifier{font-weight:500;background-color:var(--bg-main);padding:5px 12px;border-radius:15px;font-size:14px;}.logout{background:var(--accent-color);color:white;border:none;padding:8px 18px;border-radius:20px;cursor:pointer;font-size:14px;font-weight:500;transition:background-color 0.3s;}.logout:hover{background-color:var(--accent-hover);}main{flex:1;padding:40px;max-width:1400px;margin:0 auto;width:100%;box-sizing:border-box;}h1, h2, h3{margin-top:0;}h2.page-title{margin-bottom:30px;font-size:28px;font-weight:600;}.card{background:var(--card-bg);border-radius:12px;padding:25px;box-shadow:var(--shadow-light);margin-bottom:25px;}table{width:100%;border-collapse:collapse;background:var(--card-bg);border-radius:12px;overflow:hidden;box-shadow:var(--shadow-light);}th, td{padding:15px;text-align:left;border-bottom:1px solid var(--bg-main);}th{font-weight:600;font-size:14px;text-transform:uppercase;color:var(--secondary-text);background-color:#F8F9F9;}tr:hover{background-color:#FDF2F2;}.btn{border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:500;font-family:'Poppins', sans-serif;transition:background-color 0.3s, transform 0.2s;}.btn:hover{transform:translateY(-2px);}.btn-primary{background-color:var(--accent-color);color:white;}.btn-primary:hover{background-color:var(--accent-hover);}.btn-secondary{background-color:var(--secondary-text);color:white;}.btn-secondary:hover{background-color:#6C7A89;}.btn-warning{background-color:#f39c12;color:white;}.btn-warning:hover{background-color:#e67e22;}.btn-danger{background-color:#E74C3C;color:white;}.btn-success{background-color:#2ECC71;color:white;}label{display:block;margin-bottom:8px;font-weight:500;font-size:14px;}input[type="text"],input[type="password"],input[type="number"],input[type="date"],select,textarea{width:100%;padding:12px;border:1px solid var(--border-color);border-radius:8px;font-family:'Poppins', sans-serif;font-size:14px;box-sizing:border-box;transition:border-color 0.3s, box-shadow 0.3s;}input:focus, select:focus, textarea:focus{outline:none;border-color:var(--accent-color);box-shadow:0 0 0 3px rgba(219, 52, 52, 0.1);}.modal{display:none;position:fixed;z-index:1000;left:0;top:0;width:100%;height:100%;background-color:rgba(0,0,0,0.5);justify-content:center;align-items:center;}.modal-content{background:var(--card-bg);padding:30px;border-radius:12px;box-shadow:var(--shadow-heavy);width:90%;max-width:500px;position:relative;}.close{position:absolute;top:15px;right:20px;font-size:28px;cursor:pointer;color:var(--secondary-text);}footer{text-align:center;padding:20px;font-size:14px;color:var(--secondary-text);}
+    body { display: flex; flex-direction: column; min-height: 100vh; }
+    header { background: var(--color-surface); padding: 15px 40px; box-shadow: var(--shadow-sm); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--color-border); }
+    header .logo { font-family: var(--font-display); font-size: 22px; font-weight: 700; text-decoration: none; color: var(--color-text); }
+    header nav { display: flex; gap: 20px; }
+    header nav a { text-decoration: none; color: var(--color-text-muted); font-weight: 600; font-size: 14px; transition: color 0.2s; }
+    header nav a:hover { color: var(--color-brand); }
+    .user-info { display: flex; align-items: center; gap: 16px; }
+    #user-identifier { font-weight: 600; background: var(--color-surface-alt); padding: 5px 12px; border-radius: var(--radius-full); font-size: 13px; }
+
+    main { flex: 1; padding: 40px; max-width: 1400px; margin: 0 auto; width: 100%; box-sizing: border-box; }
+    .page-title { margin-bottom: 30px; font-size: 26px; }
+    .card { background: var(--color-surface); border-radius: var(--radius-lg); padding: 25px; box-shadow: var(--shadow-sm); margin-bottom: 25px; }
+    table { width: 100%; border-collapse: collapse; background: var(--color-surface); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-sm); }
+    th, td { padding: 14px 15px; text-align: left; border-bottom: 1px solid var(--color-border); }
+    th { font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: 0.03em; color: var(--color-text-muted); background: var(--color-surface-alt); }
+    tr:hover td { background: var(--color-brand-tint); }
+    footer { text-align: center; padding: 20px; font-size: 13px; color: var(--color-text-muted); }
 
     .layout-container { display: flex; gap: 25px; flex-wrap: wrap; }
     .pedidos-lista { flex: 3; min-width: 450px; }
     .detalles { flex: 1; min-width: 300px; align-self: flex-start; }
     .detalles ul { list-style: none; padding: 0; }
     .filtros-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; align-items: flex-end; }
-    
+
     .finance-row { display: flex; justify-content: space-between; padding: 5px 0; font-size: 14px; }
-    .finance-total { border-top: 1px solid #eee; margin-top: 10px; padding-top: 10px; font-weight: bold; font-size: 16px; }
-    .finance-neto { color: #27ae60; font-size: 18px; margin-top: 5px; }
-    .finance-comision { color: #e74c3c; }
+    .finance-total { border-top: 1px solid var(--color-border); margin-top: 10px; padding-top: 10px; font-weight: 700; font-size: 16px; }
+    .finance-neto { color: var(--color-success); font-size: 18px; margin-top: 5px; }
+    .finance-comision { color: var(--color-brand); }
   </style>
 </head>
 <body>
@@ -29,23 +44,23 @@
           <a href="pedidos.html">POS</a>
           <a href="mesas.html">Mesas</a>
           <a href="reportes.html">Reportes</a>
-          <a href="pedidos_lista.html" style="color: var(--accent-color);">Pedidos</a>
+          <a href="pedidos_lista.html" style="color: var(--color-brand);">Pedidos</a>
           <a href="inventario.html">Inventario</a>
         </nav>
         <div class="user-info">
             <span id="user-identifier"></span>
-            <button class="logout" id="btn-logout">Cerrar Sesión</button>
+            <button class="btn btn-secondary btn-sm" id="btn-logout">Cerrar Sesión</button>
         </div>
     </header>
 
   <main>
-    <h2 class="page-title">Historial de Órdenes</h2>
-    
+    <h2 class="page-title ds-display">Historial de Órdenes</h2>
+
     <div class="card">
         <div class="filtros-grid">
             <div>
                 <label for="filtro-canal">Filtrar por Canal:</label>
-                <select id="filtro-canal">
+                <select id="filtro-canal" class="select">
                     <option value="Todos">Todos los Canales</option>
                     <option value="OyR">OyR</option>
                     <option value="Uber">Uber</option>
@@ -56,11 +71,11 @@
             </div>
             <div>
                 <label for="filtro-fecha-inicio">Desde:</label>
-                <input type="date" id="filtro-fecha-inicio">
+                <input type="date" id="filtro-fecha-inicio" class="input">
             </div>
             <div>
                 <label for="filtro-fecha-fin">Hasta:</label>
-                <input type="date" id="filtro-fecha-fin">
+                <input type="date" id="filtro-fecha-fin" class="input">
             </div>
             <button id="btn-aplicar-filtro" class="btn btn-primary">Aplicar Filtro</button>
         </div>
@@ -92,8 +107,9 @@
     </div>
   </main>
 
-  <footer>&copy; 2025 Los Boneless del Olimpo</footer>
+  <footer>&copy; 2026 Los Boneless del Olimpo</footer>
 
+<script src="design-system.js"></script>
 <script>
 (function() {
     const originalFetch = window.fetch;
@@ -169,10 +185,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 tr.dataset.pedidoId = pedido.id;
 
                 let colorEstado = '';
-                if (pedido.estado === 'Entregado') colorEstado = 'style="background-color: #d4edda; font-weight: bold;"';
-                else if (pedido.estado === 'Cancelado') colorEstado = 'style="background-color: #f8d7da; text-decoration: line-through;"';
+                if (pedido.estado === 'Entregado') colorEstado = 'style="background-color: var(--color-success-tint); font-weight: bold;"';
+                else if (pedido.estado === 'Cancelado') colorEstado = 'style="background-color: var(--color-brand-tint); text-decoration: line-through;"';
                 // AÑADIDO: Distintivo visual para estado "Listo"
-                else if (pedido.estado === 'Listo') colorEstado = 'style="background-color: #fff3cd; font-weight: bold; color: #856404;"';
+                else if (pedido.estado === 'Listo') colorEstado = 'style="background-color: var(--color-warning-tint); font-weight: bold; color: var(--color-text);"';
                 // Distintivo visual en la tabla si tiene recompensa
                 const estrella = pedido.recompensa ? '⭐ ' : '';
 
@@ -189,14 +205,14 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td>$${pedido.total.toFixed(2)}</td>
                     <td>${fecha}</td>
                     <td>${hora}</td>
-                    <td><button class="btn btn-secondary btn-detalle" data-id="${pedido.id}">Ver</button></td>
+                    <td><button type="button" class="btn btn-secondary btn-sm btn-detalle" data-id="${pedido.id}">Ver</button></td>
                 `;
                 tablaBody.appendChild(tr);
             });
             mostrarDetalles(null); 
         } catch (error) {
             console.error('Error al cargar pedidos:', error);
-            tablaBody.innerHTML = '<tr><td colspan="8" style="color:red; font-weight:bold;">Error: No se pudo cargar la lista de pedidos.</td></tr>';
+            tablaBody.innerHTML = '<tr><td colspan="8" style="color:var(--color-brand); font-weight:bold;">Error: No se pudo cargar la lista de pedidos.</td></tr>';
         }
     };
 
@@ -335,23 +351,23 @@ document.addEventListener('DOMContentLoaded', () => {
         let itemsHTML = '';
         pedidoSeleccionado.items.forEach(item => {
             const subtotal = item.cantidad * item.precio_unitario;
-            itemsHTML += `<li style="margin-bottom: 5px; border-bottom: 1px dashed #eee; padding-bottom: 5px;">
+            itemsHTML += `<li style="margin-bottom: 5px; border-bottom: 1px dashed var(--color-border); padding-bottom: 5px;">
                 <div style="display:flex; justify-content:space-between;">
                     <span><strong>${item.cantidad}x</strong> ${item.nombre_producto}</span>
                     <span>$${subtotal.toFixed(2)}</span>
                 </div>
-                ${item.notas ? `<small style="color:orange;">📝 ${item.notas}</small>` : ''}
+                ${item.notas ? `<small style="color:var(--color-warning);">📝 ${item.notas}</small>` : ''}
             </li>`;
         });
 
         // Etiqueta visual si tiene recompensa
         const badgeRecompensa = pedidoSeleccionado.recompensa ?
-            `<div style="background: #f1c40f; color: #fff; padding: 5px; border-radius: 4px; font-weight: bold; margin-bottom: 10px; text-align: center;">
+            `<div style="background: var(--color-warning); color: #fff; padding: 5px; border-radius: var(--radius-sm); font-weight: bold; margin-bottom: 10px; text-align: center;">
                 🎟️ Pedido Ganador de Recompensa (8va Visita)
             </div>` : '';
 
         const infoCancelacion = pedidoSeleccionado.estado === 'Cancelado' && pedidoSeleccionado.motivo_cancelacion ?
-            `<div style="background: #f8d7da; padding: 10px; border-radius: 6px; margin-bottom: 10px;">
+            `<div style="background: var(--color-brand-tint); padding: 10px; border-radius: var(--radius-md); margin-bottom: 10px;">
                 <strong>❌ Cancelado por:</strong> ${pedidoSeleccionado.cancelado_por || 'Desconocido'}<br>
                 <strong>Motivo:</strong> ${pedidoSeleccionado.motivo_cancelacion}<br>
                 <small>${pedidoSeleccionado.fecha_cancelacion ? new Date(pedidoSeleccionado.fecha_cancelacion).toLocaleString('es-MX') : ''}</small>
@@ -360,46 +376,46 @@ document.addEventListener('DOMContentLoaded', () => {
         detalleContenido.innerHTML = `
             ${badgeRecompensa}
             ${infoCancelacion}
-            <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
-                <h3 style="margin:0; color: var(--accent-color);">#${pedidoSeleccionado.id.toString().padStart(4, '0')} - ${pedidoSeleccionado.cliente}</h3>
-                <small style="color: gray;">
-                    ${new Date(pedidoSeleccionado.fecha_creacion).toLocaleDateString('es-MX')} 
+            <div style="background: var(--color-surface-alt); padding: 15px; border-radius: var(--radius-md); margin-bottom: 15px;">
+                <h3 style="margin:0; color: var(--color-brand);">#${pedidoSeleccionado.id.toString().padStart(4, '0')} - ${pedidoSeleccionado.cliente}</h3>
+                <small style="color: var(--color-text-muted);">
+                    ${new Date(pedidoSeleccionado.fecha_creacion).toLocaleDateString('es-MX')}
                     ${new Date(pedidoSeleccionado.fecha_creacion).toLocaleTimeString('es-MX', {hour: '2-digit', minute:'2-digit'})}
                 </small>
                 <div style="margin-top: 10px;">
-                    <strong>Canal:</strong> ${pedidoSeleccionado.canal_venta || 'OyR'} | 
+                    <strong>Canal:</strong> ${pedidoSeleccionado.canal_venta || 'OyR'} |
                     <strong>Estado:</strong> ${pedidoSeleccionado.estado} |
                     <strong>Empaque:</strong> ${tipoConsumo}
                 </div>
             </div>
 
-            <div style="border: 1px solid #ddd; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
-                <h4 style="margin-top:0; border-bottom: 2px solid #eee; padding-bottom: 5px;">📊 Desglose Financiero</h4>
+            <div style="border: 1px solid var(--color-border); padding: 15px; border-radius: var(--radius-md); margin-bottom: 15px;">
+                <h4 style="margin-top:0; border-bottom: 2px solid var(--color-border); padding-bottom: 5px;">📊 Desglose Financiero</h4>
                 <div class="finance-row"><span>Método de Pago:</span><strong>${iconoPago} ${detalleMetodo}</strong></div>
-                ${descuento > 0 ? `<div class="finance-row" style="color:var(--warning-color);"><span>Descuento / Cortesía:</span><span>-${descuento}%</span></div>` : ''}
+                ${descuento > 0 ? `<div class="finance-row" style="color:var(--color-warning);"><span>Descuento / Cortesía:</span><span>-${descuento}%</span></div>` : ''}
                 <div class="finance-row finance-total"><span>Total Cobrado:</span><span>$${total.toFixed(2)}</span></div>
                 ${comision > 0 ? `<div class="finance-row finance-comision"><span>- Comisión:</span><span>$${comision.toFixed(2)}</span></div>` : ''}
                 <div class="finance-row"><span style="align-self: flex-end; font-weight:500;">Ingreso Neto:</span><strong class="finance-neto">$${ingresoNeto.toFixed(2)}</strong></div>
-                ${propina > 0 ? `<div class="finance-row" style="color:var(--success-color, #27AE60);"><span>Propina (aparte):</span><span>$${propina.toFixed(2)}</span></div>` : ''}
+                ${propina > 0 ? `<div class="finance-row" style="color:var(--color-success);"><span>Propina (aparte):</span><span>$${propina.toFixed(2)}</span></div>` : ''}
             </div>
 
             <h4>Productos:</h4>
             <ul>${itemsHTML}</ul>
         `;
 
-let botonesHTML = `<button id="btn-imprimir-ticket" class="btn btn-secondary" style="background-color: #34495e; color: white; width:100%;">🖨️ Imprimir Ticket</button>`;
+let botonesHTML = `<button type="button" id="btn-imprimir-ticket" class="btn btn-secondary" style="width:100%;"><i class="fas fa-print"></i> Imprimir Ticket</button>`;
 
         // AÑADIDO: Ahora se pueden editar y cobrar pedidos "Pendientes" Y "Listos"
         if (pedidoSeleccionado.estado === 'Pendiente' || pedidoSeleccionado.estado === 'Listo') {
             botonesHTML += `
-                <button id="btn-editar-pedido" class="btn btn-warning" style="width:100%; margin-top: 10px;" data-id="${id}">✏️ Editar en POS</button>
+                <button type="button" id="btn-editar-pedido" class="btn" style="background:var(--color-warning); color:#fff; width:100%; margin-top: 10px;" data-id="${id}"><i class="fas fa-pen"></i> Editar en POS</button>
                 <div style="display:flex; gap:10px; margin-top: 10px;">
-                    <button id="btn-marcar-entregado" class="btn btn-success" style="flex:1;" data-id="${id}">Marcar Entregado (Cerrar Orden)</button>
-                    <button id="btn-marcar-cancelado" class="btn btn-danger" style="flex:1;" data-id="${id}">Marcar Cancelado</button>
+                    <button type="button" id="btn-marcar-entregado" class="btn" style="background:var(--color-success); color:#fff; flex:1;" data-id="${id}">Marcar Entregado</button>
+                    <button type="button" id="btn-marcar-cancelado" class="btn btn-danger-outline" style="flex:1;" data-id="${id}">Marcar Cancelado</button>
                 </div>
             `;
         } else {
-            botonesHTML += `<button id="btn-eliminar-registro" class="btn btn-danger" style="background-color: #7f8c8d; width:100%; margin-top: 10px;" data-id="${id}" title="Borrar del historial permanentemente">🗑️ Eliminar Registro</button>`;
+            botonesHTML += `<button type="button" id="btn-eliminar-registro" class="btn btn-danger-outline" style="width:100%; margin-top: 10px;" data-id="${id}" title="Borrar del historial permanentemente"><i class="fas fa-trash"></i> Eliminar Registro</button>`;
         }
         panelAcciones.innerHTML = botonesHTML;
     };
@@ -416,22 +432,24 @@ let botonesHTML = `<button id="btn-imprimir-ticket" class="btn btn-secondary" st
             window.location.href = 'pedidos.html';
         }
         else if (e.target.id === 'btn-marcar-entregado') {
-            if (confirm(`¿Confirmas marcar el Pedido #${id} como ENTREGADO?`)) cambiarEstado(id, 'Entregado');
-        } 
+            const ok = await DS.confirm(`¿Confirmas marcar el Pedido #${id} como ENTREGADO?`, { title: 'Marcar entregado' });
+            if (ok) cambiarEstado(id, 'Entregado');
+        }
         else if (e.target.id === 'btn-marcar-cancelado') {
-            const motivo = prompt(`¿Por qué se cancela el Pedido #${id}? (obligatorio)`);
+            const motivo = await DS.prompt(`¿Por qué se cancela el Pedido #${id}?`, { title: 'Cancelar pedido' });
             if (motivo === null) return;
-            if (!motivo.trim()) { alert('Debes escribir un motivo para cancelar.'); return; }
+            if (!motivo.trim()) { DS.toast('Debes escribir un motivo para cancelar.', { type: 'warning' }); return; }
             cancelarPedido(id, motivo.trim());
         }
         else if (e.target.id === 'btn-eliminar-registro') {
-            if (confirm(`⚠️ ¿Estás seguro de ELIMINAR DEFINITIVAMENTE el Pedido #${id}?`)) {
+            const ok = await DS.confirm(`¿Estás seguro de eliminar definitivamente el Pedido #${id}?`, { title: 'Eliminar registro', confirmText: 'Eliminar', danger: true });
+            if (ok) {
                 try {
                     const response = await fetch(`${API_PEDIDOS_URL}/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
                     if (!response.ok) throw new Error('No se pudo eliminar.');
-                    alert('Pedido eliminado del historial.');
+                    DS.toast('Pedido eliminado del historial.', { type: 'success' });
                     renderPedidos(); mostrarDetalles(null);
-                } catch (error) { alert('Error: ' + error.message); }
+                } catch (error) { DS.toast('Error: ' + error.message, { type: 'error', duration: 0 }); }
             }
         }
     });
@@ -443,9 +461,9 @@ let botonesHTML = `<button id="btn-imprimir-ticket" class="btn btn-secondary" st
             });
             const data = await response.json().catch(() => ({}));
             if (!response.ok) throw new Error(data.error || 'Error al actualizar estado.');
-            alert(`Pedido #${id} actualizado a ${nuevoEstado} con éxito.`);
+            DS.toast(`Pedido #${id} actualizado a ${nuevoEstado} con éxito.`, { type: 'success' });
             renderPedidos();
-        } catch (error) { console.error(error); alert('Fallo al cambiar el estado: ' + error.message); }
+        } catch (error) { console.error(error); DS.toast('Fallo al cambiar el estado: ' + error.message, { type: 'error', duration: 0 }); }
     };
 
     const cancelarPedido = async (id, motivo) => {
@@ -455,9 +473,9 @@ let botonesHTML = `<button id="btn-imprimir-ticket" class="btn btn-secondary" st
             });
             const data = await response.json().catch(() => ({}));
             if (!response.ok) throw new Error(data.error || 'Error al cancelar el pedido.');
-            alert(`Pedido #${id} cancelado.`);
+            DS.toast(`Pedido #${id} cancelado.`, { type: 'success' });
             renderPedidos(); mostrarDetalles(null);
-        } catch (error) { console.error(error); alert('Fallo al cancelar: ' + error.message); }
+        } catch (error) { console.error(error); DS.toast('Fallo al cancelar: ' + error.message, { type: 'error', duration: 0 }); }
     };
 
     btnAplicarFiltro.addEventListener('click', renderPedidos);
