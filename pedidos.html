@@ -106,6 +106,7 @@
 
         /* Banner de Edición */
         #edit-banner { display: none; background: var(--warning); color: white; text-align: center; padding: 8px; font-weight: bold; font-size: 13px; z-index: 60;}
+        #mesa-banner { display: none; background: #3498DB; color: white; text-align: center; padding: 8px; font-weight: bold; font-size: 13px; z-index: 60;}
         
         /* Modales */
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(17, 24, 39, 0.8); backdrop-filter: blur(4px); justify-content: center; align-items: center; }
@@ -122,6 +123,7 @@
         <div class="header-left">
             <a href="index.html" class="logo"><i class="fas fa-gem"></i> POS Pro</a>
             <nav class="nav-links">
+                <a href="mesas.html">Mesas</a>
                 <a href="pedidos_lista.html">Historial</a>
                 <a href="clientes.html">CRM</a>
             </nav>
@@ -136,6 +138,7 @@
     </header>
 
     <div id="edit-banner">⚠️ MODO EDICIÓN: Modificando Pedido <span id="edit-id-label"></span> <button style="background: rgba(0,0,0,0.3); color:white; border:none; padding:4px 8px; border-radius:4px; margin-left:10px; cursor:pointer;" onclick="cancelarEdicion()">Cancelar</button></div>
+    <div id="mesa-banner">🪑 Nuevo pedido para <span id="mesa-nombre-label"></span></div>
 
     <main>
         <div class="sidebar-cats" id="category-container">
@@ -284,6 +287,7 @@
             let selectedCanal = 'OyR', selectedPago = 'Efectivo', selectedTipo = 'Para Llevar';
             let selectedPagoSecundario = 'Tarjeta';
             let editModeId = null;
+            let mesaIdActual = null;
 
             // DOM Elements
             const menuArea = document.getElementById('menu-area');
@@ -347,8 +351,20 @@
                             const match = i.nombre_producto.match(/(.*)\s\((.*)\)/);
                             return { id: i.menu_producto_id, nombre: match ? match[1].trim() : i.nombre_producto, precio: i.precio_unitario, cantidad: i.cantidad, mods: match ? match[2] : '', notas: i.notas || '' };
                         });
-                        localStorage.removeItem('editPedidoData'); 
+                        localStorage.removeItem('editPedidoData');
                         renderCarrito();
+                    } else {
+                        const urlParams = new URLSearchParams(window.location.search);
+                        const mesaId = urlParams.get('mesa_id');
+                        const mesaNombre = urlParams.get('mesa_nombre');
+                        if (mesaId && mesaNombre) {
+                            mesaIdActual = mesaId;
+                            inputClienteNombre.value = mesaNombre;
+                            selectedTipo = 'Comedor';
+                            document.querySelectorAll('.btn-tipo').forEach(b => { b.classList.remove('active'); if(b.dataset.tipo === 'Comedor') b.classList.add('active'); });
+                            document.getElementById('mesa-nombre-label').textContent = mesaNombre;
+                            document.getElementById('mesa-banner').style.display = 'block';
+                        }
                     }
                 } catch (e) { menuArea.innerHTML = '<p style="padding:20px; color:red;">Error de red.</p>'; }
             };
@@ -635,6 +651,7 @@
                     propina: parseFloat(inputPropina.value) || 0,
                     items: buildPedidoItems(carrito)
                 };
+                if (!editModeId && mesaIdActual) payload.mesa_id = mesaIdActual;
 
                 if (selectedPago === 'Mixto') {
                     const efectivo = parseFloat(inputMixtoEfectivo.value) || 0;
@@ -654,7 +671,8 @@
                     if (data.recompensa) msj += '\n\n🎉 ¡ESTE CLIENTE ALCANZÓ SU 8VA VISITA!\nEl cupón saldrá en el ticket.';
                     alert(msj);
                     
-                    if(editModeId) { localStorage.removeItem('editPedidoData'); window.location.href = 'pedidos_lista.html'; } 
+                    if(editModeId) { localStorage.removeItem('editPedidoData'); window.location.href = 'pedidos_lista.html'; }
+                    else if (mesaIdActual) { window.location.href = 'mesas.html'; }
                     else { window.location.reload(); }
                 } catch (e) { alert('Error: ' + e.message); btnCobrar.disabled = false; }
             });
