@@ -2,141 +2,105 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Olimpollo - Iniciar Sesión</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="design-system.css">
 
     <style>
-        /* 2. Paleta de colores y estilos base */
-        :root {
-            --bg-main: #ECF0F1;
-            --primary-text: #502c2c;
-            --accent-color: #db3434;
-            --card-bg: #FFFFFF;
-            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            --border-color: #BDC3C7;
-            --error-color: #E74C3C;
-        }
-
         body {
-            margin: 0;
-            font-family: 'Poppins', sans-serif;
-            background-color: var(--bg-main);
-            color: var(--primary-text);
-            /* Centrar el contenido de la página */
             display: grid;
             place-items: center;
             min-height: 100vh;
+            padding: var(--space-5);
         }
 
-        /* 3. La caja de login */
         .login-box {
-            background: var(--card-bg);
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: var(--card-shadow);
             width: 100%;
             max-width: 380px;
-            box-sizing: border-box;
+            padding: var(--space-8) var(--space-6);
             text-align: center;
         }
 
-        .login-box h2 {
-            margin: 0 0 10px 0;
-            font-size: 28px;
-            font-weight: 600;
-        }
-        
-        .login-box h2 .fa-utensils {
-            color: var(--accent-color);
-            margin-right: 10px;
+        .login-box h1 {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: var(--space-2);
+            margin: 0 0 var(--space-2);
+            font-size: 26px;
         }
 
-        .login-box p {
-            margin: 0 0 30px 0;
-            color: #968080;
+        .login-box h1 .fa-utensils {
+            color: var(--color-brand);
         }
 
-        /* 4. Estilo de los campos de texto con iconos */
+        .login-box p.subtitle {
+            margin: 0 0 var(--space-6);
+            color: var(--color-text-muted);
+            font-size: 14px;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-4);
+        }
+
+        .field {
+            text-align: left;
+        }
+
         .input-group {
             position: relative;
-            margin-bottom: 20px;
         }
 
         .input-group i {
             position: absolute;
-            left: 15px;
+            left: var(--space-4);
             top: 50%;
             transform: translateY(-50%);
-            color: var(--border-color);
-            transition: color 0.3s;
+            color: var(--color-text-muted);
+            pointer-events: none;
         }
 
-        .input-field {
-            width: 100%;
-            padding: 12px 15px 12px 45px; /* Espacio para el icono */
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            font-family: 'Poppins', sans-serif;
-            font-size: 16px;
-            box-sizing: border-box;
-            transition: border-color 0.3s;
+        .input-group .input {
+            padding-left: 44px;
         }
 
-        .input-field:focus {
-            outline: none;
-            border-color: var(--accent-color);
-        }
-
-        .input-field:focus + i {
-            color: var(--accent-color);
-        }
-
-        /* 5. Botón de Iniciar Sesión */
         .submit-btn {
             width: 100%;
-            background: var(--accent-color);
-            color: white;
-            border: none;
-            padding: 12px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 500;
-            transition: background-color 0.3s;
+            margin-top: var(--space-2);
         }
 
-        .submit-btn:hover {
-            background-color: #b92929;
-        }
-
-        /* 6. Mensaje de error */
         .error-message {
-            color: var(--error-color);
-            margin-top: 15px;
-            font-size: 14px;
-            display: none; /* Oculto por defecto */
+            margin: 0;
+            font-size: 13px;
+            color: var(--color-brand);
+            display: none;
         }
     </style>
 </head>
 <body>
-    <div class="login-box">
-        <h2><i class="fas fa-utensils"></i>Olimpollo</h2>
-        <p>Bienvenido de nuevo</p>
+    <div class="login-box card">
+        <h1><i class="fas fa-utensils"></i>Olimpollo</h1>
+        <p class="subtitle">Bienvenido de nuevo</p>
 
         <form id="login-form">
-            <div class="input-group">
-                <input type="text" id="username" class="input-field" required autocomplete="username" placeholder="Usuario">
-                <i class="fas fa-user"></i>
+            <div class="field">
+                <div class="input-group">
+                    <input type="text" id="username" class="input" required autocomplete="username" placeholder="Usuario">
+                    <i class="fas fa-user"></i>
+                </div>
             </div>
-            <div class="input-group">
-                <input type="password" id="password" class="input-field" required autocomplete="current-password" placeholder="Clave">
-                <i class="fas fa-lock"></i>
+            <div class="field">
+                <div class="input-group">
+                    <input type="password" id="password" class="input" required autocomplete="current-password" placeholder="Clave">
+                    <i class="fas fa-lock"></i>
+                </div>
             </div>
-            
-            <button type="submit" class="submit-btn">Iniciar Sesión</button>
+
+            <button type="submit" class="btn btn-primary btn-lg submit-btn" id="submit-btn">Iniciar Sesión</button>
             <p id="error-message" class="error-message"></p>
         </form>
     </div>
@@ -146,16 +110,18 @@
     const usernameInput = document.getElementById('username');
     const passwordInput = document.getElementById('password');
     const errorMessage = document.getElementById('error-message');
+    const submitBtn = document.getElementById('submit-btn');
 
     loginForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         errorMessage.style.display = 'none';
+        submitBtn.disabled = true;
+        submitBtn.textContent = 'Ingresando...';
 
         const username = usernameInput.value.trim();
         const password = passwordInput.value;
 
         try {
-            // 🚨 CORRECCIÓN AQUÍ: Añadido el endpoint /api/login
             const response = await fetch('https://olimpollo-api.onrender.com/api/login', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -175,11 +141,10 @@
         } catch (error) {
             errorMessage.textContent = error.message;
             errorMessage.style.display = 'block';
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Iniciar Sesión';
         }
     });
 </script>
 </body>
-
 </html>
-
-
