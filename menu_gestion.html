@@ -156,6 +156,18 @@
     <footer>&copy; 2026 Los Boneless del Olimpo</footer>
 
 <script>
+    (function() {
+        const originalFetch = window.fetch;
+        window.fetch = async function(...args) {
+            const response = await originalFetch(...args);
+            if (response.status === 401) {
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('userRole');
+                if (!location.pathname.endsWith('login.html')) window.location.href = 'login.html';
+            }
+            return response;
+        };
+    })();
     function parseJwt(token) {
         try {
             const base64Url = token.split('.')[1];

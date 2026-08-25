@@ -244,6 +244,18 @@
     </div>
 
     <script>
+        (function() {
+            const originalFetch = window.fetch;
+            window.fetch = async function(...args) {
+                const response = await originalFetch(...args);
+                if (response.status === 401) {
+                    localStorage.removeItem('authToken');
+                    localStorage.removeItem('userRole');
+                    if (!location.pathname.endsWith('login.html')) window.location.href = 'login.html';
+                }
+                return response;
+            };
+        })();
         function parseJwt(t) { try { return JSON.parse(decodeURIComponent(atob(t.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')).split('').map(c=>'%'+('00'+c.charCodeAt(0).toString(16)).slice(-2)).join(''))); } catch(e) { return null; } }
 
         document.addEventListener('DOMContentLoaded', () => {
