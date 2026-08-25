@@ -3,22 +3,39 @@
 <head>
     <meta charset="UTF-8">
     <title>Olimpollo - Clientes (CRM)</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
-    
+    <link rel="stylesheet" href="design-system.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
     <style>
-        /* ==========================================================================
-           BASE DE ESTILOS UNIFICADA PARA OLIMPOLLO
-           ========================================================================== */
-        :root{--bg-main:#ECF0F1;--bg-header:#FFFFFF;--card-bg:#FFFFFF;--primary-text:#502c2c;--secondary-text:#808B96;--accent-color:#db3434;--accent-hover:#b92929;--border-color:#D5D8DC;--shadow-light:0 4px 15px rgba(0, 0, 0, 0.08);--shadow-heavy:0 10px 20px rgba(0, 0, 0, 0.12);}body{margin:0;font-family:'Poppins', sans-serif;background-color:var(--bg-main);color:var(--primary-text);display:flex;flex-direction:column;min-height:100vh;}header{background:var(--bg-header);padding:15px 40px;box-shadow:0 2px 10px rgba(0, 0, 0, 0.05);display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border-color);}header .logo{font-size:24px;font-weight:600;text-decoration:none;color:var(--primary-text);}header nav{display:flex;gap:20px;}header nav a{text-decoration:none;color:var(--secondary-text);font-weight:500;transition:color 0.3s;}header nav a:hover{color:var(--accent-color);}.user-info{display:flex;align-items:center;gap:20px;}#user-identifier{font-weight:500;background-color:var(--bg-main);padding:5px 12px;border-radius:15px;font-size:14px;}.logout{background:var(--accent-color);color:white;border:none;padding:8px 18px;border-radius:20px;cursor:pointer;font-size:14px;font-weight:500;transition:background-color 0.3s;}.logout:hover{background-color:var(--accent-hover);}main{flex:1;padding:40px;max-width:1400px;margin:0 auto;width:100%;box-sizing:border-box;}h1, h2, h3{margin-top:0;}h2.page-title{margin-bottom:30px;font-size:28px;font-weight:600;}.card{background:var(--card-bg);border-radius:12px;padding:25px;box-shadow:var(--shadow-light);margin-bottom:25px;}table{width:100%;border-collapse:collapse;background:var(--card-bg);border-radius:12px;overflow:hidden;box-shadow:var(--shadow-light);}th, td{padding:15px;text-align:left;border-bottom:1px solid var(--bg-main);}th{font-weight:600;font-size:14px;text-transform:uppercase;color:var(--secondary-text);background-color:#F8F9F9;}tr:hover{background-color:#FDF2F2;}.btn{border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:500;font-family:'Poppins', sans-serif;transition:background-color 0.3s, transform 0.2s;}.btn:hover{transform:translateY(-2px);}.btn-primary{background-color:var(--accent-color);color:white;}.btn-primary:hover{background-color:var(--accent-hover);}.btn-secondary{background-color:var(--secondary-text);color:white;}.btn-secondary:hover{background-color:#6C7A89;}label{display:block;margin-bottom:8px;font-weight:500;font-size:14px;}input[type="text"],input[type="password"],input[type="number"],input[type="date"],select,textarea{width:100%;padding:12px;border:1px solid var(--border-color);border-radius:8px;font-family:'Poppins', sans-serif;font-size:14px;box-sizing:border-box;transition:border-color 0.3s, box-shadow 0.3s;}input:focus, select:focus, textarea:focus{outline:none;border-color:var(--accent-color);box-shadow:0 0 0 3px rgba(219, 52, 52, 0.1);}.modal{display:none;position:fixed;z-index:1000;left:0;top:0;width:100%;height:100%;background-color:rgba(0,0,0,0.5);justify-content:center;align-items:center;}.modal-content{background:var(--card-bg);padding:30px;border-radius:12px;box-shadow:var(--shadow-heavy);width:90%;max-width:400px;position:relative;}.close{position:absolute;top:15px;right:20px;font-size:28px;cursor:pointer;color:var(--secondary-text);}footer{text-align:center;padding:20px;font-size:14px;color:var(--secondary-text);}
+        body { display: flex; flex-direction: column; min-height: 100vh; }
+        header { background: var(--color-surface); padding: 15px 40px; box-shadow: var(--shadow-sm); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--color-border); }
+        header .logo { font-family: var(--font-display); font-size: 22px; font-weight: 700; text-decoration: none; color: var(--color-text); }
+        header nav { display: flex; gap: 20px; }
+        header nav a { text-decoration: none; color: var(--color-text-muted); font-weight: 600; font-size: 14px; transition: color 0.2s; }
+        header nav a:hover { color: var(--color-brand); }
+        .user-info { display: flex; align-items: center; gap: 16px; }
+        #user-identifier { font-weight: 600; background: var(--color-surface-alt); padding: 5px 12px; border-radius: var(--radius-full); font-size: 13px; }
+
+        main { flex: 1; padding: 40px; max-width: 1400px; margin: 0 auto; width: 100%; box-sizing: border-box; }
+        .page-title { margin-bottom: 30px; font-size: 26px; }
+        .card { background: var(--color-surface); border-radius: var(--radius-lg); padding: 25px; box-shadow: var(--shadow-sm); margin-bottom: 25px; }
+        table { width: 100%; border-collapse: collapse; background: var(--color-surface); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-sm); }
+        th, td { padding: 14px 15px; text-align: left; border-bottom: 1px solid var(--color-border); }
+        th { font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: 0.03em; color: var(--color-text-muted); background: var(--color-surface-alt); }
+        tr:hover td { background: var(--color-brand-tint); }
+        footer { text-align: center; padding: 20px; font-size: 13px; color: var(--color-text-muted); }
+
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(15, 17, 21, 0.6); justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; }
+        .modal-content { background: var(--color-surface); color: var(--color-text); padding: 28px; border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); width: 90%; max-width: 420px; position: relative; }
+        .modal-content .close { position: absolute; top: 16px; right: 18px; font-size: 22px; cursor: pointer; color: var(--color-text-muted); background: none; border: none; }
+        .modal-content .close:hover { color: var(--color-text); }
 
         /* Buscador */
         .search-container { display: flex; gap: 10px; margin-bottom: 20px; }
         .search-container input { flex: 1; font-size: 16px; padding: 15px; }
-        
+
         /* Highlight VIPs */
-        .vip-badge { background-color: #f1c40f; color: #8a6d3b; padding: 2px 8px; border-radius: 12px; font-size: 12px; font-weight: bold; margin-left: 10px;}
+        .vip-badge { background-color: var(--color-warning-tint); color: var(--color-warning); padding: 2px 8px; border-radius: var(--radius-full); font-size: 12px; font-weight: bold; margin-left: 10px;}
     </style>
 </head>
 <body>
@@ -27,23 +44,23 @@
         <nav>
             <a href="pedidos.html">POS</a>
             <a href="pedidos_lista.html">Pedidos</a>
-            <a href="clientes.html" style="color: var(--accent-color);">Clientes</a>
+            <a href="clientes.html" style="color: var(--color-brand);">Clientes</a>
             <a href="inventario.html">Inventario</a>
             <a href="reportes.html">Reportes</a>
         </nav>
         <div class="user-info">
             <span id="user-identifier"></span>
-            <button class="logout" id="btn-logout">Cerrar Sesión</button>
+            <button class="btn btn-secondary btn-sm" id="btn-logout">Cerrar Sesión</button>
         </div>
     </header>
 
     <main>
-        <h2 class="page-title">Directorio de Clientes (CRM)</h2>
-        
+        <h2 class="page-title ds-display">Directorio de Clientes (CRM)</h2>
+
         <div class="card">
             <div class="search-container">
-                <input type="text" id="buscador" placeholder="🔍 Buscar por nombre o número de teléfono..." autocomplete="off">
-                <button id="btn-buscar" class="btn btn-primary">Buscar</button>
+                <input type="text" id="buscador" class="input" placeholder="Buscar por nombre o número de teléfono..." autocomplete="off">
+                <button id="btn-buscar" class="btn btn-primary"><i class="fas fa-search"></i> Buscar</button>
             </div>
             
             <table id="tabla-clientes">
@@ -67,28 +84,29 @@
 
     <div id="modalEditar" class="modal">
         <div class="modal-content">
-            <span class="close">&times;</span>
+            <button type="button" class="close">&times;</button>
             <h3>Modificar Cliente</h3>
-            <p style="font-size: 13px; color: gray;">Actualiza el nombre del cliente. El teléfono no se puede modificar ya que es su identificador único.</p>
+            <p class="field-help">Actualiza el nombre del cliente. El teléfono no se puede modificar ya que es su identificador único.</p>
             <form id="form-editar" style="display: grid; gap: 15px; margin-top: 15px;">
                 <input type="hidden" id="edit-id">
-                
+
                 <div>
                     <label>Teléfono:</label>
-                    <input type="text" id="edit-telefono" disabled style="background-color: #f4f6f7;">
+                    <input type="text" id="edit-telefono" class="input" disabled>
                 </div>
                 <div>
                     <label for="edit-nombre">Nombre del Cliente:</label>
-                    <input type="text" id="edit-nombre" required placeholder="Ej: Juan Pérez">
+                    <input type="text" id="edit-nombre" class="input" required placeholder="Ej: Juan Pérez">
                 </div>
-                
+
                 <button type="submit" class="btn btn-primary" style="margin-top: 10px;">Guardar Cambios</button>
             </form>
         </div>
     </div>
 
-    <footer>&copy; 2025 Los Boneless del Olimpo</footer>
+    <footer>&copy; 2026 Los Boneless del Olimpo</footer>
 
+    <script src="design-system.js"></script>
     <script>
         (function() {
             const originalFetch = window.fetch;
@@ -144,7 +162,7 @@
                     tablaBody.innerHTML = '';
 
                     if (clientes.length === 0) {
-                        tablaBody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: gray;">No se encontraron clientes.</td></tr>';
+                        tablaBody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: var(--color-text-muted);">No se encontraron clientes.</td></tr>';
                         return;
                     }
 
@@ -164,12 +182,12 @@
                         tr.innerHTML = `
                             <td style="font-weight:600;">${c.telefono}</td>
                             <td>${c.nombre || 'Sin Nombre'} ${vipBadge}</td>
-                            <td style="text-align:center; font-weight:bold; color:var(--accent-color);">${c.visitas}</td>
-                            <td style="text-align:center; font-weight:bold; color:#27ae60;">${c.puntos}</td>
+                            <td style="text-align:center; font-weight:bold; color:var(--color-brand);">${c.visitas}</td>
+                            <td style="text-align:center; font-weight:bold; color:var(--color-success);">${c.puntos}</td>
                             <td>$${parseFloat(c.total_gastado || 0).toFixed(2)}</td>
                             <td><small>${fechaVisita}</small></td>
                             <td>
-                                <button class="btn btn-secondary btn-editar" 
+                                <button type="button" class="btn btn-secondary btn-sm btn-editar" 
                                         data-id="${c.id}" 
                                         data-nombre="${c.nombre || ''}" 
                                         data-telefono="${c.telefono}">
@@ -182,7 +200,7 @@
 
                 } catch (error) {
                     console.error('Error:', error);
-                    tablaBody.innerHTML = `<tr><td colspan="7" style="color:red; text-align:center;">Error: ${error.message}</td></tr>`;
+                    tablaBody.innerHTML = `<tr><td colspan="7" style="color:var(--color-brand); text-align:center;">Error: ${error.message}</td></tr>`;
                 }
             };
 
@@ -226,7 +244,7 @@
                     cargarClientes(buscador.value);
                     
                 } catch (error) {
-                    alert('Error: ' + error.message);
+                    DS.toast('Error: ' + error.message, { type: 'error', duration: 0 });
                 }
             });
 

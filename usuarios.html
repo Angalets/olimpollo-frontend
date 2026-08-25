@@ -3,15 +3,31 @@
 <head>
     <meta charset="UTF-8">
     <title>Olimpollo - Gestor de Usuarios</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
-  
+    <link rel="stylesheet" href="design-system.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
     <style>
-        /* ==========================================================================
-           BASE DE ESTILOS UNIFICADA PARA OLIMPOLLO
-           ========================================================================== */
-        :root{--bg-main:#ECF0F1;--bg-header:#FFFFFF;--card-bg:#FFFFFF;--primary-text:#502c2c;--secondary-text:#808B96;--accent-color:#db3434;--accent-hover:#b92929;--border-color:#D5D8DC;--shadow-light:0 4px 15px rgba(0, 0, 0, 0.08);--shadow-heavy:0 10px 20px rgba(0, 0, 0, 0.12);}body{margin:0;font-family:'Poppins', sans-serif;background-color:var(--bg-main);color:var(--primary-text);display:flex;flex-direction:column;min-height:100vh;}header{background:var(--bg-header);padding:15px 40px;box-shadow:0 2px 10px rgba(0, 0, 0, 0.05);display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border-color);}header .logo{font-size:24px;font-weight:600;text-decoration:none;color:var(--primary-text);}header nav{display:flex;gap:20px;}header nav a{text-decoration:none;color:var(--secondary-text);font-weight:500;transition:color 0.3s;}header nav a:hover{color:var(--accent-color);}.user-info{display:flex;align-items:center;gap:20px;}#user-identifier{font-weight:500;background-color:var(--bg-main);padding:5px 12px;border-radius:15px;font-size:14px;}.logout{background:var(--accent-color);color:white;border:none;padding:8px 18px;border-radius:20px;cursor:pointer;font-size:14px;font-weight:500;transition:background-color 0.3s;}.logout:hover{background-color:var(--accent-hover);}main{flex:1;padding:40px;max-width:1400px;margin:0 auto;width:100%;box-sizing:border-box;}h1, h2, h3{margin-top:0;}h2.page-title{margin-bottom:30px;font-size:28px;font-weight:600;}.card{background:var(--card-bg);border-radius:12px;padding:25px;box-shadow:var(--shadow-light);margin-bottom:25px;}table{width:100%;border-collapse:collapse;background:var(--card-bg);border-radius:12px;overflow:hidden;box-shadow:var(--shadow-light);}th, td{padding:15px;text-align:left;border-bottom:1px solid var(--bg-main);}th{font-weight:600;font-size:14px;text-transform:uppercase;color:var(--secondary-text);background-color:#F8F9F9;}tr:hover{background-color:#FDF2F2;}.btn{border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:500;font-family:'Poppins', sans-serif;transition:background-color 0.3s, transform 0.2s;}.btn:hover{transform:translateY(-2px);}.btn-primary{background-color:var(--accent-color);color:white;}.btn-primary:hover{background-color:var(--accent-hover);}.btn-secondary{background-color:var(--secondary-text);color:white;}.btn-secondary:hover{background-color:#6C7A89;}.btn-danger{background-color:#E74C3C;color:white;}.btn-success{background-color:#2ECC71;color:white;}label{display:block;margin-bottom:8px;font-weight:500;font-size:14px;}input[type="text"],input[type="password"],input[type="number"],input[type="date"],select,textarea{width:100%;padding:12px;border:1px solid var(--border-color);border-radius:8px;font-family:'Poppins', sans-serif;font-size:14px;box-sizing:border-box;transition:border-color 0.3s, box-shadow 0.3s;}input:focus, select:focus, textarea:focus{outline:none;border-color:var(--accent-color);box-shadow:0 0 0 3px rgba(219, 52, 52, 0.1);}.modal{display:none;position:fixed;z-index:1000;left:0;top:0;width:100%;height:100%;background-color:rgba(0,0,0,0.5);justify-content:center;align-items:center;}.modal-content{background:var(--card-bg);padding:30px;border-radius:12px;box-shadow:var(--shadow-heavy);width:90%;max-width:500px;position:relative;}.close{position:absolute;top:15px;right:20px;font-size:28px;cursor:pointer;color:var(--secondary-text);}footer{text-align:center;padding:20px;font-size:14px;color:var(--secondary-text);}
+        body { display: flex; flex-direction: column; min-height: 100vh; }
+        header { background: var(--color-surface); padding: 15px 40px; box-shadow: var(--shadow-sm); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--color-border); }
+        header .logo { font-family: var(--font-display); font-size: 22px; font-weight: 700; text-decoration: none; color: var(--color-text); }
+        header nav { display: flex; gap: 20px; }
+        header nav a { text-decoration: none; color: var(--color-text-muted); font-weight: 600; font-size: 14px; transition: color 0.2s; }
+        header nav a:hover { color: var(--color-brand); }
+        .user-info { display: flex; align-items: center; gap: 16px; }
+        #user-identifier { font-weight: 600; background: var(--color-surface-alt); padding: 5px 12px; border-radius: var(--radius-full); font-size: 13px; }
+
+        main { flex: 1; padding: 40px; max-width: 1200px; margin: 0 auto; width: 100%; box-sizing: border-box; }
+        .page-title { margin-bottom: 30px; font-size: 26px; }
+        table { width: 100%; border-collapse: collapse; background: var(--color-surface); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-sm); }
+        th, td { padding: 14px 15px; text-align: left; border-bottom: 1px solid var(--color-border); }
+        th { font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: 0.03em; color: var(--color-text-muted); background: var(--color-surface-alt); }
+        tr:hover td { background: var(--color-brand-tint); }
+        footer { text-align: center; padding: 20px; font-size: 13px; color: var(--color-text-muted); }
+
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(15, 17, 21, 0.6); justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; }
+        .modal-content { background: var(--color-surface); color: var(--color-text); padding: 28px; border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); width: 90%; max-width: 480px; position: relative; }
+        .modal-content .close { position: absolute; top: 16px; right: 18px; font-size: 22px; cursor: pointer; color: var(--color-text-muted); background: none; border: none; }
+        .modal-content .close:hover { color: var(--color-text); }
 
         /* Estilos específicos para esta página */
         .action-bar { margin-bottom: 25px; }
@@ -28,16 +44,16 @@
         </nav>
         <div class="user-info">
             <span id="user-identifier"></span>
-            <button class="logout" id="btn-logout">Cerrar Sesión</button>
+            <button class="btn btn-secondary btn-sm" id="btn-logout">Cerrar Sesión</button>
         </div>
     </header>
 
     <main>
-        <h2 class="page-title">Gestión de Usuarios</h2>
+        <h2 class="page-title ds-display">Gestión de Usuarios</h2>
         <div class="action-bar">
-            <button class="btn btn-primary" id="btn-agregar-usuario">➕ Agregar Nuevo Usuario</button>
+            <button class="btn btn-primary" id="btn-agregar-usuario"><i class="fas fa-plus"></i> Agregar Nuevo Usuario</button>
         </div>
-        
+
         <table>
             <thead>
                 <tr>
@@ -53,20 +69,20 @@
 
     <div id="modalUsuario" class="modal">
         <div class="modal-content">
-            <span class="close">&times;</span>
+            <button type="button" class="close">&times;</button>
             <h3>Agregar Nuevo Usuario</h3>
             <form id="form-agregar" style="margin-top: 20px; display: grid; gap: 15px;">
                 <div>
                     <label for="username-agregar">Usuario:</label>
-                    <input type="text" id="username-agregar" required>
+                    <input type="text" id="username-agregar" class="input" required>
                 </div>
                 <div>
                     <label for="password-agregar">Contraseña:</label>
-                    <input type="password" id="password-agregar" required>
+                    <input type="password" id="password-agregar" class="input" required>
                 </div>
                 <div>
                     <label for="rol-agregar">Rol:</label>
-                    <select id="rol-agregar" required>
+                    <select id="rol-agregar" class="select" required>
                         <option value="Empleado">Empleado</option>
                         <option value="Gerente">Gerente</option>
                         <option value="Administrador">Administrador</option>
@@ -79,20 +95,20 @@
 
     <div id="modalEditar" class="modal">
         <div class="modal-content">
-            <span class="close">&times;</span>
+            <button type="button" class="close">&times;</button>
             <h3>Editar Usuario</h3>
             <form id="form-editar" style="margin-top: 20px; display: grid; gap: 15px;">
                 <div>
                     <label>Usuario:</label>
-                    <input type="text" id="username-editar" disabled>
+                    <input type="text" id="username-editar" class="input" disabled>
                 </div>
                 <div>
                     <label for="password-editar">Nueva Contraseña (dejar en blanco para no cambiarla):</label>
-                    <input type="password" id="password-editar">
+                    <input type="password" id="password-editar" class="input">
                 </div>
                 <div>
                     <label for="rol-editar">Rol:</label>
-                    <select id="rol-editar" required>
+                    <select id="rol-editar" class="select" required>
                         <option value="Empleado">Empleado</option>
                         <option value="Gerente">Gerente</option>
                         <option value="Administrador">Administrador</option>
@@ -103,20 +119,9 @@
         </div>
     </div>
 
-    <div id="modalEliminar" class="modal">
-        <div class="modal-content" style="text-align: center;">
-            <span class="close">&times;</span>
-            <h3>¿Eliminar Usuario?</h3>
-            <p id="mensaje-eliminar"></p>
-            <div style="display: flex; gap: 15px; justify-content: center; margin-top: 20px;">
-                <button class="btn btn-danger" id="btn-confirmar-eliminar">Sí, Eliminar</button>
-                <button type="button" class="btn btn-secondary btn-cancelar">Cancelar</button>
-            </div>
-        </div>
-    </div>
+    <footer>&copy; 2026 Los Boneless del Olimpo</footer>
 
-    <footer>&copy; 2025 Los Boneless del Olimpo</footer>
-
+    <script src="design-system.js"></script>
     <script>
         (function() {
             const originalFetch = window.fetch;
@@ -148,7 +153,6 @@
             const tablaBody = document.getElementById('tabla-usuarios-body');
             const modalUsuario = document.getElementById('modalUsuario');
             const modalEditar = document.getElementById('modalEditar');
-            const modalEliminar = document.getElementById('modalEliminar');
             const formAgregar = document.getElementById('form-agregar');
             const formEditar = document.getElementById('form-editar');
             let usuarioIdActual = null;
@@ -157,8 +161,7 @@
             const token = localStorage.getItem('authToken');
             const role = localStorage.getItem('userRole');
             if (!token || role !== 'Administrador') {
-                alert('Acceso denegado. Solo Administradores.');
-                window.location.href = 'index.html';
+                DS.notice('Acceso denegado. Solo Administradores.', { title: 'Acceso denegado' }).then(() => { window.location.href = 'index.html'; });
                 return;
             }
             
@@ -182,7 +185,7 @@
                     renderUsuarios(usuarios);
                 } catch (error) {
                     console.error('Error:', error);
-                    alert('No se pudo cargar la lista de usuarios.');
+                    DS.toast('No se pudo cargar la lista de usuarios.', { type: 'error', duration: 0 });
                 }
             };
 
@@ -194,9 +197,9 @@
                         <td>${usuario.id}</td>
                         <td>${usuario.username}</td>
                         <td>${usuario.rol}</td>
-                        <td>
-                            <button class="btn btn-secondary btn-editar" data-id="${usuario.id}" data-username="${usuario.username}" data-rol="${usuario.rol}">Editar</button>
-                            <button class="btn btn-danger btn-eliminar" data-id="${usuario.id}" data-username="${usuario.username}">Eliminar</button>
+                        <td style="display:flex; gap:8px;">
+                            <button type="button" class="btn btn-secondary btn-sm btn-editar" data-id="${usuario.id}" data-username="${usuario.username}" data-rol="${usuario.rol}">Editar</button>
+                            <button type="button" class="btn btn-danger-outline btn-sm btn-eliminar" data-id="${usuario.id}" data-username="${usuario.username}">Eliminar</button>
                         </td>
                     `;
                 });
@@ -223,12 +226,12 @@
                     const data = await response.json();
                     if (!response.ok) throw new Error(data.error || 'Error al crear el usuario.');
 
-                    alert(`Usuario ${username} creado exitosamente.`);
+                    DS.toast(`Usuario ${username} creado exitosamente.`, { type: 'success' });
                     cerrarModales();
                     fetchUsuarios();
                 } catch (error) {
                     console.error('Error:', error);
-                    alert('Error al crear el usuario: ' + error.message);
+                    DS.toast('Error al crear el usuario: ' + error.message, { type: 'error', duration: 0 });
                 }
             });
 
@@ -259,43 +262,39 @@
                     const data = await response.json();
                     if (!response.ok) throw new Error(data.error || 'Error al editar el usuario.');
 
-                    alert(`Usuario ${data.username} actualizado exitosamente.`);
+                    DS.toast(`Usuario ${data.username} actualizado exitosamente.`, { type: 'success' });
                     cerrarModales();
                     fetchUsuarios();
                 } catch (error) {
                     console.error('Error:', error);
-                    alert('Error al editar el usuario: ' + error.message);
+                    DS.toast('Error al editar el usuario: ' + error.message, { type: 'error', duration: 0 });
                 }
             });
 
             // --- 5. Lógica para Eliminar Usuario (DELETE) ---
-            tablaBody.addEventListener('click', (e) => {
+            tablaBody.addEventListener('click', async (e) => {
                 if (e.target.classList.contains('btn-eliminar')) {
-                    usuarioIdActual = e.target.dataset.id;
+                    const id = e.target.dataset.id;
                     const username = e.target.dataset.username;
-                    document.getElementById('mensaje-eliminar').innerHTML = `¿Está seguro de eliminar a <strong>${username}</strong> (ID: ${usuarioIdActual})?`;
-                    modalEliminar.style.display = 'flex';
-                }
-            });
+                    const ok = await DS.confirm(`¿Está seguro de eliminar a "${username}" (ID: ${id})?`, { title: 'Eliminar usuario', confirmText: 'Eliminar', danger: true });
+                    if (!ok) return;
+                    try {
+                        const response = await fetch(`${API_URL}/${id}`, {
+                            method: 'DELETE',
+                            headers: { 'Authorization': `Bearer ${token}` }
+                        });
+                        if (response.status === 403) {
+                            const data = await response.json();
+                            throw new Error(data.error);
+                        }
+                        if (!response.ok) throw new Error('Error al eliminar el usuario.');
 
-            document.getElementById('btn-confirmar-eliminar').addEventListener('click', async () => {
-                try {
-                    const response = await fetch(`${API_URL}/${usuarioIdActual}`, {
-                        method: 'DELETE',
-                        headers: { 'Authorization': `Bearer ${token}` }
-                    });
-                    if (response.status === 403) {
-                        const data = await response.json();
-                        throw new Error(data.error);
+                        DS.toast(`Usuario "${username}" eliminado exitosamente.`, { type: 'success' });
+                        fetchUsuarios();
+                    } catch (error) {
+                        console.error('Error:', error);
+                        DS.toast('Error al eliminar: ' + error.message, { type: 'error', duration: 0 });
                     }
-                    if (!response.ok) throw new Error('Error al eliminar el usuario.');
-                    
-                    alert(`Usuario (ID: ${usuarioIdActual}) eliminado exitosamente.`);
-                    cerrarModales();
-                    fetchUsuarios();
-                } catch (error) {
-                    console.error('Error:', error);
-                    alert('Error al eliminar: ' + error.message);
                 }
             });
 
@@ -303,7 +302,6 @@
             const cerrarModales = () => {
                 modalUsuario.style.display = 'none';
                 modalEditar.style.display = 'none';
-                modalEliminar.style.display = 'none';
             };
             document.querySelectorAll('.close, .btn-cancelar').forEach(el => el.addEventListener('click', cerrarModales));
             window.addEventListener('click', (e) => {
