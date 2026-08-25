@@ -17,7 +17,8 @@ function buildPedidoItems(carrito) {
                 nombre_producto_completo: item.nombre + (item.mods ? ` (${item.mods})` : ''),
                 cantidad: 0,
                 precio_unitario: item.precio,
-                notas: item.notas || ''
+                notas: item.notas || '',
+                detalle_componentes: item.detalleComponentes ? JSON.stringify(item.detalleComponentes) : null
             };
         }
         agrupados[key].cantidad += item.cantidad || 1;

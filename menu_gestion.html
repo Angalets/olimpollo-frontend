@@ -3,23 +3,50 @@
 <head>
     <meta charset="UTF-8">
     <title>Olimpollo - Gestión de Menú</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
-    
+    <link rel="stylesheet" href="design-system.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
     <style>
-        /* ==========================================================================
-           BASE DE ESTILOS UNIFICADA PARA OLIMPOLLO
-           ========================================================================== */
-        :root{--bg-main:#ECF0F1;--bg-header:#FFFFFF;--card-bg:#FFFFFF;--primary-text:#502c2c;--secondary-text:#808B96;--accent-color:#db3434;--accent-hover:#b92929;--border-color:#D5D8DC;--shadow-light:0 4px 15px rgba(0, 0, 0, 0.08);--shadow-heavy:0 10px 20px rgba(0, 0, 0, 0.12);}body{margin:0;font-family:'Poppins', sans-serif;background-color:var(--bg-main);color:var(--primary-text);display:flex;flex-direction:column;min-height:100vh;}header{background:var(--bg-header);padding:15px 40px;box-shadow:0 2px 10px rgba(0, 0, 0, 0.05);display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border-color);}header .logo{font-size:24px;font-weight:600;text-decoration:none;color:var(--primary-text);}header nav{display:flex;gap:20px;}header nav a{text-decoration:none;color:var(--secondary-text);font-weight:500;transition:color 0.3s;}header nav a:hover{color:var(--accent-color);}.user-info{display:flex;align-items:center;gap:20px;}#user-identifier{font-weight:500;background-color:var(--bg-main);padding:5px 12px;border-radius:15px;font-size:14px;}.logout{background:var(--accent-color);color:white;border:none;padding:8px 18px;border-radius:20px;cursor:pointer;font-size:14px;font-weight:500;transition:background-color 0.3s;}.logout:hover{background-color:var(--accent-hover);}main{flex:1;padding:40px;max-width:1400px;margin:0 auto;width:100%;box-sizing:border-box;}h1, h2, h3{margin-top:0;}h2.page-title{margin-bottom:30px;font-size:28px;font-weight:600;}.card{background:var(--card-bg);border-radius:12px;padding:25px;box-shadow:var(--shadow-light);margin-bottom:25px;}table{width:100%;border-collapse:collapse;background:var(--card-bg);border-radius:12px;overflow:hidden;box-shadow:var(--shadow-light);}th, td{padding:15px;text-align:left;border-bottom:1px solid var(--bg-main);}th{font-weight:600;font-size:14px;text-transform:uppercase;color:var(--secondary-text);background-color:#F8F9F9;}tr:hover{background-color:#FDF2F2;}.btn{border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:500;font-family:'Poppins', sans-serif;transition:background-color 0.3s, transform 0.2s;}.btn:hover{transform:translateY(-2px);}.btn-primary{background-color:var(--accent-color);color:white;}.btn-primary:hover{background-color:var(--accent-hover);}.btn-secondary{background-color:var(--secondary-text);color:white;}.btn-secondary:hover{background-color:#6C7A89;}.btn-danger{background-color:#E74C3C;color:white;}.btn-success{background-color:#2ECC71;color:white;}label{display:block;margin-bottom:8px;font-weight:500;font-size:14px;}input[type="text"],input[type="password"],input[type="number"],input[type="date"],select,textarea{width:100%;padding:12px;border:1px solid var(--border-color);border-radius:8px;font-family:'Poppins', sans-serif;font-size:14px;box-sizing:border-box;transition:border-color 0.3s, box-shadow 0.3s;}input:focus, select:focus, textarea:focus{outline:none;border-color:var(--accent-color);box-shadow:0 0 0 3px rgba(219, 52, 52, 0.1);}.modal{display:none;position:fixed;z-index:1000;left:0;top:0;width:100%;height:100%;background-color:rgba(0,0,0,0.5);justify-content:center;align-items:center;overflow-y:auto;padding:20px 0;}.modal-content{background:var(--card-bg);padding:30px;border-radius:12px;box-shadow:var(--shadow-heavy);width:90%;max-width:500px;position:relative;margin:auto;}.close{position:absolute;top:15px;right:20px;font-size:28px;cursor:pointer;color:var(--secondary-text);}footer{text-align:center;padding:20px;font-size:14px;color:var(--secondary-text);}
-        
-        /* Estilos específicos para esta página */
-        .action-bar { display: flex; flex-wrap: wrap; gap: 15px; margin-bottom: 25px; }
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        body { display: flex; flex-direction: column; min-height: 100vh; }
+        header { background: var(--color-surface); padding: 15px 40px; box-shadow: var(--shadow-sm); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--color-border); }
+        header .logo { font-family: var(--font-display); font-size: 22px; font-weight: 700; text-decoration: none; color: var(--color-text); }
+        header nav { display: flex; gap: 20px; }
+        header nav a { text-decoration: none; color: var(--color-text-muted); font-weight: 600; font-size: 14px; transition: color 0.2s; }
+        header nav a:hover { color: var(--color-brand); }
+        .user-info { display: flex; align-items: center; gap: 16px; }
+        #user-identifier { font-weight: 600; background: var(--color-surface-alt); padding: 5px 12px; border-radius: var(--radius-full); font-size: 13px; }
+
+        main { flex: 1; padding: 40px; max-width: 1200px; margin: 0 auto; width: 100%; box-sizing: border-box; }
+        h1, h2, h3 { margin-top: 0; }
+        .page-title { margin-bottom: 30px; font-size: 26px; }
+
+        table { width: 100%; border-collapse: collapse; background: var(--color-surface); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-sm); }
+        th, td { padding: 14px 15px; text-align: left; border-bottom: 1px solid var(--color-border); }
+        th { font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: 0.03em; color: var(--color-text-muted); background: var(--color-surface-alt); }
+        tr:hover td { background: var(--color-brand-tint); }
+
+        .action-bar { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 25px; }
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
         .form-grid-full { grid-column: 1 / -1; }
-        .option-list { list-style: none; padding: 0; margin: 15px 0; max-height: 200px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: 8px; }
-        .option-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; }
-        .option-item:not(:last-child) { border-bottom: 1px solid var(--bg-main); }
+        .option-list { list-style: none; padding: 0; margin: 15px 0; max-height: 200px; overflow-y: auto; border: 1px solid var(--color-border); border-radius: var(--radius-md); }
+        .option-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; }
+        .option-item:not(:last-child) { border-bottom: 1px solid var(--color-border); }
+
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(15, 17, 21, 0.6); justify-content: center; align-items: center; overflow-y: auto; padding: 20px 0; }
+        .modal-content { background: var(--color-surface); color: var(--color-text); padding: 28px; border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); width: 90%; max-width: 560px; position: relative; margin: auto; }
+        .modal-content .close { position: absolute; top: 16px; right: 18px; font-size: 22px; cursor: pointer; color: var(--color-text-muted); background: none; border: none; }
+        .modal-content .close:hover { color: var(--color-text); }
+        footer { text-align: center; padding: 20px; font-size: 13px; color: var(--color-text-muted); }
+
+        .checks-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; border: 1px solid var(--color-border); padding: 15px; border-radius: var(--radius-md); max-height: 150px; overflow-y: auto; background: var(--color-surface-alt); }
+        .checks-grid label { display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 13px; font-weight: 500; margin: 0; }
+
+        .combo-toggle { display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: var(--color-surface-alt); border-radius: var(--radius-md); border: 1px solid var(--color-border); cursor: pointer; }
+        .combo-toggle input { width: 18px; height: 18px; accent-color: var(--color-brand); cursor: pointer; }
+        .componente-block { border: 1.5px solid var(--color-border); border-radius: var(--radius-md); padding: 14px; margin-bottom: 12px; background: var(--color-surface); }
+        .componente-block-header { display: flex; gap: 10px; align-items: center; margin-bottom: 10px; }
+        .componente-block-header input[type="text"] { flex: 1; }
+        .componente-numero { font-family: var(--font-display); font-weight: 700; color: var(--color-text-muted); flex-shrink: 0; }
     </style>
 </head>
 <body>
@@ -33,15 +60,15 @@
         </nav>
         <div class="user-info">
             <span id="user-identifier"></span>
-            <button class="logout" id="btn-logout">Cerrar Sesión</button>
+            <button class="btn btn-secondary btn-sm" id="btn-logout">Cerrar Sesión</button>
         </div>
     </header>
 
     <main>
-        <h2 class="page-title">Gestión de Menú</h2>
+        <h2 class="page-title ds-display">Gestión de Menú</h2>
         <div class="action-bar">
-            <button id="btn-agregar-producto" class="btn btn-primary">➕ Agregar Nuevo Producto</button>
-            <button id="btn-gestionar-opciones" class="btn btn-secondary">⚙️ Gestionar Modificadores</button>
+            <button id="btn-agregar-producto" class="btn btn-primary"><i class="fas fa-plus"></i> Agregar Nuevo Producto</button>
+            <button id="btn-gestionar-opciones" class="btn btn-secondary"><i class="fas fa-sliders"></i> Gestionar Modificadores</button>
         </div>
 
         <table>
@@ -58,102 +85,113 @@
 
     <div id="modalProducto" class="modal">
         <div class="modal-content">
-            <span class="close">&times;</span>
+            <button type="button" class="close">&times;</button>
             <h3 id="modal-titulo">Agregar Producto</h3>
             <form id="form-producto" style="margin-top: 20px;">
                 <input type="hidden" id="producto-id">
                 <div class="form-grid">
                     <div>
                         <label for="nombre-venta">Nombre del Producto:</label>
-                        <input type="text" id="nombre-venta" required>
+                        <input type="text" id="nombre-venta" class="input" required>
                     </div>
                     <div>
                         <label for="precio-base">Precio Base:</label>
-                        <input type="number" id="precio-base" min="0" step="0.01" required>
-                    </div>
-                    
-                    <div class="form-grid-full">
-                        <label>Categoría:</label>
-                        <div style="display: flex; gap: 10px; align-items: center;">
-                            <select id="categoria-select" required style="flex: 1; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; font-family: 'Poppins', sans-serif;">
-                                </select>
-                            <input type="text" id="categoria-input" placeholder="Nombre de la nueva categoría" style="display: none; flex: 1; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; font-family: 'Poppins', sans-serif;">
-                            <button type="button" id="btn-toggle-categoria" class="btn btn-secondary" title="Crear Nueva Categoría" style="padding: 10px 15px; border-radius: 8px;">
-                                +
-                            </button>
-                        </div>
-                    </div>
-                    
-                    <div class="form-grid-full">
-                        <label for="imagen-url">URL de la Imagen (Opcional):</label>
-                        <input type="text" id="imagen-url" placeholder="Ej: https://i.postimg.cc/.../foto.jpg">
-                        <small style="color: gray; font-size: 11px;">Sube tu foto a postimages.org y pega aquí el "Enlace Directo".</small>
+                        <input type="number" id="precio-base" class="input" min="0" step="0.01" required>
                     </div>
 
                     <div class="form-grid-full">
-                        <label>Grupos de Modificadores:</label>
-                        <div id="container-checks-grupos" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; border: 1px solid var(--border-color); padding: 15px; border-radius: 8px; max-height: 150px; overflow-y: auto; background: #F8F9F9;">
-                            <span style="color: gray; font-size: 13px;">Cargando grupos...</span>
+                        <label>Categoría:</label>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <select id="categoria-select" class="select" required style="flex: 1;"></select>
+                            <input type="text" id="categoria-input" class="input" placeholder="Nombre de la nueva categoría" style="display: none; flex: 1;">
+                            <button type="button" id="btn-toggle-categoria" class="btn btn-secondary btn-sm" title="Crear Nueva Categoría">+</button>
                         </div>
-                        <small style="color: var(--secondary-text); font-size: 12px;">Selecciona los grupos que aplica este producto.</small>
                     </div>
+
+                    <div class="form-grid-full">
+                        <label for="imagen-url">URL de la Imagen (Opcional):</label>
+                        <input type="text" id="imagen-url" class="input" placeholder="Ej: https://i.postimg.cc/.../foto.jpg">
+                        <span class="field-help">Sube tu foto a postimages.org y pega aquí el "Enlace Directo".</span>
+                    </div>
+
+                    <div class="form-grid-full">
+                        <label class="combo-toggle" for="es-combo-check">
+                            <input type="checkbox" id="es-combo-check">
+                            <span><strong>Es un combo / promoción</strong> — junta varios artículos (ej. 3 hamburguesas), cada uno con sus propios modificadores.</span>
+                        </label>
+                    </div>
+
+                    <div class="form-grid-full" id="seccion-grupos-simples">
+                        <label>Grupos de Modificadores:</label>
+                        <div id="container-checks-grupos" class="checks-grid">
+                            <span class="field-help">Cargando grupos...</span>
+                        </div>
+                        <span class="field-help">Selecciona los grupos que aplica este producto.</span>
+                    </div>
+
+                    <div class="form-grid-full" id="seccion-componentes" style="display: none;">
+                        <label>Componentes del combo:</label>
+                        <div id="container-componentes"></div>
+                        <button type="button" id="btn-agregar-componente" class="btn btn-secondary btn-sm"><i class="fas fa-plus"></i> Agregar componente</button>
+                    </div>
+
                     <div class="form-grid-full">
                         <label for="descripcion">Descripción:</label>
-                        <textarea id="descripcion" rows="2"></textarea>
+                        <textarea id="descripcion" class="textarea" rows="2"></textarea>
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary" style="width: 100%; margin-top: 20px;">Guardar Producto</button>
+                <button type="submit" class="btn btn-primary btn-lg" style="width: 100%; margin-top: 20px;">Guardar Producto</button>
             </form>
         </div>
     </div>
 
     <div id="modalOpciones" class="modal">
         <div class="modal-content">
-            <span class="close">&times;</span>
+            <button type="button" class="close">&times;</button>
             <h3>Gestionar Modificadores</h3>
             <div style="margin-top: 20px;">
                 <label>Seleccionar Grupo:</label>
                 <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 20px;">
-                    <select id="mod-grupo-select"></select>
-                    <input type="text" id="mod-grupo-input" placeholder="Nombre del nuevo grupo" style="display: none; flex: 1;">
-                    <button id="btn-toggle-grupo" class="btn btn-secondary" title="Crear Nuevo Grupo" style="padding: 10px 15px;">+</button>
-                    <button id="btn-delete-grupo" class="btn btn-danger" title="Eliminar Grupo Actual" style="padding: 10px 15px;">🗑️</button>
+                    <select id="mod-grupo-select" class="select"></select>
+                    <input type="text" id="mod-grupo-input" class="input" placeholder="Nombre del nuevo grupo" style="display: none; flex: 1;">
+                    <button id="btn-toggle-grupo" type="button" class="btn btn-secondary btn-sm" title="Crear Nuevo Grupo">+</button>
+                    <button id="btn-delete-grupo" type="button" class="btn btn-danger-outline btn-sm" title="Eliminar Grupo Actual"><i class="fas fa-trash"></i></button>
                 </div>
                 <div style="margin-top: 20px;">
                     <h4>Valores para "<strong id="nombre-grupo-actual">Salsa</strong>"</h4>
                     <ul id="lista-opciones-valores" class="option-list"></ul>
                 </div>
-                <hr style="border: 1px solid var(--bg-main); margin: 20px 0;">
+                <hr style="border: none; border-top: 1px solid var(--color-border); margin: 20px 0;">
                 <form id="form-agregar-opcion">
                     <h4>Agregar a "<span id="nombre-grupo-form">Salsa</span>"</h4>
                     <div class="form-grid">
                         <div>
                             <label for="valor-opcion">Valor (Ej: BBQ Picante):</label>
-                            <input type="text" id="valor-opcion" required>
+                            <input type="text" id="valor-opcion" class="input" required>
                         </div>
                         <div>
                             <label for="precio-adicional">Precio Adicional ($):</label>
-                            <input type="number" id="precio-adicional" value="0.00" step="0.01" min="0" required>
+                            <input type="number" id="precio-adicional" class="input" value="0.00" step="0.01" min="0" required>
+                        </div>
+                        <div>
+                            <label>Insumo a descontar:</label>
+                            <select id="insumo-select-opcion" class="select">
+                                <option value="">Ninguno (No descontar)</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label>Cantidad a descontar:</label>
+                            <input type="number" id="cantidad-insumo-opcion" class="input" value="0" step="0.01" min="0">
                         </div>
                     </div>
-                    <div>
-    <label>Insumo a descontar:</label>
-    <select id="insumo-select-opcion" style="width:100%; padding:12px;">
-        <option value="">Ninguno (No descontar)</option>
-        <!-- Aquí cargaremos tus insumos dinámicamente -->
-    </select>
-</div>
-<div>
-    <label>Cantidad a descontar:</label>
-    <input type="number" id="cantidad-insumo-opcion" value="0" step="0.01" min="0">
-</div>
                     <button type="submit" class="btn btn-secondary" style="width: 100%; margin-top: 20px;">Añadir Valor</button>
                 </form>
             </div>
         </div>
     </div>
-    
+
     <footer>&copy; 2026 Los Boneless del Olimpo</footer>
+    <script src="design-system.js"></script>
 
 <script>
     (function() {
@@ -184,8 +222,7 @@
         const role = localStorage.getItem('userRole');
         
         if (!token || role !== 'Administrador') {
-            alert('Acceso denegado. Solo Administradores.');
-            window.location.href = 'index.html';
+            DS.notice('Acceso denegado. Solo Administradores.', { title: 'Acceso denegado' }).then(() => { window.location.href = 'index.html'; });
             return;
         }
 
@@ -230,15 +267,96 @@
         const btnToggleCategoria = document.getElementById('btn-toggle-categoria');
         let modoNuevaCategoria = false;
 
-        const imagenUrlInput = document.getElementById('imagen-url'); 
+        const imagenUrlInput = document.getElementById('imagen-url');
         const descripcionTextarea = document.getElementById('descripcion');
 
-        let opcionesData = []; 
-        let productosData = [];     
+        // Elementos de combo/componentes
+        const esComboCheck = document.getElementById('es-combo-check');
+        const seccionGruposSimples = document.getElementById('seccion-grupos-simples');
+        const seccionComponentes = document.getElementById('seccion-componentes');
+        const containerComponentes = document.getElementById('container-componentes');
+        const btnAgregarComponente = document.getElementById('btn-agregar-componente');
+        let gruposDisponiblesActuales = [];
+
+        let opcionesData = [];
+        let productosData = [];
         let modoNuevoGrupo = false;
 
         const abrirModal = (modal) => modal.style.display = 'flex';
         const cerrarModales = () => { modalProducto.style.display = 'none'; modalOpciones.style.display = 'none'; };
+
+        // --- COMBOS / COMPONENTES ---
+        const obtenerGruposDisponibles = async () => {
+            const response = await fetch(API_MENU_POS_URL, { headers: { 'Authorization': `Bearer ${token}` } });
+            const data = await response.json();
+            return Object.keys(data.opciones || {});
+        };
+
+        const construirChecksGrid = (contenedor, gruposDisponibles, seleccionados = []) => {
+            contenedor.innerHTML = '';
+            if (gruposDisponibles.length === 0) {
+                contenedor.innerHTML = '<span class="field-help">No hay grupos creados. Ve a "Gestionar Modificadores" primero.</span>';
+                return;
+            }
+            gruposDisponibles.forEach(grupo => {
+                const label = document.createElement('label');
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.value = grupo;
+                if (seleccionados.includes(grupo)) checkbox.checked = true;
+                label.appendChild(checkbox);
+                label.appendChild(document.createTextNode(grupo));
+                contenedor.appendChild(label);
+            });
+        };
+
+        const renderizarBloqueComponente = (gruposDisponibles, nombre = '', gruposSeleccionadosStr = '') => {
+            const block = document.createElement('div');
+            block.className = 'componente-block';
+            block.innerHTML = `
+                <div class="componente-block-header">
+                    <span class="componente-numero">#${containerComponentes.children.length + 1}</span>
+                    <input type="text" class="input componente-nombre" placeholder="Nombre del componente (ej. Hamburguesa 1)">
+                    <button type="button" class="btn btn-danger-outline btn-sm btn-quitar-componente"><i class="fas fa-trash"></i></button>
+                </div>
+                <div class="checks-grid componente-checks"></div>
+            `;
+            block.querySelector('.componente-nombre').value = nombre;
+            const seleccionados = gruposSeleccionadosStr ? gruposSeleccionadosStr.split(',').map(s => s.trim()) : [];
+            construirChecksGrid(block.querySelector('.componente-checks'), gruposDisponibles, seleccionados);
+            block.querySelector('.btn-quitar-componente').addEventListener('click', () => block.remove());
+            containerComponentes.appendChild(block);
+        };
+
+        esComboCheck.addEventListener('change', () => {
+            seccionGruposSimples.style.display = esComboCheck.checked ? 'none' : '';
+            seccionComponentes.style.display = esComboCheck.checked ? '' : 'none';
+        });
+
+        btnAgregarComponente.addEventListener('click', () => renderizarBloqueComponente(gruposDisponiblesActuales));
+
+        // Prepara ambas secciones (grupos planos y componentes de combo) para el modal de
+        // producto, según si el producto que se está editando ya tiene componentes o no.
+        const prepararSeccionesModificadores = async (producto = null) => {
+            containerChecksGrupos.innerHTML = '<span class="field-help">Cargando...</span>';
+            containerComponentes.innerHTML = '';
+            try {
+                gruposDisponiblesActuales = await obtenerGruposDisponibles();
+            } catch (error) {
+                gruposDisponiblesActuales = [];
+            }
+
+            const tieneComponentes = !!(producto && Array.isArray(producto.componentes) && producto.componentes.length > 0);
+            esComboCheck.checked = tieneComponentes;
+            seccionGruposSimples.style.display = tieneComponentes ? 'none' : '';
+            seccionComponentes.style.display = tieneComponentes ? '' : 'none';
+
+            if (tieneComponentes) {
+                producto.componentes.forEach(c => renderizarBloqueComponente(gruposDisponiblesActuales, c.nombre, c.grupos_modificadores || ''));
+            } else {
+                construirChecksGrid(containerChecksGrupos, gruposDisponiblesActuales, producto && producto.grupos_modificadores ? producto.grupos_modificadores.split(',').map(s => s.trim()) : []);
+            }
+        };
 
         // --- TOGGLE CATEGORÍA ---
         btnToggleCategoria.addEventListener('click', () => {
@@ -259,45 +377,6 @@
                 btnToggleCategoria.textContent = '+';
             }
         });
-
-        const renderizarChecksGrupos = async (seleccionadosStr = "") => {
-            containerChecksGrupos.innerHTML = '<span style="color:gray">Cargando...</span>';
-            try {
-                const seleccionados = seleccionadosStr ? seleccionadosStr.split(',').map(s => s.trim()) : [];
-                const response = await fetch(API_MENU_POS_URL, { headers: { 'Authorization': `Bearer ${token}` } });
-                const data = await response.json();
-                const gruposDisponibles = Object.keys(data.opciones || {}); 
-
-                containerChecksGrupos.innerHTML = ''; 
-
-                if (gruposDisponibles.length === 0) {
-                    containerChecksGrupos.innerHTML = '<span style="font-size:12px">No hay grupos creados. Ve a "Gestionar Modificadores" primero.</span>';
-                    return;
-                }
-
-                gruposDisponibles.forEach(grupo => {
-                    const label = document.createElement('label');
-                    label.style.display = 'flex';
-                    label.style.alignItems = 'center';
-                    label.style.gap = '8px';
-                    label.style.cursor = 'pointer';
-                    label.style.fontSize = '14px';
-
-                    const checkbox = document.createElement('input');
-                    checkbox.type = 'checkbox';
-                    checkbox.value = grupo;
-                    checkbox.name = 'grupos_check';
-                    if (seleccionados.includes(grupo)) checkbox.checked = true;
-
-                    label.appendChild(checkbox);
-                    label.appendChild(document.createTextNode(grupo));
-                    containerChecksGrupos.appendChild(label);
-                });
-            } catch (error) {
-                console.error("Error cargando grupos para checks:", error);
-                containerChecksGrupos.innerHTML = '<span style="color:red">Error al cargar grupos.</span>';
-            }
-        };
 
         const cargarGruposModificadores = async () => {
             try {
@@ -349,7 +428,7 @@
                 opcionesData.forEach(opcion => {
                     const li = document.createElement('li');
                     li.className = 'option-item';
-                    li.innerHTML = `<span>${opcion.valor} ($${parseFloat(opcion.precio_adicional).toFixed(2)})</span> <button class="btn btn-danger btn-eliminar-opcion" data-id="${opcion.id}" style="padding: 3px 8px;">X</button>`;
+                    li.innerHTML = `<span>${opcion.valor} ($${parseFloat(opcion.precio_adicional).toFixed(2)})</span> <button type="button" class="btn btn-danger-outline btn-sm btn-eliminar-opcion" data-id="${opcion.id}">Quitar</button>`;
                     listaOpcionesValores.appendChild(li);
                 });
             }
@@ -375,8 +454,9 @@
             // Pintar tabla
             tablaBody.innerHTML = '';
             productos.forEach(p => {
+                const esCombo = Array.isArray(p.componentes) && p.componentes.length > 0;
                 const tr = document.createElement('tr');
-                tr.innerHTML = `<td>${p.id}</td><td>${p.nombre_venta}</td><td>${p.categoria}</td><td>$${parseFloat(p.precio_base).toFixed(2)}</td><td>${p.receta_id || "-"}</td><td><button class="btn btn-secondary btn-editar-producto" data-id="${p.id}">Editar</button> <button class="btn btn-danger btn-eliminar-producto" data-id="${p.id}">Eliminar</button></td>`;
+                tr.innerHTML = `<td>${p.id}</td><td>${esCombo ? '<span class="badge badge-brand">Combo</span> ' : ''}${p.nombre_venta}</td><td>${p.categoria}</td><td>$${parseFloat(p.precio_base).toFixed(2)}</td><td>${p.receta_id || "-"}</td><td style="display:flex; gap:8px;"><button type="button" class="btn btn-secondary btn-sm btn-editar-producto" data-id="${p.id}">Editar</button> <button type="button" class="btn btn-danger-outline btn-sm btn-eliminar-producto" data-id="${p.id}">Eliminar</button></td>`;
                 tablaBody.appendChild(tr);
             });
         };
@@ -415,34 +495,46 @@
                 if (!response.ok) throw new Error("Error al guardar.");
                 cerrarModales();
                 fetchProductos();
-                alert(`Producto ${isEdit ? "actualizado" : "agregado"} con éxito.`);
+                DS.toast(`Producto ${isEdit ? "actualizado" : "agregado"} con éxito.`, { type: 'success' });
             } catch (error) {
-                alert("Error: " + error.message);
+                DS.toast("Error: " + error.message, { type: 'error', duration: 0 });
             }
         };
-        
+
         document.getElementById('btn-agregar-producto').addEventListener('click', () => {
             document.getElementById('modal-titulo').textContent = 'Agregar Producto';
             formProducto.reset();
             productoIdInput.value = '';
-            imagenUrlInput.value = ''; 
-            
+            imagenUrlInput.value = '';
+
             // Regresar el selector de categoría a la normalidad si estaba en modo "Nuevo"
             if(modoNuevaCategoria) btnToggleCategoria.click();
 
-            renderizarChecksGrupos(""); 
+            prepararSeccionesModificadores();
             abrirModal(modalProducto);
         });
 
         formProducto.addEventListener('submit', (e) => {
             e.preventDefault();
-            
-            const checkboxes = document.querySelectorAll('input[name="grupos_check"]:checked');
-            const gruposSeleccionados = Array.from(checkboxes).map(cb => cb.value).join(',');
-            
+
             // Definir qué categoría se guardará
             const categoriaFinal = modoNuevaCategoria ? inputCategoria.value.trim() : selectCategoria.value;
-            if(!categoriaFinal) return alert("Debes seleccionar o escribir una categoría.");
+            if(!categoriaFinal) return DS.toast('Debes seleccionar o escribir una categoría.', { type: 'warning' });
+
+            let gruposSeleccionados = '';
+            let componentes = [];
+
+            if (esComboCheck.checked) {
+                componentes = Array.from(containerComponentes.querySelectorAll('.componente-block')).map((block, i) => ({
+                    nombre: block.querySelector('.componente-nombre').value.trim(),
+                    orden: i,
+                    grupos_modificadores: Array.from(block.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value).join(',')
+                })).filter(c => c.nombre);
+
+                if (componentes.length === 0) return DS.toast('Agrega al menos un componente con nombre.', { type: 'warning' });
+            } else {
+                gruposSeleccionados = Array.from(containerChecksGrupos.querySelectorAll('input[type="checkbox"]:checked')).map(cb => cb.value).join(',');
+            }
 
             const id = productoIdInput.value;
             const data = {
@@ -450,20 +542,21 @@
                 nombre_venta: nombreVentaInput.value,
                 precio_base: parseFloat(precioBaseInput.value),
                 categoria: categoriaFinal,
-                grupos_modificadores: gruposSeleccionados, 
-                imagen_url: imagenUrlInput.value.trim() || null, 
+                grupos_modificadores: gruposSeleccionados,
+                componentes,
+                imagen_url: imagenUrlInput.value.trim() || null,
                 descripcion: descripcionTextarea.value
             };
-            
-            if (isNaN(data.precio_base) || data.precio_base < 0) return alert('Precio inválido.');
+
+            if (isNaN(data.precio_base) || data.precio_base < 0) return DS.toast('Precio inválido.', { type: 'warning' });
             guardarProducto(data, !!id);
         });
 
-        tablaBody.addEventListener('click', (e) => {
+        tablaBody.addEventListener('click', async (e) => {
             const btn = e.target.closest('.btn');
             if (!btn) return;
             const id = btn.dataset.id;
-            
+
             if (btn.classList.contains('btn-editar-producto')) {
                 const producto = productosData.find(p => p.id == id);
                 if (producto) {
@@ -471,7 +564,7 @@
                     productoIdInput.value = producto.id;
                     nombreVentaInput.value = producto.nombre_venta;
                     precioBaseInput.value = producto.precio_base;
-                    
+
                     if(modoNuevaCategoria) btnToggleCategoria.click();
 
                     // Asegurarnos de que la categoría exista en el selector
@@ -484,26 +577,26 @@
                     }
                     selectCategoria.value = producto.categoria;
 
-                    imagenUrlInput.value = producto.imagen_url || ''; 
+                    imagenUrlInput.value = producto.imagen_url || '';
                     descripcionTextarea.value = producto.descripcion || '';
-                    
-                    renderizarChecksGrupos(producto.grupos_modificadores || "");
-                    
+
+                    await prepararSeccionesModificadores(producto);
+
                     abrirModal(modalProducto);
                 }
             } else if (btn.classList.contains('btn-eliminar-producto')) {
-                if (confirm("¿Estás seguro de eliminar este producto del POS?")) {
-                    fetch(`${API_MENU_PRODUCTOS_URL}/${id}`, { method: "DELETE", headers: { "Authorization": `Bearer ${token}` } })
-                        .then(async (res) => {
-                            if (!res.ok) {
-                                const err = await res.json();
-                                throw new Error(err.error || "Error al intentar borrar en la base de datos.");
-                            }
-                            fetchProductos();
-                            alert("🗑️ Producto eliminado exitosamente del menú.");
-                        })
-                        .catch(e => alert("Error: " + e.message));
-                }
+                const ok = await DS.confirm('¿Estás seguro de eliminar este producto del POS?', { title: 'Eliminar producto', confirmText: 'Eliminar', danger: true });
+                if (!ok) return;
+                fetch(`${API_MENU_PRODUCTOS_URL}/${id}`, { method: "DELETE", headers: { "Authorization": `Bearer ${token}` } })
+                    .then(async (res) => {
+                        if (!res.ok) {
+                            const err = await res.json();
+                            throw new Error(err.error || "Error al intentar borrar en la base de datos.");
+                        }
+                        fetchProductos();
+                        DS.toast('Producto eliminado exitosamente del menú.', { type: 'success' });
+                    })
+                    .catch(e => DS.toast("Error: " + e.message, { type: 'error', duration: 0 }));
             }
         });
 
@@ -535,8 +628,8 @@
         formAgregarOpcion.addEventListener('submit', async (e) => {
             e.preventDefault();
             const nombreGrupo = modoNuevoGrupo ? inputGrupoNew.value.trim() : selectGrupoMod.value;
-            if (!nombreGrupo) return alert("Nombre de grupo requerido.");
-            
+            if (!nombreGrupo) return DS.toast('Nombre de grupo requerido.', { type: 'warning' });
+
             try {
                 const res = await fetch(API_MENU_OPCIONES_URL, {
                     method: "POST",
@@ -561,25 +654,25 @@
                         selectGrupoMod.value = nombreGrupo;
                     }
                     fetchOpcionesPorGrupo(nombreGrupo);
-                    alert("Opción agregada.");
+                    DS.toast('Opción agregada.', { type: 'success' });
                 }
-            } catch(e) { alert(e.message); }
+            } catch(e) { DS.toast(e.message, { type: 'error', duration: 0 }); }
         });
 
         btnDeleteGroup.addEventListener('click', async () => {
             const grp = selectGrupoMod.value;
-            if (confirm(`¿Eliminar grupo "${grp}" y todas sus opciones?`)) {
-                await fetch(`https://olimpollo-api.onrender.com/api/menu/opciones/grupo/${encodeURIComponent(grp)}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
-                cargarGruposModificadores();
-            }
+            const ok = await DS.confirm(`¿Eliminar grupo "${grp}" y todas sus opciones?`, { title: 'Eliminar grupo', confirmText: 'Eliminar', danger: true });
+            if (!ok) return;
+            await fetch(`https://olimpollo-api.onrender.com/api/menu/opciones/grupo/${encodeURIComponent(grp)}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
+            cargarGruposModificadores();
         });
 
-        listaOpcionesValores.addEventListener('click', (e) => {
+        listaOpcionesValores.addEventListener('click', async (e) => {
             if (e.target.classList.contains('btn-eliminar-opcion')) {
-                if(confirm("¿Eliminar opción?")) {
-                    fetch(`${API_MENU_OPCIONES_URL}/${e.target.dataset.id}`, { method: "DELETE", headers: { "Authorization": `Bearer ${token}` } })
-                        .then(() => fetchOpcionesPorGrupo(selectGrupoMod.value));
-                }
+                const ok = await DS.confirm('¿Eliminar esta opción?', { title: 'Eliminar opción', confirmText: 'Eliminar', danger: true });
+                if (!ok) return;
+                fetch(`${API_MENU_OPCIONES_URL}/${e.target.dataset.id}`, { method: "DELETE", headers: { "Authorization": `Bearer ${token}` } })
+                    .then(() => fetchOpcionesPorGrupo(selectGrupoMod.value));
             }
         });
 

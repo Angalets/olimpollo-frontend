@@ -108,8 +108,8 @@
         #mesa-banner { display: none; background: var(--color-info); color: white; text-align: center; padding: 8px; font-weight: bold; font-size: 13px; z-index: 60;}
 
         /* Modales */
-        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(15, 17, 21, 0.6); backdrop-filter: blur(4px); justify-content: center; align-items: center; }
-        .modal-content { background: var(--color-surface); color: var(--color-text); padding: 25px; border-radius: var(--radius-lg); width: 90%; max-width: 450px; position: relative; box-shadow: var(--shadow-lg);}
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(15, 17, 21, 0.6); backdrop-filter: blur(4px); justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; overflow-y: auto; }
+        .modal-content { background: var(--color-surface); color: var(--color-text); padding: 25px; border-radius: var(--radius-lg); width: 90%; max-width: 450px; max-height: calc(100vh - 40px); overflow-y: auto; position: relative; box-shadow: var(--shadow-lg); margin: auto;}
         .modal-content .close { position: absolute; top: 14px; right: 16px; font-size: 22px; line-height: 1; color: var(--color-text-muted); cursor: pointer; background: none; border: none; }
         .modal-content .close:hover { color: var(--color-text); }
         .opt-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-top: 15px; }
@@ -120,6 +120,11 @@
         .mod-group { margin-bottom: 18px; }
         .mod-group-label { font-size: 12px; font-weight: 700; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 8px; display: block; }
         .mod-group-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+        .combo-componente { margin-bottom: 18px; padding-bottom: 6px; border-bottom: 1px dashed var(--color-border); }
+        .combo-componente:last-of-type { border-bottom: none; }
+        .combo-componente-titulo { font-family: var(--font-display); font-weight: 700; font-size: 15px; color: var(--color-brand); margin-bottom: 10px; }
+        .item-mods-combo { font-size: 11px; color: var(--color-text-muted); display: block; margin-top: 4px; }
+        .item-mods-combo strong { color: var(--color-text); font-weight: 700; }
     </style>
     <script src="pos-common.js"></script>
     <script src="design-system.js"></script>
@@ -364,7 +369,9 @@
 
                         carrito = p.items.map(i => {
                             const match = i.nombre_producto.match(/(.*)\s\((.*)\)/);
-                            return { id: i.menu_producto_id, nombre: match ? match[1].trim() : i.nombre_producto, precio: i.precio_unitario, cantidad: i.cantidad, mods: match ? match[2] : '', notas: i.notas || '' };
+                            let detalleComponentes = null;
+                            if (i.detalle_componentes) { try { detalleComponentes = JSON.parse(i.detalle_componentes); } catch (e) {} }
+                            return { id: i.menu_producto_id, nombre: match ? match[1].trim() : i.nombre_producto, precio: i.precio_unitario, cantidad: i.cantidad, mods: match ? match[2] : '', notas: i.notas || '', detalleComponentes };
                         });
                         localStorage.removeItem('editPedidoData');
                         renderCarrito();
@@ -463,7 +470,8 @@
 
             const crearTarjetaProducto = (p) => {
                 const btn = document.createElement('div'); 
-                btn.className = `product-card ${p.grupos_modificadores?'has-mods':''}`; 
+                const tieneMods = !!p.grupos_modificadores || (Array.isArray(p.componentes) && p.componentes.length > 0);
+                btn.className = `product-card ${tieneMods?'has-mods':''}`; 
                 
                 // Si tiene imagen_url la usamos, si no, usamos un fondo de color y un icono
                 let bgContent = '';
@@ -484,21 +492,42 @@
                 `; 
                 
                 btn.onclick = async () => {
-                    let mAcum=[], pExtra=0;
-                    if(p.grupos_modificadores){
-                        const gr=p.grupos_modificadores.split(',').map(g=>g.trim()).filter(Boolean);
-                        const hayOpciones = gr.some(g => (menuData.opciones[g] || []).length > 0);
-                        if (hayOpciones) {
-                            try {
-                                mAcum = await solicitarModificadores(p.nombre_venta, gr);
-                                pExtra = mAcum.reduce((s, o) => s + o.precio_adicional, 0);
-                            } catch (e) { return; }
-                        }
+                    let mAcum=[], pExtra=0, detalleComponentes=null;
+                    const esCombo = Array.isArray(p.componentes) && p.componentes.length > 0;
+
+                    let secciones = [];
+                    if (esCombo) {
+                        p.componentes.forEach(c => {
+                            (c.grupos_modificadores || '').split(',').map(g => g.trim()).filter(Boolean).forEach(g => {
+                                const opciones = menuData.opciones[g] || [];
+                                if (opciones.length > 0) secciones.push({ componente: c.nombre, grupoNombre: g, opciones });
+                            });
+                        });
+                    } else if (p.grupos_modificadores) {
+                        secciones = p.grupos_modificadores.split(',').map(g => g.trim()).filter(Boolean)
+                            .map(g => ({ grupoNombre: g, opciones: menuData.opciones[g] || [] }))
+                            .filter(s => s.opciones.length > 0);
+                    }
+
+                    if (secciones.length > 0) {
+                        try {
+                            const seleccion = await solicitarModificadores(p.nombre_venta, secciones);
+                            mAcum = seleccion.map(s => s.opcion);
+                            pExtra = mAcum.reduce((s, o) => s + o.precio_adicional, 0);
+                            if (esCombo) {
+                                const porComponente = {}, ordenComponentes = [];
+                                seleccion.forEach(s => {
+                                    if (!porComponente[s.componente]) { porComponente[s.componente] = []; ordenComponentes.push(s.componente); }
+                                    porComponente[s.componente].push(s.opcion.valor);
+                                });
+                                detalleComponentes = ordenComponentes.map(nombre => ({ nombre, mods: porComponente[nombre].join(', ') }));
+                            }
+                        } catch (e) { return; }
                     }
                     const modStr=mAcum.map(x=>x.valor).join(', ');
-                    const idx=carrito.findIndex(i=>i.id===p.id && i.mods===modStr && i.notas===''); 
-                    if(idx>-1) carrito[idx].cantidad++; else carrito.push({id:p.id, nombre:p.nombre_venta, precio:p.precio_base+pExtra, cantidad:1, mods:modStr, notas:''}); 
-                    renderCarrito(); 
+                    const idx=carrito.findIndex(i=>i.id===p.id && i.mods===modStr && i.notas==='');
+                    if(idx>-1) carrito[idx].cantidad++; else carrito.push({id:p.id, nombre:p.nombre_venta, precio:p.precio_base+pExtra, cantidad:1, mods:modStr, notas:'', detalleComponentes});
+                    renderCarrito();
                 };
                 return btn;
             };
@@ -533,13 +562,16 @@
             const renderCarrito = () => { 
                 listaCarrito.innerHTML = ''; 
                 if(carrito.length===0){ listaCarrito.innerHTML='<div class="empty-cart"><i class="fas fa-shopping-basket"></i>Ticket vacío</div>'; calcularTotal(); return; } 
-                carrito.forEach((i,idx) => { 
+                carrito.forEach((i,idx) => {
+                    const modsHTML = i.detalleComponentes
+                        ? i.detalleComponentes.map(c => `<span class="item-mods-combo"><strong>${c.nombre}:</strong> ${c.mods}</span>`).join('')
+                        : (i.mods ? `<span class="item-mods">${i.mods}</span>` : '');
                     listaCarrito.innerHTML += `
                         <div class="cart-item">
                             <div class="cart-item-main">
                                 <div class="item-details">
                                     <span class="item-name">${i.nombre}</span>
-                                    <span class="item-mods">${i.mods}</span>
+                                    ${modsHTML}
                                     <span class="item-note">${i.notas?'📝 '+i.notas:''}</span>
                                 </div>
                                 <div class="item-price">$${(i.precio*i.cantidad).toFixed(2)}</div>
@@ -715,36 +747,54 @@
                 try { await fetch(`${API_BASE}/alertas`, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify({ mensaje: msj }) }); document.getElementById('modalIntercom').style.display = 'none'; DS.toast('Alerta enviada a cocina.', { type: 'success' }); } catch (e) {}
             };
 
-            const solicitarModificadores = (nombreProducto, grupos) => new Promise((resolve, reject) => {
+            // secciones: [{ componente?: string, grupoNombre: string, opciones: [...] }, ...]
+            // Cada sección se pinta como un grupo de chips; si trae `componente`, se agrupan
+            // visualmente bajo un encabezado por componente (para combos con varios artículos).
+            // Resuelve con [{ componente, grupoNombre, opcion }, ...] — se guarda por índice de
+            // sección, no por nombre de grupo, para que grupos con el mismo nombre repetido
+            // (ej. "Salsa" en 3 hamburguesas de un combo) no se pisen entre sí.
+            const solicitarModificadores = (nombreProducto, secciones) => new Promise((resolve, reject) => {
                 const contenedor = document.getElementById('modal-mod-grupos');
                 const modal = document.getElementById('modalModificadores');
                 contenedor.innerHTML = '';
                 document.getElementById('modal-mod-titulo').textContent = nombreProducto;
 
                 const seleccion = {};
-                grupos.forEach(g => {
-                    const op = menuData.opciones[g] || [];
-                    if (!op.length) return;
-                    seleccion[g] = op[0];
+                let ultimoComponente;
+                let destino = contenedor;
+
+                secciones.forEach((seccion, idx) => {
+                    if (seccion.componente !== undefined && seccion.componente !== ultimoComponente) {
+                        const bloque = document.createElement('div');
+                        bloque.className = 'combo-componente';
+                        bloque.innerHTML = `<div class="combo-componente-titulo">${seccion.componente}</div>`;
+                        contenedor.appendChild(bloque);
+                        ultimoComponente = seccion.componente;
+                        destino = bloque;
+                    } else if (seccion.componente === undefined) {
+                        destino = contenedor;
+                    }
+
+                    seleccion[idx] = { componente: seccion.componente, grupoNombre: seccion.grupoNombre, opcion: seccion.opciones[0] };
 
                     const groupEl = document.createElement('div');
                     groupEl.className = 'mod-group';
-                    groupEl.innerHTML = `<span class="mod-group-label">${g}</span><div class="mod-group-chips"></div>`;
+                    groupEl.innerHTML = `<span class="mod-group-label">${seccion.grupoNombre}</span><div class="mod-group-chips"></div>`;
                     const chipsRow = groupEl.querySelector('.mod-group-chips');
 
-                    op.forEach((o, i) => {
+                    seccion.opciones.forEach((o, i) => {
                         const chip = document.createElement('button');
                         chip.type = 'button';
                         chip.className = `chip${i === 0 ? ' selected' : ''}`;
                         chip.textContent = o.valor + (o.precio_adicional > 0 ? ` +$${o.precio_adicional}` : '');
                         chip.onclick = () => {
-                            seleccion[g] = o;
+                            seleccion[idx].opcion = o;
                             chipsRow.querySelectorAll('.chip').forEach(c => c.classList.remove('selected'));
                             chip.classList.add('selected');
                         };
                         chipsRow.appendChild(chip);
                     });
-                    contenedor.appendChild(groupEl);
+                    destino.appendChild(groupEl);
                 });
 
                 const cerrar = () => { modal.style.display = 'none'; };
