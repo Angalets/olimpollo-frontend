@@ -335,13 +335,21 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         // Etiqueta visual si tiene recompensa
-        const badgeRecompensa = pedidoSeleccionado.recompensa ? 
+        const badgeRecompensa = pedidoSeleccionado.recompensa ?
             `<div style="background: #f1c40f; color: #fff; padding: 5px; border-radius: 4px; font-weight: bold; margin-bottom: 10px; text-align: center;">
                 🎟️ Pedido Ganador de Recompensa (8va Visita)
             </div>` : '';
 
+        const infoCancelacion = pedidoSeleccionado.estado === 'Cancelado' && pedidoSeleccionado.motivo_cancelacion ?
+            `<div style="background: #f8d7da; padding: 10px; border-radius: 6px; margin-bottom: 10px;">
+                <strong>❌ Cancelado por:</strong> ${pedidoSeleccionado.cancelado_por || 'Desconocido'}<br>
+                <strong>Motivo:</strong> ${pedidoSeleccionado.motivo_cancelacion}<br>
+                <small>${pedidoSeleccionado.fecha_cancelacion ? new Date(pedidoSeleccionado.fecha_cancelacion).toLocaleString('es-MX') : ''}</small>
+            </div>` : '';
+
         detalleContenido.innerHTML = `
             ${badgeRecompensa}
+            ${infoCancelacion}
             <div style="background: #f8f9fa; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
                 <h3 style="margin:0; color: var(--accent-color);">#${pedidoSeleccionado.id.toString().padStart(4, '0')} - ${pedidoSeleccionado.cliente}</h3>
                 <small style="color: gray;">
@@ -400,8 +408,11 @@ let botonesHTML = `<button id="btn-imprimir-ticket" class="btn btn-secondary" st
             if (confirm(`¿Confirmas marcar el Pedido #${id} como ENTREGADO?`)) cambiarEstado(id, 'Entregado');
         } 
         else if (e.target.id === 'btn-marcar-cancelado') {
-            if (confirm(`¿Confirmas marcar el Pedido #${id} como CANCELADO?`)) cambiarEstado(id, 'Cancelado');
-        } 
+            const motivo = prompt(`¿Por qué se cancela el Pedido #${id}? (obligatorio)`);
+            if (motivo === null) return;
+            if (!motivo.trim()) { alert('Debes escribir un motivo para cancelar.'); return; }
+            cancelarPedido(id, motivo.trim());
+        }
         else if (e.target.id === 'btn-eliminar-registro') {
             if (confirm(`⚠️ ¿Estás seguro de ELIMINAR DEFINITIVAMENTE el Pedido #${id}?`)) {
                 try {
@@ -419,10 +430,23 @@ let botonesHTML = `<button id="btn-imprimir-ticket" class="btn btn-secondary" st
             const response = await fetch(`${API_PEDIDOS_URL}/${id}`, {
                 method: 'PUT', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify({ estado: nuevoEstado })
             });
-            if (!response.ok) throw new Error('Error al actualizar estado.');
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(data.error || 'Error al actualizar estado.');
             alert(`Pedido #${id} actualizado a ${nuevoEstado} con éxito.`);
-            renderPedidos(); 
-        } catch (error) { console.error(error); alert('Fallo al cambiar el estado.'); }
+            renderPedidos();
+        } catch (error) { console.error(error); alert('Fallo al cambiar el estado: ' + error.message); }
+    };
+
+    const cancelarPedido = async (id, motivo) => {
+        try {
+            const response = await fetch(`${API_PEDIDOS_URL}/${id}/cancelar`, {
+                method: 'PUT', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify({ motivo })
+            });
+            const data = await response.json().catch(() => ({}));
+            if (!response.ok) throw new Error(data.error || 'Error al cancelar el pedido.');
+            alert(`Pedido #${id} cancelado.`);
+            renderPedidos(); mostrarDetalles(null);
+        } catch (error) { console.error(error); alert('Fallo al cancelar: ' + error.message); }
     };
 
     btnAplicarFiltro.addEventListener('click', renderPedidos);

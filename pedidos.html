@@ -584,8 +584,8 @@
                     if (editModeId) { url = `${API_BASE}/pedidos/${editModeId}`; method = 'PUT'; }
 
                     const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify(payload) });
-                    if (!res.ok) throw new Error('Error al guardar');
-                    const data = await res.json();
+                    const data = await res.json().catch(() => ({}));
+                    if (!res.ok) throw new Error(data.error || 'Error al guardar');
                     
                     let msj = editModeId ? '✅ Pedido actualizado.' : '✅ Pedido cobrado con éxito.';
                     if (data.recompensa) msj += '\n\n🎉 ¡ESTE CLIENTE ALCANZÓ SU 8VA VISITA!\nEl cupón saldrá en el ticket.';
