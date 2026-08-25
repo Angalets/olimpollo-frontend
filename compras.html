@@ -3,23 +3,32 @@
 <head>
     <meta charset="UTF-8">
     <title>Olimpollo - Compras</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
-    
+    <link rel="stylesheet" href="design-system.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
     <style>
-        /* ESTILOS BASE (Mismos de tu sistema) */
-        :root{--bg-main:#ECF0F1;--bg-header:#FFFFFF;--card-bg:#FFFFFF;--primary-text:#502c2c;--secondary-text:#808B96;--accent-color:#db3434;--accent-hover:#b92929;--border-color:#D5D8DC;--shadow-light:0 4px 15px rgba(0, 0, 0, 0.08);}body{margin:0;font-family:'Poppins', sans-serif;background-color:var(--bg-main);color:var(--primary-text);display:flex;flex-direction:column;min-height:100vh;}header{background:var(--bg-header);padding:15px 40px;box-shadow:0 2px 10px rgba(0, 0, 0, 0.05);display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border-color);}header .logo{font-size:24px;font-weight:600;text-decoration:none;color:var(--primary-text);}header nav{display:flex;gap:20px;}header nav a{text-decoration:none;color:var(--secondary-text);font-weight:500;transition:color 0.3s;}header nav a:hover{color:var(--accent-color);}.user-info{display:flex;align-items:center;gap:20px;}#user-identifier{font-weight:500;background-color:var(--bg-main);padding:5px 12px;border-radius:15px;font-size:14px;}.logout{background:var(--accent-color);color:white;border:none;padding:8px 18px;border-radius:20px;cursor:pointer;font-size:14px;font-weight:500;transition:background-color 0.3s;}.logout:hover{background-color:var(--accent-hover);}main{flex:1;padding:40px;max-width:1400px;margin:0 auto;width:100%;box-sizing:border-box;}h2.page-title{margin-bottom:30px;font-size:28px;font-weight:600;}.card{background:var(--card-bg);border-radius:12px;padding:25px;box-shadow:var(--shadow-light);margin-bottom:25px;}table{width:100%;border-collapse:collapse;}th, td{padding:12px;text-align:left;border-bottom:1px solid var(--bg-main);}
-        
+        body { display: flex; flex-direction: column; min-height: 100vh; }
+        header { background: var(--color-surface); padding: 15px 40px; box-shadow: var(--shadow-sm); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--color-border); }
+        header .logo { font-family: var(--font-display); font-size: 22px; font-weight: 700; text-decoration: none; color: var(--color-text); }
+        header nav { display: flex; gap: 20px; }
+        header nav a { text-decoration: none; color: var(--color-text-muted); font-weight: 600; font-size: 14px; transition: color 0.2s; }
+        header nav a:hover { color: var(--color-brand); }
+        .user-info { display: flex; align-items: center; gap: 16px; }
+        #user-identifier { font-weight: 600; background: var(--color-surface-alt); padding: 5px 12px; border-radius: var(--radius-full); font-size: 13px; }
+
+        main { flex: 1; padding: 40px; max-width: 1200px; margin: 0 auto; width: 100%; box-sizing: border-box; }
+        .page-title { margin-bottom: 30px; font-size: 26px; }
+        .card { background: var(--color-surface); border-radius: var(--radius-lg); padding: 25px; box-shadow: var(--shadow-sm); margin-bottom: 25px; }
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid var(--color-border); }
+        th { font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: 0.03em; color: var(--color-text-muted); }
+        footer { text-align: center; padding: 20px; font-size: 13px; color: var(--color-text-muted); }
+
         /* ESTILOS ESPECÍFICOS COMPRAS */
         .form-row { display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 15px; align-items: end; margin-bottom: 20px; }
         .form-group label { display: block; margin-bottom: 5px; font-weight: 500; font-size: 14px; }
-        .form-control { width: 100%; padding: 10px; border: 1px solid var(--border-color); border-radius: 6px; box-sizing: border-box; }
-        .btn { padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; font-weight: 500; }
-        .btn-add { background: #27AE60; color: white; }
-        .btn-remove { background: #E74C3C; color: white; padding: 5px 10px; }
-        .btn-save { background: var(--accent-color); color: white; width: 100%; font-size: 16px; margin-top: 20px; }
-        .total-display { text-align: right; font-size: 1.5em; font-weight: bold; margin-top: 20px; color: var(--primary-text); }
+        .btn-save { width: 100%; font-size: 16px; margin-top: 20px; }
+        .total-display { text-align: right; font-size: 1.5em; font-weight: 700; font-family: var(--font-display); margin-top: 20px; color: var(--color-text); }
     </style>
 </head>
 <body>
@@ -27,41 +36,41 @@
         <a href="index.html" class="logo">Olimpollo</a>
         <nav>
             <a href="pedidos.html">POS</a>
-            <a href="compras.html" style="color: var(--accent-color);">Compras</a> <a href="inventario.html">Inventario</a>
+            <a href="compras.html" style="color: var(--color-brand);">Compras</a> <a href="inventario.html">Inventario</a>
             <a href="reportes.html">Reportes</a>
         </nav>
         <div class="user-info">
             <span id="user-identifier"></span>
-            <button class="logout" id="btn-logout">Salir</button>
+            <button class="btn btn-secondary btn-sm" id="btn-logout">Salir</button>
         </div>
     </header>
 
     <main>
-        <h2 class="page-title">Registrar Compra de Insumos</h2>
+        <h2 class="page-title ds-display">Registrar Compra de Insumos</h2>
 
         <div class="card">
             <div class="form-group" style="margin-bottom: 20px; max-width: 300px;">
                 <label>Proveedor (Opcional):</label>
-                <input type="text" id="proveedor" class="form-control" placeholder="Ej: Sam's Club, Mercado...">
+                <input type="text" id="proveedor" class="input" placeholder="Ej: Sam's Club, Mercado...">
             </div>
 
             <div class="form-row">
                 <div class="form-group">
                     <label>Insumo:</label>
-                    <select id="select-insumo" class="form-control">
+                    <select id="select-insumo" class="select">
                         <option value="">Cargando insumos...</option>
                     </select>
                 </div>
                 <div class="form-group">
                     <label>Cantidad a Sumar:</label>
-                    <input type="number" id="cantidad" class="form-control" placeholder="0" min="0.01" step="any">
-                    <small id="unidad-label" style="color:gray; font-size:12px;">Unidad</small>
+                    <input type="number" id="cantidad" class="input" placeholder="0" min="0.01" step="any">
+                    <span class="field-help" id="unidad-label">Unidad</span>
                 </div>
                 <div class="form-group">
                     <label>Costo Unitario ($):</label>
-                    <input type="number" id="costo" class="form-control" placeholder="0.00" min="0" step="0.01">
+                    <input type="number" id="costo" class="input" placeholder="0.00" min="0" step="0.01">
                 </div>
-                <button id="btn-agregar" class="btn btn-add">➕ Agregar</button>
+                <button type="button" id="btn-agregar" class="btn" style="background:var(--color-success); color:#fff;"><i class="fas fa-plus"></i> Agregar</button>
             </div>
         </div>
 
@@ -80,15 +89,18 @@
                 <tbody id="tabla-compras-body">
                     </tbody>
             </table>
-            
+
             <div class="total-display">
                 Total: $<span id="total-compra">0.00</span>
             </div>
 
-            <button id="btn-guardar-compra" class="btn btn-save">💾 Registrar Compra y Actualizar Stock</button>
+            <button type="button" id="btn-guardar-compra" class="btn btn-primary btn-lg btn-save"><i class="fas fa-save"></i> Registrar Compra y Actualizar Stock</button>
         </div>
     </main>
 
+    <footer>&copy; 2026 Los Boneless del Olimpo</footer>
+
+    <script src="design-system.js"></script>
     <script>
         (function() {
             const originalFetch = window.fetch;
@@ -158,7 +170,7 @@
                 const costo = parseFloat(inputCosto.value);
 
                 if (!insumoId || isNaN(cantidad) || cantidad <= 0 || isNaN(costo) || costo < 0) {
-                    return alert('Por favor completa los datos correctamente.');
+                    return DS.toast('Por favor completa los datos correctamente.', { type: 'warning' });
                 }
 
                 const insumoNombre = selectInsumo.options[selectInsumo.selectedIndex].text;
@@ -190,7 +202,7 @@
                             <td>${item.cantidad}</td>
                             <td>$${item.costo_unitario.toFixed(2)}</td>
                             <td>$${item.subtotal.toFixed(2)}</td>
-                            <td><button class="btn btn-remove" onclick="eliminarItem(${index})">X</button></td>
+                            <td><button type="button" class="btn btn-danger-outline btn-sm" onclick="eliminarItem(${index})"><i class="fas fa-trash"></i></button></td>
                         </tr>
                     `;
                     tablaBody.innerHTML += row;
@@ -207,11 +219,12 @@
 
             // 4. GUARDAR COMPRA
             document.getElementById('btn-guardar-compra').addEventListener('click', async () => {
-                if (carritoCompras.length === 0) return alert('La lista de compra está vacía.');
-                
+                if (carritoCompras.length === 0) return DS.toast('La lista de compra está vacía.', { type: 'warning' });
+
                 const btn = document.getElementById('btn-guardar-compra');
                 btn.disabled = true;
                 btn.textContent = "Procesando...";
+                const restaurarBoton = () => { btn.innerHTML = '<i class="fas fa-save"></i> Registrar Compra y Actualizar Stock'; };
 
                 const data = {
                     proveedor: inputProveedor.value.trim() || 'Varios',
@@ -229,18 +242,18 @@
                     const result = await response.json();
 
                     if (response.ok) {
-                        alert('✅ Compra registrada con éxito.\nEl inventario ha sido actualizado.');
+                        await DS.notice('Compra registrada con éxito. El inventario ha sido actualizado.', { title: 'Éxito' });
                         carritoCompras = [];
                         renderTabla();
                         inputProveedor.value = '';
                     } else {
-                        alert('Error: ' + (result.error || 'No se pudo guardar'));
+                        DS.toast('Error: ' + (result.error || 'No se pudo guardar'), { type: 'error', duration: 0 });
                     }
                 } catch (error) {
-                    alert('Error de conexión.');
+                    DS.toast('Error de conexión.', { type: 'error', duration: 0 });
                 } finally {
                     btn.disabled = false;
-                    btn.textContent = "💾 Registrar Compra y Actualizar Stock";
+                    restaurarBoton();
                 }
             });
         });

@@ -3,25 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <title>Olimpollo - Recetas</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
-    
+    <link rel="stylesheet" href="design-system.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
     <style>
-        /* ==========================================================================
-           BASE DE ESTILOS UNIFICADA PARA OLIMPOLLO
-           ========================================================================== */
-        :root{--bg-main:#ECF0F1;--bg-header:#FFFFFF;--card-bg:#FFFFFF;--primary-text:#502c2c;--secondary-text:#808B96;--accent-color:#db3434;--accent-hover:#b92929;--border-color:#D5D8DC;--shadow-light:0 4px 15px rgba(0, 0, 0, 0.08);--shadow-heavy:0 10px 20px rgba(0, 0, 0, 0.12);}body{margin:0;font-family:'Poppins', sans-serif;background-color:var(--bg-main);color:var(--primary-text);display:flex;flex-direction:column;min-height:100vh;}header{background:var(--bg-header);padding:15px 40px;box-shadow:0 2px 10px rgba(0, 0, 0, 0.05);display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--border-color);}header .logo{font-size:24px;font-weight:600;text-decoration:none;color:var(--primary-text);}header nav{display:flex;gap:20px;}header nav a{text-decoration:none;color:var(--secondary-text);font-weight:500;transition:color 0.3s;}header nav a:hover{color:var(--accent-color);}.user-info{display:flex;align-items:center;gap:20px;}#user-identifier{font-weight:500;background-color:var(--bg-main);padding:5px 12px;border-radius:15px;font-size:14px;}.logout{background:var(--accent-color);color:white;border:none;padding:8px 18px;border-radius:20px;cursor:pointer;font-size:14px;font-weight:500;transition:background-color 0.3s;}.logout:hover{background-color:var(--accent-hover);}main{flex:1;padding:40px;max-width:1400px;margin:0 auto;width:100%;box-sizing:border-box;}h1, h2, h3{margin-top:0;}h2.page-title{margin-bottom:30px;font-size:28px;font-weight:600;}.card{background:var(--card-bg);border-radius:12px;padding:25px;box-shadow:var(--shadow-light);margin-bottom:25px;}table{width:100%;border-collapse:collapse;background:var(--card-bg);border-radius:12px;overflow:hidden;box-shadow:var(--shadow-light);}th, td{padding:15px;text-align:left;border-bottom:1px solid var(--bg-main);}th{font-weight:600;font-size:14px;text-transform:uppercase;color:var(--secondary-text);background-color:#F8F9F9;}tr:hover{background-color:#FDF2F2;}.btn{border:none;padding:10px 20px;border-radius:8px;cursor:pointer;font-weight:500;font-family:'Poppins', sans-serif;transition:background-color 0.3s, transform 0.2s;}.btn:hover{transform:translateY(-2px);}.btn-primary{background-color:var(--accent-color);color:white;}.btn-primary:hover{background-color:var(--accent-hover);}.btn-secondary{background-color:var(--secondary-text);color:white;}.btn-secondary:hover{background-color:#6C7A89;}.btn-danger{background-color:#E74C3C;color:white;}.btn-success{background-color:#2ECC71;color:white;}label{display:block;margin-bottom:8px;font-weight:500;font-size:14px;}input[type="text"],input[type="password"],input[type="number"],input[type="date"],select,textarea{width:100%;padding:12px;border:1px solid var(--border-color);border-radius:8px;font-family:'Poppins', sans-serif;font-size:14px;box-sizing:border-box;transition:border-color 0.3s, box-shadow 0.3s;}input:focus, select:focus, textarea:focus{outline:none;border-color:var(--accent-color);box-shadow:0 0 0 3px rgba(219, 52, 52, 0.1);}.modal{display:none;position:fixed;z-index:1000;left:0;top:0;width:100%;height:100%;background-color:rgba(0,0,0,0.5);justify-content:center;align-items:center;overflow-y:auto;padding:20px 0;}.modal-content{background:var(--card-bg);padding:30px;border-radius:12px;box-shadow:var(--shadow-heavy);width:90%;max-width:600px;position:relative;margin:auto;}.close{position:absolute;top:15px;right:20px;font-size:28px;cursor:pointer;color:var(--secondary-text);}footer{text-align:center;padding:20px;font-size:14px;color:var(--secondary-text);}
-        
+        body { display: flex; flex-direction: column; min-height: 100vh; }
+        header { background: var(--color-surface); padding: 15px 40px; box-shadow: var(--shadow-sm); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--color-border); }
+        header .logo { font-family: var(--font-display); font-size: 22px; font-weight: 700; text-decoration: none; color: var(--color-text); }
+        header nav { display: flex; gap: 20px; }
+        header nav a { text-decoration: none; color: var(--color-text-muted); font-weight: 600; font-size: 14px; transition: color 0.2s; }
+        header nav a:hover { color: var(--color-brand); }
+        .user-info { display: flex; align-items: center; gap: 16px; }
+        #user-identifier { font-weight: 600; background: var(--color-surface-alt); padding: 5px 12px; border-radius: var(--radius-full); font-size: 13px; }
+
+        main { flex: 1; padding: 40px; max-width: 1400px; margin: 0 auto; width: 100%; box-sizing: border-box; }
+        .page-title { margin-bottom: 30px; font-size: 26px; }
+        .card { background: var(--color-surface); border-radius: var(--radius-lg); padding: 25px; box-shadow: var(--shadow-sm); margin-bottom: 25px; }
+        table { width: 100%; border-collapse: collapse; background: var(--color-surface); border-radius: var(--radius-lg); overflow: hidden; box-shadow: var(--shadow-sm); }
+        th, td { padding: 14px 15px; text-align: left; border-bottom: 1px solid var(--color-border); }
+        th { font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: 0.03em; color: var(--color-text-muted); background: var(--color-surface-alt); }
+        tr:hover td { background: var(--color-brand-tint); }
+        footer { text-align: center; padding: 20px; font-size: 13px; color: var(--color-text-muted); }
+
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(15, 17, 21, 0.6); justify-content: center; align-items: center; overflow-y: auto; padding: 20px; box-sizing: border-box; }
+        .modal-content { background: var(--color-surface); color: var(--color-text); padding: 28px; border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); width: 90%; max-width: 600px; max-height: calc(100vh - 40px); overflow-y: auto; position: relative; margin: auto; }
+        .modal-content .close { position: absolute; top: 16px; right: 18px; font-size: 22px; cursor: pointer; color: var(--color-text-muted); background: none; border: none; }
+        .modal-content .close:hover { color: var(--color-text); }
+
         /* Estilos específicos para esta página */
         .layout-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 25px; align-items: flex-start; }
         .action-bar { margin-bottom: 25px; }
         .item-adder { display: grid; grid-template-columns: 2fr 1fr 1fr auto; gap: 15px; align-items: flex-end; margin-bottom: 15px; }
         .item-adder-pasos { grid-template-columns: 1fr auto; }
         .item-list { list-style-position: inside; padding-left: 0; margin-top: 0; }
-        .item-list li { display: flex; justify-content: space-between; align-items: center; padding: 8px; border-radius: 6px; }
-        .item-list li:nth-child(odd) { background-color: var(--bg-main); }
-        .remove-item { cursor: pointer; color: var(--accent-color); font-weight: bold; font-size: 20px; padding: 0 10px; }
+        .item-list li { display: flex; justify-content: space-between; align-items: center; padding: 8px; border-radius: var(--radius-sm); }
+        .item-list li:nth-child(odd) { background-color: var(--color-surface-alt); }
+        .remove-item { cursor: pointer; color: var(--color-brand); font-weight: bold; font-size: 20px; padding: 0 10px; }
     </style>
 </head>
 <body>
@@ -35,16 +52,16 @@
         </nav>
         <div class="user-info">
             <span id="user-identifier"></span>
-            <button class="logout" id="btn-logout">Cerrar Sesión</button>
+            <button class="btn btn-secondary btn-sm" id="btn-logout">Cerrar Sesión</button>
         </div>
     </header>
 
     <main>
-        <h2 class="page-title">Gestión de Recetas</h2>
+        <h2 class="page-title ds-display">Gestión de Recetas</h2>
         <div class="layout-grid">
             <div class="recetas-lista">
                 <div class="action-bar">
-                    <button class="btn btn-primary" id="btn-agregar-receta">➕ Agregar Nueva Receta</button>
+                    <button class="btn btn-primary" id="btn-agregar-receta"><i class="fas fa-plus"></i> Agregar Nueva Receta</button>
                 </div>
                 <table>
                     <thead><tr><th>ID</th><th>Nombre</th><th>Descripción</th><th>Acciones</th></tr></thead>
@@ -63,62 +80,52 @@
 
     <div id="modalReceta" class="modal">
         <div class="modal-content">
-            <span class="close">&times;</span>
+            <button type="button" class="close">&times;</button>
             <h3 id="modal-titulo">Agregar Receta</h3>
             <form id="form-receta">
                 <input type="hidden" id="receta-id">
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
                     <div>
                         <label for="receta-nombre">Nombre de la Receta:</label>
-                        <input type="text" id="receta-nombre" required>
+                        <input type="text" id="receta-nombre" class="input" required>
                     </div>
                     <div>
                         <label for="producto-venta-id">Vincular a Producto:</label>
-                        <select id="producto-venta-id"><option value="">-- Ninguno --</option></select>
+                        <select id="producto-venta-id" class="select"><option value="">-- Ninguno --</option></select>
                     </div>
                 </div>
                 <div style="margin-bottom: 20px;">
                     <label for="receta-descripcion">Descripción Corta:</label>
-                    <textarea id="receta-descripcion" rows="2"></textarea>
+                    <textarea id="receta-descripcion" class="textarea" rows="2"></textarea>
                 </div>
-                <hr style="border: 1px solid var(--bg-main); margin: 20px 0;">
-                
+                <hr style="border: none; border-top: 1px solid var(--color-border); margin: 20px 0;">
+
                 <h4>Ingredientes</h4>
                 <div class="item-adder">
-                    <div><label>Insumo:</label><select id="select-insumo"></select></div>
-                    <div><label>Cantidad:</label><input type="number" id="cantidad-necesaria" min="0.001" step="0.001"></div>
-                    <div><label>Unidad:</label><input type="text" id="unidad-medida" placeholder="Ej: Kg, L"></div>
+                    <div><label>Insumo:</label><select id="select-insumo" class="select"></select></div>
+                    <div><label>Cantidad:</label><input type="number" id="cantidad-necesaria" class="input" min="0.001" step="0.001"></div>
+                    <div><label>Unidad:</label><input type="text" id="unidad-medida" class="input" placeholder="Ej: Kg, L"></div>
                     <button type="button" class="btn btn-secondary" id="btn-agregar-ingrediente">Añadir</button>
                 </div>
                 <ul class="item-list" id="lista-ingredientes"></ul>
-                <hr style="border: 1px solid var(--bg-main); margin: 20px 0;">
+                <hr style="border: none; border-top: 1px solid var(--color-border); margin: 20px 0;">
 
                 <h4>Pasos de Preparación</h4>
                 <div class="item-adder item-adder-pasos">
-                    <div><label>Descripción del Paso:</label><textarea id="paso-descripcion" rows="2"></textarea></div>
-                    <button type="button" class="btn btn-secondary" id="btn-agregar-paso">Añadir</button> 
+                    <div><label>Descripción del Paso:</label><textarea id="paso-descripcion" class="textarea" rows="2"></textarea></div>
+                    <button type="button" class="btn btn-secondary" id="btn-agregar-paso">Añadir</button>
                 </div>
                 <ol class="item-list" id="lista-pasos"></ol>
-                <hr style="border: 1px solid var(--bg-main); margin: 20px 0;">
+                <hr style="border: none; border-top: 1px solid var(--color-border); margin: 20px 0;">
 
-                <button type="submit" class="btn btn-primary" id="btn-guardar-receta" style="width: 100%; padding: 15px;">Guardar Receta</button>
+                <button type="submit" class="btn btn-primary btn-lg" id="btn-guardar-receta" style="width: 100%;">Guardar Receta</button>
             </form>
         </div>
     </div>
 
-    <div id="modalEliminar" class="modal">
-        <div class="modal-content" style="text-align: center;">
-            <span class="close">&times;</span>
-            <h3>¿Eliminar Receta?</h3>
-            <p id="mensaje-eliminar"></p>
-            <div style="display: flex; gap: 15px; justify-content: center; margin-top: 20px;">
-                <button class="btn btn-danger" id="btn-confirmar-eliminar">Sí, eliminar</button>
-                <button type="button" class="btn btn-secondary btn-cancelar">Cancelar</button>
-            </div>
-        </div>
-    </div>
+    <footer>&copy; 2026 Los Boneless del Olimpo</footer>
 
-    <footer>&copy; 2025 Los Boneless del Olimpo</footer>
+    <script src="design-system.js"></script>
 
     <script>
 (function() {
@@ -133,6 +140,7 @@
         return response;
     };
 })();
+function parseJwt(token) { try { return JSON.parse(decodeURIComponent(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/')).split('').map(c=>'%'+('00'+c.charCodeAt(0).toString(16)).slice(-2)).join(''))); } catch(e){return null;} }
 document.addEventListener('DOMContentLoaded', () => {
 
     // --- 1. CONFIGURACIÓN DE API Y ESTADO GLOBAL ---
@@ -143,11 +151,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const token = localStorage.getItem('authToken');
     if (!token) { window.location.href = 'login.html'; return; }
+    const userData = parseJwt(token);
+    if (userData && userData.username) document.getElementById('user-identifier').textContent = userData.username;
 
     let recetas = [];
     let insumosDisponibles = [];
     let productosVenta = [];
-    let recetaIdActual = null;
     let tempIngredientes = [];
     let tempPasos = [];
 
@@ -157,10 +166,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const detalleTitulo = document.getElementById('detalle-titulo');
     const btnLogout = document.getElementById('btn-logout');
     const modalReceta = document.getElementById('modalReceta');
-    const modalEliminar = document.getElementById('modalEliminar');
     const modalTitulo = document.getElementById('modal-titulo');
     const formReceta = document.getElementById('form-receta');
-    const btnConfirmarEliminar = document.getElementById('btn-confirmar-eliminar');
     const btnAgregarReceta = document.getElementById('btn-agregar-receta');
 
     // Inputs del formulario
@@ -181,7 +188,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const abrirModal = (modal) => modal.style.display = 'flex';
     const cerrarModales = () => {
         modalReceta.style.display = 'none';
-        modalEliminar.style.display = 'none';
     };
     const cerrarSesion = () => {
         localStorage.removeItem('authToken');
@@ -239,7 +245,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         } catch (error) {
             console.error('Error cargando datos:', error);
-            alert('Error crítico: No se pudieron cargar los insumos y productos. Recargue la página.');
+            DS.toast('Error crítico: No se pudieron cargar los insumos y productos. Recargue la página.', { type: 'error', duration: 0 });
         }
     };
 
@@ -264,9 +270,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     <td>${receta.id.toString().padStart(3, '0')}</td>
                     <td>${receta.nombre}</td>
                     <td>${descCorta}</td>
-                    <td>
-                        <button class="btn btn-edit" data-id="${receta.id}">Editar</button>
-                        <button class="btn btn-eliminar" data-id="${receta.id}">Eliminar</button>
+                    <td style="display:flex; gap:8px;">
+                        <button type="button" class="btn btn-secondary btn-sm btn-edit" data-id="${receta.id}">Editar</button>
+                        <button type="button" class="btn btn-danger-outline btn-sm btn-eliminar" data-id="${receta.id}">Eliminar</button>
                     </td>
                 `;
                 tablaBody.appendChild(tr);
@@ -274,7 +280,7 @@ document.addEventListener('DOMContentLoaded', () => {
             mostrarDetalles(null);
         } catch (error) {
             console.error('Error al renderizar recetas:', error);
-            tablaBody.innerHTML = '<tr><td colspan="4" style="color:red; font-weight:bold;">Error al conectar con el servidor.</td></tr>';
+            tablaBody.innerHTML = '<tr><td colspan="4" style="color:var(--color-brand); font-weight:bold;">Error al conectar con el servidor.</td></tr>';
         }
     };
 
@@ -295,13 +301,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 throw new Error(errorData.error || `Error al ${isEdit ? 'actualizar' : 'crear'} la receta.`);
             }
 
-            alert(`Receta "${recetaData.nombre}" ${isEdit ? 'actualizada' : 'creada'} exitosamente.`);
+            DS.toast(`Receta "${recetaData.nombre}" ${isEdit ? 'actualizada' : 'creada'} exitosamente.`, { type: 'success' });
             cerrarModales();
             await cargarDatosIniciales(); // Recargar productos por si la vinculación cambió
             await renderRecetas();
         } catch (error) {
             console.error('Error al guardar receta:', error);
-            alert(`Error: ${error.message}`);
+            DS.toast(`Error: ${error.message}`, { type: 'error', duration: 0 });
         }
     };
 
@@ -309,13 +315,12 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const response = await fetch(`${API_RECETAS_URL}/${id}`, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
             if (!response.ok) throw new Error('No se pudo eliminar la receta.');
-            
-            alert('Receta eliminada exitosamente.');
-            cerrarModales();
+
+            DS.toast('Receta eliminada exitosamente.', { type: 'success' });
             await renderRecetas();
         } catch (error) {
             console.error('Error al eliminar receta:', error);
-            alert('Error: ' + error.message);
+            DS.toast('Error: ' + error.message, { type: 'error', duration: 0 });
         }
     };
 
@@ -362,7 +367,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Clicks en la tabla (Editar, Eliminar, Ver Detalles)
-    tablaBody.addEventListener('click', (e) => {
+    tablaBody.addEventListener('click', async (e) => {
         const target = e.target;
         const fila = target.closest('tr');
         if (!fila) return;
@@ -389,10 +394,9 @@ document.addEventListener('DOMContentLoaded', () => {
             renderTempItems();
             abrirModal(modalReceta);
         } else if (target.classList.contains('btn-eliminar')) {
-            recetaIdActual = id;
             const receta = recetas.find(r => r.id == id);
-            document.getElementById('mensaje-eliminar').textContent = `¿Seguro que deseas eliminar la receta "${receta.nombre}"?`;
-            abrirModal(modalEliminar);
+            const ok = await DS.confirm(`¿Seguro que deseas eliminar la receta "${receta.nombre}"?`, { title: 'Eliminar receta', confirmText: 'Eliminar', danger: true });
+            if (ok) eliminarReceta(id);
         } else {
             mostrarDetalles(id);
         }
@@ -405,7 +409,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const unidad = unidadMedidaInput.value.trim();
 
         if (!insumoId || isNaN(cantidad) || cantidad <= 0 || !unidad) {
-            alert('Por favor, selecciona un insumo, ingresa una cantidad válida y una unidad.');
+            DS.toast('Por favor, selecciona un insumo, ingresa una cantidad válida y una unidad.', { type: 'warning' });
             return;
         }
         tempIngredientes.push({ insumo_id: insumoId, cantidad_necesaria: cantidad, unidad_medida: unidad });
@@ -444,7 +448,7 @@ document.addEventListener('DOMContentLoaded', () => {
         e.preventDefault();
         const id = recetaIdInput.value;
         if (tempIngredientes.length === 0) {
-            alert('La receta debe tener al menos un ingrediente.');
+            DS.toast('La receta debe tener al menos un ingrediente.', { type: 'warning' });
             return;
         }
         const recetaData = {
@@ -455,11 +459,6 @@ document.addEventListener('DOMContentLoaded', () => {
             producto_venta_id: productoVentaSelect.value || null
         };
         guardarReceta(recetaData, id);
-    });
-
-    // Confirmar eliminación
-    btnConfirmarEliminar.addEventListener('click', () => {
-        eliminarReceta(recetaIdActual);
     });
 
     // Listeners generales
