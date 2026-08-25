@@ -283,7 +283,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 <div class="totals">
                     ${pedido.descuento > 0 ? `Descuento Aplicado: ${pedido.descuento}%<br>` : ''}
                     Total: <div class="total-big">$${pedido.total.toFixed(2)}</div>
-                    <small>Pago: ${pedido.metodo_pago || 'Efectivo'}</small>
+                    <small>Pago: ${pedido.metodo_pago === 'Mixto'
+                        ? `Efectivo $${parseFloat(pedido.monto_efectivo || 0).toFixed(2)} + ${pedido.metodo_pago_secundario} $${parseFloat(pedido.monto_no_efectivo || 0).toFixed(2)}`
+                        : (pedido.metodo_pago || 'Efectivo')}</small>
+                    ${parseFloat(pedido.propina || 0) > 0 ? `<br><small>Propina: $${parseFloat(pedido.propina).toFixed(2)}</small>` : ''}
                 </div>
 
                 ${cuponHTML}
@@ -316,11 +319,17 @@ document.addEventListener('DOMContentLoaded', () => {
         const metodo = pedidoSeleccionado.metodo_pago || 'Desconocido';
         const tipoConsumo = pedidoSeleccionado.tipo_consumo || 'Para Llevar';
         const descuento = pedidoSeleccionado.descuento || 0;
+        const propina = parseFloat(pedidoSeleccionado.propina || 0);
 
         let iconoPago = '💰';
         if (metodo.includes('Tarjeta')) iconoPago = '💳';
         if (metodo.includes('Aplicación')) iconoPago = '📱';
         if (metodo.includes('Transferencia')) iconoPago = '🏦';
+        if (metodo === 'Mixto') iconoPago = '💰💳';
+
+        const detalleMetodo = metodo === 'Mixto'
+            ? `Mixto (Efectivo $${parseFloat(pedidoSeleccionado.monto_efectivo || 0).toFixed(2)} + ${pedidoSeleccionado.metodo_pago_secundario} $${parseFloat(pedidoSeleccionado.monto_no_efectivo || 0).toFixed(2)})`
+            : metodo;
 
         let itemsHTML = '';
         pedidoSeleccionado.items.forEach(item => {
@@ -365,11 +374,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
             <div style="border: 1px solid #ddd; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
                 <h4 style="margin-top:0; border-bottom: 2px solid #eee; padding-bottom: 5px;">📊 Desglose Financiero</h4>
-                <div class="finance-row"><span>Método de Pago:</span><strong>${iconoPago} ${metodo}</strong></div>
+                <div class="finance-row"><span>Método de Pago:</span><strong>${iconoPago} ${detalleMetodo}</strong></div>
                 ${descuento > 0 ? `<div class="finance-row" style="color:var(--warning-color);"><span>Descuento / Cortesía:</span><span>-${descuento}%</span></div>` : ''}
                 <div class="finance-row finance-total"><span>Total Cobrado:</span><span>$${total.toFixed(2)}</span></div>
                 ${comision > 0 ? `<div class="finance-row finance-comision"><span>- Comisión:</span><span>$${comision.toFixed(2)}</span></div>` : ''}
                 <div class="finance-row"><span style="align-self: flex-end; font-weight:500;">Ingreso Neto:</span><strong class="finance-neto">$${ingresoNeto.toFixed(2)}</strong></div>
+                ${propina > 0 ? `<div class="finance-row" style="color:var(--success-color, #27AE60);"><span>Propina (aparte):</span><span>$${propina.toFixed(2)}</span></div>` : ''}
             </div>
 
             <h4>Productos:</h4>

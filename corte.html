@@ -91,6 +91,10 @@
                     <small>Venta Total del Día:</small><br>
                     <strong style="font-size: 20px;" id="sys-total-dia">$0.00</strong>
                 </div>
+                <div style="margin-top: 10px; text-align: right; opacity: 0.75;">
+                    <small>🎁 Propinas del periodo (no afectan la diferencia):</small><br>
+                    <strong id="sys-propinas">$0.00</strong>
+                </div>
             </div>
 
             <div class="panel-usuario">
@@ -132,11 +136,11 @@
                             <th>Fecha</th><th>Usuario</th><th>Venta Total</th>
                             <th>Esp. Efectivo</th><th>Real Efectivo</th>
                             <th>Esp. Tarjeta</th><th>Real Tarjeta</th>
-                            <th>Diferencia</th><th>Observaciones</th>
+                            <th>Diferencia</th><th>Propinas</th><th>Observaciones</th>
                         </tr>
                     </thead>
                     <tbody id="tabla-historial-body">
-                        <tr><td colspan="9" style="text-align:center; color:gray;">Cargando...</td></tr>
+                        <tr><td colspan="10" style="text-align:center; color:gray;">Cargando...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -181,6 +185,7 @@
                 
                 const totalDia = data.Efectivo + data.Tarjeta + data['Aplicación'] + data.Transferencia;
                 document.getElementById('sys-total-dia').textContent = `$${totalDia.toFixed(2)}`;
+                document.getElementById('sys-propinas').textContent = `$${(data.propinas || 0).toFixed(2)}`;
 
             } catch (e) {
                 alert('Error conectando con servidor: ' + e.message);
@@ -264,14 +269,14 @@
             const formatoFecha = (f) => new Date(f).toLocaleString('es-MX', { dateStyle: 'short', timeStyle: 'short' });
 
             const cargarHistorial = async () => {
-                tablaHistorialBody.innerHTML = '<tr><td colspan="9" style="text-align:center; color:gray;">Cargando...</td></tr>';
+                tablaHistorialBody.innerHTML = '<tr><td colspan="10" style="text-align:center; color:gray;">Cargando...</td></tr>';
                 try {
                     const res = await fetch(API_HISTORIAL, { headers: { 'Authorization': `Bearer ${token}` } });
                     const cortes = await res.json();
                     if (!res.ok) throw new Error(cortes.error || 'Error al cargar el historial.');
 
                     if (cortes.length === 0) {
-                        tablaHistorialBody.innerHTML = '<tr><td colspan="9" style="text-align:center; color:gray;">No hay cortes registrados.</td></tr>';
+                        tablaHistorialBody.innerHTML = '<tr><td colspan="10" style="text-align:center; color:gray;">No hay cortes registrados.</td></tr>';
                         return;
                     }
 
@@ -287,11 +292,12 @@
                             <td>${formatoMoneda(c.esperado_tarjeta)}</td>
                             <td>${formatoMoneda(c.real_tarjeta)}</td>
                             <td class="${claseDif}">${formatoMoneda(c.diferencia)}</td>
+                            <td>${formatoMoneda(c.propinas_periodo)}</td>
                             <td>${c.observaciones || ''}</td>
                         </tr>`;
                     }).join('');
                 } catch (e) {
-                    tablaHistorialBody.innerHTML = `<tr><td colspan="9" style="text-align:center; color:var(--red);">${e.message}</td></tr>`;
+                    tablaHistorialBody.innerHTML = `<tr><td colspan="10" style="text-align:center; color:var(--red);">${e.message}</td></tr>`;
                 }
             };
 

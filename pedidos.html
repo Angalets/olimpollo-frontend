@@ -172,6 +172,18 @@
                     <button type="button" class="btn-select" id="btn-select-pago"><i class="fas fa-money-bill-wave"></i> Efectivo</button>
                 </div>
 
+                <div id="panel-pago-mixto" style="display:none; background:#FFF7E6; border:1px solid #F0C36D; border-radius:8px; padding:10px; margin-bottom:10px;">
+                    <div style="font-size:10px; font-weight:800; color:var(--text-muted); margin-bottom:6px;">PAGO MIXTO</div>
+                    <div style="display:flex; gap:8px; align-items:center; margin-bottom:6px;">
+                        <label style="font-size:11px; flex-shrink:0; width:60px;">Efectivo:</label>
+                        <input type="number" id="mixto-efectivo" class="input-crm" placeholder="0.00" step="0.01" style="flex:1;">
+                    </div>
+                    <div style="display:flex; gap:8px; align-items:center; justify-content:space-between;">
+                        <button type="button" class="btn-select" id="btn-select-pago-secundario" style="flex-shrink:0; font-size:12px; padding:6px 10px;">Tarjeta</button>
+                        <span style="font-size:12px; font-weight:700;">Resto: <span id="mixto-resto">$0.00</span></span>
+                    </div>
+                </div>
+
                 <div class="checkout-grid">
                     <div>
                         <label style="font-size: 10px; font-weight: 800; color: var(--text-muted);">AJUSTE MANUAL ($)</label>
@@ -187,6 +199,11 @@
                             <option value="100">100% (Cortesía)</option>
                         </select>
                     </div>
+                </div>
+
+                <div style="margin-bottom: 10px;">
+                    <label style="font-size: 10px; font-weight: 800; color: var(--text-muted);">PROPINA ($, aparte del total)</label>
+                    <input type="number" id="input-propina" class="input-crm" placeholder="0.00" step="0.01" style="width:100%; margin-top:2px;">
                 </div>
 
                 <div id="info-comision" style="font-size: 11px; font-weight: 700; color: var(--danger); text-align: right; margin-top: 5px; display: none;"></div>
@@ -264,7 +281,8 @@
             
             let menuData = { productos: [], opciones: {} };
             let carrito = [];
-            let selectedCanal = 'OyR', selectedPago = 'Efectivo', selectedTipo = 'Para Llevar'; 
+            let selectedCanal = 'OyR', selectedPago = 'Efectivo', selectedTipo = 'Para Llevar';
+            let selectedPagoSecundario = 'Tarjeta';
             let editModeId = null;
 
             // DOM Elements
@@ -274,6 +292,10 @@
             const totalPedidoSpan = document.getElementById('total-pedido');
             const inputAjusteTotal = document.getElementById('ajuste-total');
             const selectDescuento = document.getElementById('select-descuento');
+            const inputPropina = document.getElementById('input-propina');
+            const panelPagoMixto = document.getElementById('panel-pago-mixto');
+            const inputMixtoEfectivo = document.getElementById('mixto-efectivo');
+            const mixtoRestoSpan = document.getElementById('mixto-resto');
             const btnCobrar = document.getElementById('btn-cobrar');
             const infoComision = document.getElementById('info-comision');
             const inputTelefono = document.getElementById('cliente-telefono');
@@ -309,9 +331,17 @@
                         selectedPago = p.metodo_pago || 'Efectivo';
                         selectedTipo = p.tipo_consumo || 'Para Llevar';
                         selectDescuento.value = p.descuento || 0;
+                        inputPropina.value = p.propina || '';
                         document.getElementById('btn-select-canal').innerHTML = `<i class="fas fa-store"></i> ${selectedCanal}`;
                         document.getElementById('btn-select-pago').innerHTML = `<i class="fas fa-money-bill"></i> ${selectedPago}`;
                         document.querySelectorAll('.btn-tipo').forEach(b => { b.classList.remove('active'); if(b.dataset.tipo === selectedTipo) b.classList.add('active'); });
+
+                        if (selectedPago === 'Mixto') {
+                            selectedPagoSecundario = p.metodo_pago_secundario || 'Tarjeta';
+                            document.getElementById('btn-select-pago-secundario').textContent = selectedPagoSecundario;
+                            inputMixtoEfectivo.value = p.monto_efectivo || '';
+                            panelPagoMixto.style.display = 'block';
+                        }
 
                         carrito = p.items.map(i => {
                             const match = i.nombre_producto.match(/(.*)\s\((.*)\)/);
@@ -350,8 +380,19 @@
             };
             
             document.getElementById('btn-select-canal').onclick = () => openSelector('Canal', ['OyR', 'Uber', 'Didi', 'Rappi', 'Empleado'], selectedCanal, (v) => { selectedCanal = v; document.getElementById('btn-select-canal').innerHTML = `<i class="fas fa-store"></i> ${v}`; calcularTotal(); });
-            document.getElementById('btn-select-pago').onclick = () => openSelector('Pago', ['Efectivo', 'Tarjeta', 'Transferencia', 'Aplicación'], selectedPago, (v) => { selectedPago = v; document.getElementById('btn-select-pago').innerHTML = `<i class="fas fa-money-bill"></i> ${v}`; calcularTotal(); });
-            
+            document.getElementById('btn-select-pago').onclick = () => openSelector('Pago', ['Efectivo', 'Tarjeta', 'Transferencia', 'Aplicación', 'Mixto'], selectedPago, (v) => {
+                selectedPago = v;
+                document.getElementById('btn-select-pago').innerHTML = `<i class="fas fa-money-bill"></i> ${v}`;
+                panelPagoMixto.style.display = v === 'Mixto' ? 'block' : 'none';
+                calcularTotal();
+            });
+            document.getElementById('btn-select-pago-secundario').onclick = () => openSelector('Método secundario', ['Tarjeta', 'Transferencia', 'Aplicación'], selectedPagoSecundario, (v) => {
+                selectedPagoSecundario = v;
+                document.getElementById('btn-select-pago-secundario').textContent = v;
+                calcularTotal();
+            });
+            inputMixtoEfectivo.addEventListener('input', () => calcularTotal());
+
             window.addEventListener('click', (e) => { if(e.target===modalSelector) modalSelector.style.display='none'; if(e.target===document.getElementById('modalIntercom')) document.getElementById('modalIntercom').style.display='none';});
 
             // CRM Buscar
@@ -487,21 +528,35 @@
             window.modQty = (i, d) => { carrito[i].cantidad+=d; if(carrito[i].cantidad<=0) carrito.splice(i,1); renderCarrito(); };
             window.addNota = (i) => { const n=prompt("Nota cocina:", carrito[i].notas); if(n!==null){carrito[i].notas=n.trim(); renderCarrito();} };
 
+            const TASA_COMISION = { 'Tarjeta': 0.04176, 'Aplicación': 0.4213 };
+
             const calcularTotal = () => {
                 let subtotal = carrito.reduce((s, i) => s + (i.precio * i.cantidad), 0);
                 let pct = parseInt(selectDescuento.value) || 0;
                 let manual = parseFloat(inputAjusteTotal.value);
-                
+
                 let base = (manual && manual >= 0) ? manual : subtotal;
-                let total = base * (1 - (pct / 100)); 
+                let total = base * (1 - (pct / 100));
 
                 totalPedidoSpan.textContent = pct === 100 ? "CORTESÍA" : `$${total.toFixed(2)}`;
-                
-                if (total > 0) {
-                    if (selectedPago === 'Tarjeta') { infoComision.style.display = 'block'; infoComision.innerHTML = `Comisión Tarjeta: -$${(total * 0.04176).toFixed(2)}`; } 
-                    else if (selectedPago === 'Aplicación') { infoComision.style.display = 'block'; infoComision.innerHTML = !manual ? `⚠️ Ajuste Manual requerido` : `Comisión App: -$${(total * 0.4213).toFixed(2)}`; } 
-                    else { infoComision.style.display = 'none'; }
-                } else { infoComision.style.display = 'none'; }
+
+                if (selectedPago === 'Mixto') {
+                    const efectivo = parseFloat(inputMixtoEfectivo.value) || 0;
+                    const resto = total - efectivo;
+                    mixtoRestoSpan.textContent = `$${resto.toFixed(2)}`;
+                    mixtoRestoSpan.style.color = resto < 0 ? 'var(--danger)' : 'inherit';
+                    if (total > 0) {
+                        infoComision.style.display = 'block';
+                        infoComision.innerHTML = `Comisión ${selectedPagoSecundario}: -$${(Math.max(resto, 0) * (TASA_COMISION[selectedPagoSecundario] || 0)).toFixed(2)}`;
+                    } else { infoComision.style.display = 'none'; }
+                } else if (total > 0 && TASA_COMISION[selectedPago]) {
+                    infoComision.style.display = 'block';
+                    infoComision.innerHTML = selectedPago === 'Aplicación' && !manual
+                        ? `⚠️ Ajuste Manual requerido`
+                        : `Comisión ${selectedPago}: -$${(total * TASA_COMISION[selectedPago]).toFixed(2)}`;
+                } else {
+                    infoComision.style.display = 'none';
+                }
                 return total;
             };
 
@@ -572,13 +627,25 @@
                 if (carrito.length === 0) return alert('El ticket está vacío.');
                 const n = inputClienteNombre.value.trim();
                 if (!n) { inputClienteNombre.focus(); return alert('Ingresa el Nombre o Mesa.'); }
-                
-                btnCobrar.disabled = true; const t = calcularTotal();
-                
+
+                const t = calcularTotal();
+
                 const payload = {
                     cliente: n, telefono: inputTelefono.value.trim(), canal_venta: selectedCanal, metodo_pago: selectedPago, total_ajustado: t, tipo_consumo: selectedTipo, descuento: parseInt(selectDescuento.value)||0,
+                    propina: parseFloat(inputPropina.value) || 0,
                     items: buildPedidoItems(carrito)
                 };
+
+                if (selectedPago === 'Mixto') {
+                    const efectivo = parseFloat(inputMixtoEfectivo.value) || 0;
+                    const resto = t - efectivo;
+                    if (efectivo <= 0 || resto <= 0) return alert('Captura cuánto se pagó en efectivo; el resto se cobra en ' + selectedPagoSecundario + '.');
+                    payload.metodo_pago_secundario = selectedPagoSecundario;
+                    payload.monto_efectivo = efectivo;
+                    payload.monto_no_efectivo = resto;
+                }
+
+                btnCobrar.disabled = true;
 
                 try {
                     const data = await enviarPedido(API_BASE, token, payload, editModeId);
