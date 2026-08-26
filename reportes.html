@@ -58,6 +58,11 @@
     <main>
         <h2 class="page-title ds-display">Generador de Reportes</h2>
 
+        <div class="card" id="card-resumen-hoy">
+            <h3 style="margin-top:0;">📊 Resumen de Hoy</h3>
+            <div id="resumen-hoy-content" style="color:var(--color-text-muted);">Cargando...</div>
+        </div>
+
         <div class="card">
             <div class="filtros-grid">
                 <div>
@@ -88,10 +93,12 @@
                     <input type="date" id="fechaFin" class="input">
                     <select id="select-fecha-fin-merma" class="select" style="display:none;"></select>
                 </div>
-                <div>
+                <div style="display:flex; gap:10px;">
                     <button id="btn-generar" class="btn btn-primary" style="width: 100%;">Generar Reporte</button>
+                    <button id="btn-exportar-csv" class="btn btn-secondary" title="Exportar el reporte generado a CSV"><i class="fas fa-download"></i></button>
                 </div>
             </div>
+            <div id="date-presets" style="display:flex; gap:8px; flex-wrap:wrap; margin-top:15px;"></div>
             <p id="mensaje-reporte" style="margin-top: 15px; text-align: center;"></p>
         </div>
 
@@ -169,7 +176,30 @@
             const labelFechaFin = document.getElementById('label-fecha-fin');
             const selectFechaInicioMerma = document.getElementById('select-fecha-inicio-merma');
             const selectFechaFinMerma = document.getElementById('select-fecha-fin-merma');
+            const datePresetsDiv = document.getElementById('date-presets');
+            const btnExportarCSV = document.getElementById('btn-exportar-csv');
             let fechasInventarioCache = null;
+
+            // --- Helpers de fecha (para presets y el resumen del día) ---
+            const toISO = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+            const addDays = (d, n) => { const r = new Date(d); r.setDate(r.getDate() + n); return r; };
+            const DATE_PRESETS = [
+                { label: 'Hoy', calc: () => { const h = toISO(new Date()); return [h, h]; } },
+                { label: 'Ayer', calc: () => { const a = toISO(addDays(new Date(), -1)); return [a, a]; } },
+                { label: 'Esta semana', calc: () => { const hoy = new Date(); const offset = (hoy.getDay() + 6) % 7; return [toISO(addDays(hoy, -offset)), toISO(hoy)]; } },
+                { label: 'Este mes', calc: () => { const hoy = new Date(); return [toISO(new Date(hoy.getFullYear(), hoy.getMonth(), 1)), toISO(hoy)]; } },
+                { label: 'Mes pasado', calc: () => { const hoy = new Date(); return [toISO(new Date(hoy.getFullYear(), hoy.getMonth() - 1, 1)), toISO(new Date(hoy.getFullYear(), hoy.getMonth(), 0))]; } },
+                { label: 'Últimos 7 días', calc: () => [toISO(addDays(new Date(), -6)), toISO(new Date())] },
+                { label: 'Últimos 30 días', calc: () => [toISO(addDays(new Date(), -29)), toISO(new Date())] }
+            ];
+            datePresetsDiv.innerHTML = DATE_PRESETS.map((p, i) => `<button type="button" class="btn btn-secondary btn-sm" data-preset="${i}">${p.label}</button>`).join('');
+            datePresetsDiv.addEventListener('click', (e) => {
+                const btn = e.target.closest('[data-preset]');
+                if (!btn) return;
+                const [inicio, fin] = DATE_PRESETS[parseInt(btn.dataset.preset)].calc();
+                inputFechaInicio.value = inicio;
+                inputFechaFin.value = fin;
+            });
 
             const cargarFechasInventario = async () => {
                 if (fechasInventarioCache) return fechasInventarioCache;
@@ -193,6 +223,7 @@
                 selectFechaFinMerma.style.display = esMerma ? '' : 'none';
                 labelFechaInicio.textContent = esMerma ? 'Conteo Inicial:' : sinFecha ? 'Reporte histórico (sin fecha):' : 'Fecha Inicio / Fecha Única:';
                 labelFechaFin.textContent = esMerma ? 'Conteo Final:' : sinFecha ? '' : 'Fecha Fin:';
+                datePresetsDiv.style.display = esMerma || sinFecha ? 'none' : '';
                 if (!esMerma) return;
                 if (selectFechaInicioMerma.options.length > 0) return;
                 try {
@@ -300,6 +331,69 @@
             };
             // Se registra solo en el chart que lo necesita (options.plugins:[quadrantLinesPlugin]
             // en la instancia), no globalmente, para no afectar el resto de las gráficas.
+
+            // --- Exportar CSV: toma las tablas del reporte YA generado, sin código por-reporte ---
+            const escapeCSV = (v) => {
+                const s = String(v ?? '').replace(/\s+/g, ' ').trim();
+                return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s;
+            };
+            btnExportarCSV.addEventListener('click', () => {
+                const tablas = resultadosDiv.querySelectorAll('table');
+                if (tablas.length === 0) { DS.toast('Genera un reporte primero.', { type: 'warning' }); return; }
+                const lineas = [];
+                tablas.forEach((tabla, i) => {
+                    if (i > 0) lineas.push('');
+                    tabla.querySelectorAll('tr').forEach(tr => {
+                        lineas.push([...tr.children].map(td => escapeCSV(td.textContent)).join(','));
+                    });
+                });
+                const nombreReporte = selectTipoReporte.options[selectTipoReporte.selectedIndex]?.text || 'reporte';
+                const nombreArchivo = `${nombreReporte.replace(/[^a-z0-9]+/gi, '_')}_${toISO(new Date())}.csv`;
+                const blob = new Blob(['﻿' + lineas.join('\n')], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url; a.download = nombreArchivo;
+                document.body.appendChild(a); a.click(); document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            });
+
+            // --- Resumen de Hoy (landing, se carga solo al entrar a la página) ---
+            const cargarResumenHoy = async () => {
+                const contenedor = document.getElementById('resumen-hoy-content');
+                try {
+                    const hoyStr = toISO(new Date());
+                    const ayerStr = toISO(addDays(new Date(), -1));
+                    const [resHoy, resAyer] = await Promise.all([
+                        fetch(`${API_URL}/ventas?fechaInicio=${hoyStr}&fechaFin=${hoyStr}`, { headers: { 'Authorization': `Bearer ${token}` } }),
+                        fetch(`${API_URL}/ventas?fechaInicio=${ayerStr}&fechaFin=${ayerStr}`, { headers: { 'Authorization': `Bearer ${token}` } })
+                    ]);
+                    const dataHoy = await resHoy.json();
+                    const dataAyer = await resAyer.json();
+                    if (!resHoy.ok || !resAyer.ok) throw new Error('No se pudo cargar el resumen.');
+
+                    const ventaHoy = parseFloat(dataHoy.ventas_totales || 0);
+                    const ventaAyer = parseFloat(dataAyer.ventas_totales || 0);
+                    const pedidosHoy = parseInt(dataHoy.total_pedidos || 0);
+                    const delta = ventaAyer > 0 ? ((ventaHoy - ventaAyer) / ventaAyer) * 100 : null;
+                    const deltaColor = delta === null ? 'var(--color-text-muted)' : (delta >= 0 ? 'var(--color-success)' : 'var(--color-brand)');
+                    const deltaTexto = delta === null ? 'sin venta ayer para comparar' : `${delta >= 0 ? '▲' : '▼'} ${Math.abs(delta).toFixed(1)}% vs. ayer`;
+
+                    contenedor.innerHTML = `
+                        <div style="display:flex; gap:30px; flex-wrap:wrap; align-items:baseline;">
+                            <div>
+                                <small style="color:var(--color-text-muted);">Venta de Hoy</small>
+                                <div style="font-size:28px; font-weight:800; color:var(--color-text);">${money(ventaHoy)}</div>
+                                <small style="color:${deltaColor}; font-weight:600;">${deltaTexto}</small>
+                            </div>
+                            <div>
+                                <small style="color:var(--color-text-muted);">Pedidos de Hoy</small>
+                                <div style="font-size:28px; font-weight:800; color:var(--color-text);">${pedidosHoy}</div>
+                            </div>
+                        </div>`;
+                } catch (error) {
+                    contenedor.innerHTML = '<p style="color:var(--color-text-muted); margin:0;">No se pudo cargar el resumen de hoy.</p>';
+                }
+            };
 
             // --- 4. FUNCIONES DE REPORTES ---
 
@@ -1337,9 +1431,11 @@
                     generarReporteHistorico(fechaInicio);
                 }
 
-                
+
                 setTimeout(() => { mensajeElemento.textContent = ''; }, 5000);
             });
+
+            cargarResumenHoy();
         });
     </script>
 </body>
