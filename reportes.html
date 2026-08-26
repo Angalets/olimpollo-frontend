@@ -33,6 +33,11 @@
         }
         .chart-wrap { position: relative; height: 280px; margin: 15px 0 25px; }
         .chart-wrap canvas { max-width: 100%; }
+        .heatmap-table { border-collapse: separate; border-spacing: 2px; font-size: 12px; white-space: nowrap; }
+        .heatmap-table th { padding: 6px 8px; font-weight: 600; color: var(--color-text-muted); text-align: center; background: none; }
+        .heatmap-table td { padding: 6px 8px; text-align: center; border-radius: 4px; min-width: 34px; }
+        .heatmap-table .heatmap-total { background: var(--color-surface-alt) !important; font-weight: 700; color: var(--color-text) !important; }
+        .heatmap-table .heatmap-label { text-align: left; font-weight: 600; color: var(--color-text); padding-right: 12px; }
     </style>
 </head>
 <body>
@@ -61,6 +66,7 @@
                         <option value="">Seleccionar Tipo</option>
                         <option value="platillos">Conteo de Platillos</option>
                         <option value="margen_platillos">Margen por Platillo</option>
+                        <option value="horas_pico">Horas Pico (personal)</option>
                         <option value="ventas">Reporte de Ventas</option>
                        <option value="insumos_teoricos">Uso de Insumos (Teórico)</option>
                         <option value="historico_inventario">Inventario Histórico</option>
@@ -227,6 +233,16 @@
                 return palette[idx];
             };
             const metricColor = () => (isDarkMode() ? PALETTE_DARK[0] : PALETTE_LIGHT[0]);
+            // Interpola entre el color de superficie (intensidad 0) y el color métrico (intensidad 1),
+            // para el mapa de calor de horas pico — sequential, un solo tono, más oscuro = más alto.
+            const hexToRgb = (hex) => { const h = hex.replace('#', ''); return [parseInt(h.slice(0,2),16), parseInt(h.slice(2,4),16), parseInt(h.slice(4,6),16)]; };
+            const heatColor = (t) => {
+                const [r1, g1, b1] = hexToRgb(cssVar('--color-surface-alt').startsWith('#') ? cssVar('--color-surface-alt') : (isDarkMode() ? '#232A35' : '#F3F4F6'));
+                const [r2, g2, b2] = hexToRgb(metricColor());
+                const r = Math.round(r1 + (r2 - r1) * t), g = Math.round(g1 + (g2 - g1) * t), b = Math.round(b1 + (b2 - b1) * t);
+                return `rgb(${r},${g},${b})`;
+            };
+            const heatTextColor = (t) => t > 0.55 ? '#FFFFFF' : cssVar('--color-text');
             // Colores de estado: fijos, no cambian con el tema (misma semántica siempre)
             const STATUS_COLORS = { 'Estrella': '#0ca30c', 'Caballo de Batalla': '#fab219', 'Enigma': '#ec835a', 'Perro': '#d03b3b', 'Sin receta': '#9CA3AF', 'Costo Incompleto': '#9CA3AF' };
             const CLASIFICACION_ICONO = { 'Estrella': '⭐', 'Caballo de Batalla': '🐴', 'Enigma': '❓', 'Perro': '🐶', 'Sin receta': '⚠️', 'Costo Incompleto': '⚠️' };
@@ -1009,6 +1025,106 @@
                 } catch (error) { resultadosDiv.innerHTML = `<p style="color:var(--color-brand); font-weight:bold;">${error.message}</p>`; }
             };
 
+            // Horas Pico (mapa de calor día × hora, para decisiones de personal)
+            const generarReporteHorasPico = async (fechaInicio, fechaFin) => {
+                resultadosDiv.innerHTML = '<h4>Calculando horas pico...</h4>';
+                resultadosDiv.style.display = 'block';
+                const url = `${API_URL}/horas-pico?fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`;
+                try {
+                    const response = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
+                    const data = await response.json();
+                    if (!response.ok) throw new Error(data.error || 'Error al calcular horas pico');
+                    if (!data.celdas || data.celdas.length === 0) { resultadosDiv.innerHTML = '<p>No hay pedidos entregados en este periodo.</p>'; return; }
+
+                    const DIAS = [
+                        { dow: 1, nombre: 'Lunes' }, { dow: 2, nombre: 'Martes' }, { dow: 3, nombre: 'Miércoles' },
+                        { dow: 4, nombre: 'Jueves' }, { dow: 5, nombre: 'Viernes' }, { dow: 6, nombre: 'Sábado' }, { dow: 0, nombre: 'Domingo' }
+                    ];
+                    const celda = {};
+                    data.celdas.forEach(c => { celda[`${c.dia_semana}-${c.hora}`] = c; });
+
+                    let horaMin = 23, horaMax = 0;
+                    data.celdas.forEach(c => { if (c.pedidos > 0) { horaMin = Math.min(horaMin, c.hora); horaMax = Math.max(horaMax, c.hora); } });
+                    const horas = [];
+                    for (let h = horaMin; h <= horaMax; h++) horas.push(h);
+
+                    const totalPorHora = {}; const totalPorDia = {};
+                    let totalPedidos = 0, maxCelda = 0;
+                    DIAS.forEach(d => totalPorDia[d.dow] = 0);
+                    horas.forEach(h => totalPorHora[h] = 0);
+                    data.celdas.forEach(c => {
+                        totalPedidos += c.pedidos;
+                        if (totalPorDia[c.dia_semana] !== undefined) totalPorDia[c.dia_semana] += c.pedidos;
+                        if (totalPorHora[c.hora] !== undefined) totalPorHora[c.hora] += c.pedidos;
+                        if (c.pedidos > maxCelda) maxCelda = c.pedidos;
+                    });
+
+                    const horaPico = Object.keys(totalPorHora).reduce((best, h) => totalPorHora[h] > (totalPorHora[best] ?? -1) ? h : best, horas[0]);
+                    const diaPicoDow = Object.keys(totalPorDia).reduce((best, d) => totalPorDia[d] > (totalPorDia[best] ?? -1) ? d : best, String(DIAS[0].dow));
+                    const diaPicoNombre = DIAS.find(d => String(d.dow) === String(diaPicoDow))?.nombre || '—';
+
+                    let html = `
+                        <h4>Horas Pico (${fechaInicio} al ${fechaFin})</h4>
+                        <p style="font-size:0.9em; color:var(--color-text-muted); margin-bottom:20px;">* Basado en pedidos Entregados. Más oscuro = más pedidos en esa hora/día.</p>
+                        <div style="display:flex; gap:15px; margin-bottom:20px; flex-wrap:wrap;">
+                            <div style="flex:1; min-width:200px; background: var(--color-surface-alt); padding:15px; border-radius:10px; border-left:5px solid var(--color-border);">
+                                <small>Hora Pico</small>
+                                <div style="font-size:22px; font-weight:bold;">${String(horaPico).padStart(2,'0')}:00 - ${String(Number(horaPico)+1).padStart(2,'0')}:00</div>
+                            </div>
+                            <div style="flex:1; min-width:200px; background: var(--color-surface-alt); padding:15px; border-radius:10px; border-left:5px solid var(--color-border);">
+                                <small>Día Más Ocupado</small>
+                                <div style="font-size:22px; font-weight:bold;">${diaPicoNombre}</div>
+                            </div>
+                            <div style="flex:1; min-width:200px; background: var(--color-surface-alt); padding:15px; border-radius:10px; border-left:5px solid var(--color-border);">
+                                <small>Total de Pedidos</small>
+                                <div style="font-size:22px; font-weight:bold;">${totalPedidos}</div>
+                            </div>
+                        </div>
+                        <div style="overflow-x:auto;">
+                        <table class="heatmap-table"><thead><tr><th></th>`;
+                    horas.forEach(h => { html += `<th>${String(h).padStart(2,'0')}h</th>`; });
+                    html += `<th>Total</th></tr></thead><tbody>`;
+                    DIAS.forEach(d => {
+                        html += `<tr><td class="heatmap-label">${d.nombre}</td>`;
+                        horas.forEach(h => {
+                            const c = celda[`${d.dow}-${h}`];
+                            const pedidos = c ? c.pedidos : 0;
+                            const venta = c ? c.venta : 0;
+                            const t = maxCelda > 0 ? pedidos / maxCelda : 0;
+                            html += `<td style="background:${heatColor(t)}; color:${heatTextColor(t)};" title="${d.nombre} ${String(h).padStart(2,'0')}:00 — ${pedidos} pedido(s), ${money(venta)}">${pedidos || ''}</td>`;
+                        });
+                        html += `<td class="heatmap-total">${totalPorDia[d.dow] || 0}</td></tr>`;
+                    });
+                    html += `<tr><td class="heatmap-label">Total</td>`;
+                    horas.forEach(h => { html += `<td class="heatmap-total">${totalPorHora[h] || 0}</td>`; });
+                    html += `<td class="heatmap-total">${totalPedidos}</td></tr>`;
+                    html += `</tbody></table></div>`;
+
+                    html += `<h4 style="margin-top:30px;">Pedidos por Hora (todo el periodo)</h4>
+                        <div class="chart-wrap"><canvas id="chart-horas-pico"></canvas></div>`;
+
+                    resultadosDiv.innerHTML = html;
+
+                    const color = metricColor();
+                    const opts = baseChartOptions(false);
+                    const chart = new Chart(document.getElementById('chart-horas-pico'), {
+                        type: 'bar',
+                        data: {
+                            labels: horas.map(h => `${String(h).padStart(2,'0')}h`),
+                            datasets: [{ data: horas.map(h => totalPorHora[h] || 0), backgroundColor: color, borderRadius: 4, maxBarThickness: 32 }]
+                        },
+                        options: {
+                            ...opts,
+                            plugins: { ...opts.plugins, tooltip: { ...opts.plugins.tooltip, callbacks: { label: (c) => `${c.parsed.y} pedidos` } } }
+                        }
+                    });
+                    activeCharts.push(chart);
+
+                    mensajeElemento.textContent = 'Reporte de horas pico generado.';
+                    mensajeElemento.style.color = 'var(--color-success)';
+                } catch (error) { resultadosDiv.innerHTML = `<p style="color:var(--color-brand); font-weight:bold;">${error.message}</p>`; }
+            };
+
             // --- 5. MANEJADOR DE EVENTOS (BOTÓN GENERAR) ---
             botonGenerar.addEventListener('click', () => {
                 const tipoReporte = selectTipoReporte.value;
@@ -1056,6 +1172,14 @@
                         return;
                     }
                     generarReporteMargenPlatillos(fechaInicio, fechaFin);
+
+                } else if (tipoReporte === 'horas_pico') {
+                    if (!fechaInicio || !fechaFin) {
+                        mensajeElemento.textContent = 'Selecciona fecha inicio y fin.';
+                        mensajeElemento.style.color = 'var(--color-brand)';
+                        return;
+                    }
+                    generarReporteHorasPico(fechaInicio, fechaFin);
 
                 } else if (tipoReporte === 'insumos_teoricos') { 
                     if (!fechaInicio || !fechaFin) {
