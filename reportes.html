@@ -60,6 +60,7 @@
                     <select id="select-tipo-reporte" class="select">
                         <option value="">Seleccionar Tipo</option>
                         <option value="platillos">Conteo de Platillos</option>
+                        <option value="margen_platillos">Margen por Platillo</option>
                         <option value="ventas">Reporte de Ventas</option>
                        <option value="insumos_teoricos">Uso de Insumos (Teórico)</option>
                         <option value="historico_inventario">Inventario Histórico</option>
@@ -226,6 +227,9 @@
                 return palette[idx];
             };
             const metricColor = () => (isDarkMode() ? PALETTE_DARK[0] : PALETTE_LIGHT[0]);
+            // Colores de estado: fijos, no cambian con el tema (misma semántica siempre)
+            const STATUS_COLORS = { 'Estrella': '#0ca30c', 'Caballo de Batalla': '#fab219', 'Enigma': '#ec835a', 'Perro': '#d03b3b', 'Sin receta': '#9CA3AF' };
+            const CLASIFICACION_ICONO = { 'Estrella': '⭐', 'Caballo de Batalla': '🐴', 'Enigma': '❓', 'Perro': '🐶', 'Sin receta': '⚠️' };
             const destroyCharts = () => { activeCharts.forEach(c => c.destroy()); activeCharts = []; };
             const money = (v) => '$' + Number(v).toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
@@ -255,6 +259,29 @@
                     }
                 };
             };
+
+            // Plugin propio (sin dependencias externas) para dibujar las líneas de umbral
+            // de la matriz de ingeniería de menú, en vez de cargar chartjs-plugin-annotation.
+            const quadrantLinesPlugin = {
+                id: 'quadrantLines',
+                afterDraw(chart, args, opts) {
+                    if (!opts || opts.xThreshold === undefined) return;
+                    const { ctx, chartArea, scales } = chart;
+                    if (!chartArea) return;
+                    const xPix = scales.x.getPixelForValue(opts.xThreshold);
+                    const yPix = scales.y.getPixelForValue(opts.yThreshold);
+                    ctx.save();
+                    ctx.strokeStyle = opts.color;
+                    ctx.lineWidth = 1.5;
+                    ctx.beginPath();
+                    ctx.moveTo(xPix, chartArea.top); ctx.lineTo(xPix, chartArea.bottom);
+                    ctx.moveTo(chartArea.left, yPix); ctx.lineTo(chartArea.right, yPix);
+                    ctx.stroke();
+                    ctx.restore();
+                }
+            };
+            // Se registra solo en el chart que lo necesita (options.plugins:[quadrantLinesPlugin]
+            // en la instancia), no globalmente, para no afectar el resto de las gráficas.
 
             // --- 4. FUNCIONES DE REPORTES ---
 
@@ -352,6 +379,106 @@
                     activeCharts.push(chart);
 
                     mensajeElemento.textContent = 'Reporte de popularidad generado.';
+                    mensajeElemento.style.color = 'var(--color-success)';
+                } catch (error) { resultadosDiv.innerHTML = `<p style="color:var(--color-brand); font-weight:bold;">${error.message}</p>`; }
+            };
+
+            // Margen por Platillo (ingreso - costo de receta) con matriz de ingeniería de menú
+            const generarReporteMargenPlatillos = async (fechaInicio, fechaFin) => {
+                resultadosDiv.innerHTML = '<h4>Calculando margen por platillo...</h4>';
+                resultadosDiv.style.display = 'block';
+                const url = `${API_URL}/margen-platillos?fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`;
+                try {
+                    const response = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
+                    const data = await response.json();
+                    if (!response.ok) throw new Error(data.error || 'Error al calcular márgenes');
+                    if (data.reporte.length === 0) { resultadosDiv.innerHTML = '<p>No hay ventas registradas en este periodo.</p>'; return; }
+
+                    const evaluables = data.reporte.filter(p => !p.sin_receta);
+
+                    let html = `
+                        <h4>Margen por Platillo (${fechaInicio} al ${fechaFin})</h4>
+                        <p style="font-size:0.9em; color:var(--color-text-muted); margin-bottom:20px;">* Clasificación según popularidad (% del mix de unidades vendidas) vs. rentabilidad (margen por unidad vs. el promedio del menú) — Kasavana &amp; Smith.</p>
+                        <div style="display:flex; gap:15px; margin-bottom:20px; flex-wrap:wrap;">
+                            <div style="flex:1; min-width:200px; background: var(--color-surface-alt); padding:15px; border-radius:10px; border-left:5px solid var(--color-border);">
+                                <small>Margen Promedio / Unidad</small>
+                                <div style="font-size:22px; font-weight:bold;">${money(data.margen_promedio_unitario)}</div>
+                            </div>
+                            <div style="flex:1; min-width:200px; background: var(--color-surface-alt); padding:15px; border-radius:10px; border-left:5px solid var(--color-border);">
+                                <small>Umbral de Popularidad (mix)</small>
+                                <div style="font-size:22px; font-weight:bold;">${data.umbral_popularidad_pct.toFixed(2)}%</div>
+                            </div>
+                            <div style="flex:1; min-width:200px; background: var(--color-surface-alt); padding:15px; border-radius:10px; border-left:5px solid var(--color-border);">
+                                <small>Productos Evaluados</small>
+                                <div style="font-size:22px; font-weight:bold;">${evaluables.length}</div>
+                            </div>
+                        </div>`;
+
+                    if (data.productos_sin_receta && data.productos_sin_receta.length > 0) {
+                        html += `<p style="font-size:0.85em; color:var(--color-text-muted); margin-bottom:15px;">⚠️ ${data.productos_sin_receta.length} producto(s) sin receta configurada (costo desconocido, excluidos de la clasificación): ${data.productos_sin_receta.join(', ')}.</p>`;
+                    }
+
+                    if (evaluables.length > 0) {
+                        html += `<div class="chart-wrap" style="height:340px;"><canvas id="chart-margen-matriz"></canvas></div>
+                        <div style="display:flex; gap:16px; flex-wrap:wrap; justify-content:center; margin:10px 0 25px; font-size:0.85em;">
+                            ${Object.keys(STATUS_COLORS).filter(k => k !== 'Sin receta').map(k => `<span><span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:${STATUS_COLORS[k]}; margin-right:6px;"></span>${CLASIFICACION_ICONO[k]} ${k}</span>`).join('')}
+                        </div>`;
+                    }
+
+                    html += `<div style="overflow-x:auto;"><table><thead><tr>
+                        <th>Producto</th><th>Clasificación</th><th>Cant. Vendida</th><th>% Mix</th><th>Ingreso</th><th>Costo</th><th>Margen Total</th><th>Margen/Unidad</th>
+                        </tr></thead><tbody>`;
+                    data.reporte.forEach(p => {
+                        const badgeColor = STATUS_COLORS[p.clasificacion];
+                        html += `<tr>
+                            <td style="font-weight:500;">${p.producto}</td>
+                            <td><span style="color:${badgeColor}; font-weight:bold;">${CLASIFICACION_ICONO[p.clasificacion]} ${p.clasificacion}</span></td>
+                            <td>${p.cantidad_vendida}</td>
+                            <td>${p.mix_pct !== undefined ? p.mix_pct.toFixed(2) + '%' : '—'}</td>
+                            <td>${money(p.ingreso_generado)}</td>
+                            <td>${p.sin_receta ? '—' : money(p.costo_total)}</td>
+                            <td style="font-weight:bold; color:${p.margen_total >= 0 ? 'var(--color-success)' : 'var(--color-brand)'};">${p.sin_receta ? '—' : money(p.margen_total)}</td>
+                            <td>${p.sin_receta ? '—' : money(p.margen_unitario)}</td>
+                        </tr>`;
+                    });
+                    html += '</tbody></table></div>';
+                    resultadosDiv.innerHTML = html;
+
+                    if (evaluables.length > 0) {
+                        const gridColor = cssVar('--color-border');
+                        const textColor = cssVar('--color-text-muted');
+                        const chart = new Chart(document.getElementById('chart-margen-matriz'), {
+                            type: 'scatter',
+                            data: {
+                                datasets: [{
+                                    data: evaluables.map(p => ({ x: p.mix_pct, y: p.margen_unitario, producto: p.producto })),
+                                    backgroundColor: evaluables.map(p => STATUS_COLORS[p.clasificacion]),
+                                    pointRadius: 6, pointHoverRadius: 8,
+                                    pointBorderColor: cssVar('--color-surface'), pointBorderWidth: 2
+                                }]
+                            },
+                            options: {
+                                responsive: true, maintainAspectRatio: false,
+                                plugins: {
+                                    legend: { display: false },
+                                    quadrantLines: { xThreshold: data.umbral_popularidad_pct, yThreshold: data.margen_promedio_unitario, color: cssVar('--color-text-muted') },
+                                    tooltip: {
+                                        backgroundColor: cssVar('--color-surface'), titleColor: cssVar('--color-text'), bodyColor: cssVar('--color-text'),
+                                        borderColor: gridColor, borderWidth: 1, padding: 10, displayColors: false,
+                                        callbacks: { label: (c) => [c.raw.producto, `Mix: ${c.raw.x.toFixed(2)}%`, `Margen/u: ${money(c.raw.y)}`] }
+                                    }
+                                },
+                                scales: {
+                                    x: { title: { display: true, text: '% del mix de unidades vendidas', color: textColor }, grid: { color: gridColor }, ticks: { color: textColor, callback: (v) => v + '%' }, border: { display: false } },
+                                    y: { title: { display: true, text: 'Margen por unidad ($)', color: textColor }, grid: { color: gridColor }, ticks: { color: textColor, callback: (v) => '$' + v }, border: { display: false } }
+                                }
+                            },
+                            plugins: [quadrantLinesPlugin]
+                        });
+                        activeCharts.push(chart);
+                    }
+
+                    mensajeElemento.textContent = 'Reporte de margen generado.';
                     mensajeElemento.style.color = 'var(--color-success)';
                 } catch (error) { resultadosDiv.innerHTML = `<p style="color:var(--color-brand); font-weight:bold;">${error.message}</p>`; }
             };
@@ -909,6 +1036,14 @@
                         return;
                     }
                     generarReportePlatillos(fechaInicio, fechaFin);
+
+                } else if (tipoReporte === 'margen_platillos') {
+                    if (!fechaInicio || !fechaFin) {
+                        mensajeElemento.textContent = 'Selecciona fecha inicio y fin.';
+                        mensajeElemento.style.color = 'var(--color-brand)';
+                        return;
+                    }
+                    generarReporteMargenPlatillos(fechaInicio, fechaFin);
 
                 } else if (tipoReporte === 'insumos_teoricos') { 
                     if (!fechaInicio || !fechaFin) {
