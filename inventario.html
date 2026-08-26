@@ -95,6 +95,7 @@
                     <th>Categoría</th>
                     <th>Proveedor</th> <th>Cantidad</th>
                     <th>Unidad</th>
+                    <th>Costo Unitario</th>
                     <th>Estado</th>
                     <th>Acciones</th>
                 </tr>
@@ -131,6 +132,11 @@
                     <div><label for="unidad-agregar">Unidad (Ej: Kg, L):</label><input type="text" id="unidad-agregar" class="input" value="Unidad" required></div>
                 </div>
                 <div><label for="stock-minimo-agregar">Stock Mínimo (Alerta):</label><input type="number" id="stock-minimo-agregar" class="input" min="0" value="10" required></div>
+                <div>
+                    <label for="costo-agregar">Costo Unitario ($ por unidad):</label>
+                    <input type="number" id="costo-agregar" class="input" min="0" value="0" step="0.01">
+                    <div class="field-help">Opcional al crear. Si lo dejas en 0, cualquier receta que use este insumo mostrará costo/margen no confiable hasta que lo captures aquí o hagas una compra.</div>
+                </div>
                 <button type="submit" class="btn btn-primary">Guardar Insumo</button>
             </form>
         </div>
@@ -166,6 +172,12 @@
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
                     <div><label for="edit-unidad">Unidad:</label><input type="text" id="edit-unidad" class="input" required></div>
                     <div><label for="edit-stock-minimo">Stock Mínimo:</label><input type="number" id="edit-stock-minimo" class="input" min="0" step="1" required></div>
+                </div>
+
+                <div>
+                    <label for="edit-costo">Costo Unitario ($ por unidad):</label>
+                    <input type="number" id="edit-costo" class="input" min="0" step="0.01" required>
+                    <div class="field-help">Se actualiza automáticamente al registrar una compra (promedio ponderado). Corrígelo aquí si nunca se ha restockeado o si el dato quedó mal.</div>
                 </div>
 
                 <div class="field-help">ID: <span id="edit-id-display"></span></div>
@@ -234,12 +246,17 @@
                     
                     const inventario = await response.json();
                     tablaBody.innerHTML = '';
-                    if (inventario.length === 0) { tablaBody.innerHTML = '<tr><td colspan="8" style="text-align: center;">No se encontraron insumos.</td></tr>'; return; }
-                    
+                    if (inventario.length === 0) { tablaBody.innerHTML = '<tr><td colspan="9" style="text-align: center;">No se encontraron insumos.</td></tr>'; return; }
+
                     inventario.forEach(producto => {
                         const tr = document.createElement('tr');
                         if (producto.estado === 'Agotado') tr.style.backgroundColor = 'var(--color-brand-tint)';
                         else if (producto.estado === 'Requiere re-stock') tr.style.backgroundColor = 'var(--color-warning-tint)';
+
+                        const costo = parseFloat(producto.costo_promedio || 0);
+                        const costoHtml = costo > 0
+                            ? `$${costo.toFixed(2)}`
+                            : `<span style="color:var(--color-brand); font-weight:600;" title="Nunca se ha capturado un costo para este insumo">⚠️ Sin costo</span>`;
 
                         // Renderizamos la fila incluyendo PROVEEDOR
                         tr.innerHTML = `
@@ -248,6 +265,7 @@
                             <td>${producto.categoria}</td>
                             <td>${producto.proveedor_preferido || 'General'}</td> <td>${producto.cantidad}</td>
                             <td>${producto.unidad}</td>
+                            <td>${costoHtml}</td>
                             <td><span style="font-weight: bold;">${producto.estado}</span></td>
                             <td style="display:flex; gap:8px;">
                                 <button type="button" class="btn btn-secondary btn-sm btn-edit"
@@ -257,7 +275,8 @@
                                     data-unidad="${producto.unidad}"
                                     data-stock-minimo="${producto.stock_minimo}"
                                     data-categoria="${producto.categoria}"
-                                    data-proveedor="${producto.proveedor_preferido || ''}">Editar</button>
+                                    data-proveedor="${producto.proveedor_preferido || ''}"
+                                    data-costo="${costo}">Editar</button>
                                 <button type="button" class="btn btn-danger-outline btn-sm btn-eliminar" data-id="${producto.id}" data-nombre="${producto.nombre}">Eliminar</button>
                             </td>`;
                         tablaBody.appendChild(tr);
@@ -325,10 +344,11 @@
                     const editCantidad = document.getElementById('edit-cantidad');
                     const editUnidad = document.getElementById('edit-unidad');
                     const editStockMinimo = document.getElementById('edit-stock-minimo');
-                    
+                    const editCosto = document.getElementById('edit-costo');
+
                     document.getElementById('edit-id').value = id;
                     document.getElementById('edit-id-display').textContent = id;
-                    
+
                     // Llenar datos
                     editNombre.value = e.target.dataset.nombre;
                     editCategoria.value = e.target.dataset.categoria;
@@ -336,15 +356,17 @@
                     editCantidad.value = e.target.dataset.cantidad;
                     editUnidad.value = e.target.dataset.unidad;
                     editStockMinimo.value = e.target.dataset.stockMinimo;
+                    editCosto.value = e.target.dataset.costo;
 
                     // --- SEGURIDAD: Solo Admin puede editar campos estructurales ---
-                    const esGerente = (role !== 'Administrador'); 
-                    
+                    const esGerente = (role !== 'Administrador');
+
                     editNombre.disabled = esGerente;
                     editCategoria.disabled = esGerente;
                     editProveedor.disabled = esGerente; // 🔒 BLOQUEADO SI NO ES ADMIN
                     editUnidad.disabled = esGerente;
                     editStockMinimo.disabled = esGerente;
+                    editCosto.disabled = esGerente; // 🔒 dato financiero, mismo criterio que el resto
                     // Cantidad siempre habilitada para ajustes de stock
                     editCantidad.disabled = false;
 
@@ -364,7 +386,8 @@
                     proveedor_preferido: document.getElementById('proveedor-agregar').value.trim(), // NUEVO
                     cantidad: parseFloat(document.getElementById('cantidad-agregar').value),
                     unidad: document.getElementById('unidad-agregar').value.trim(),
-                    stock_minimo: parseInt(document.getElementById('stock-minimo-agregar').value, 10)
+                    stock_minimo: parseInt(document.getElementById('stock-minimo-agregar').value, 10),
+                    costo_promedio: parseFloat(document.getElementById('costo-agregar').value) || 0
                 };
                 agregarProducto(data);
             });
@@ -378,7 +401,8 @@
                     proveedor_preferido: document.getElementById('edit-proveedor').value.trim(), // NUEVO
                     cantidad: parseFloat(document.getElementById('edit-cantidad').value),
                     unidad: document.getElementById('edit-unidad').value.trim(),
-                    stock_minimo: parseInt(document.getElementById('edit-stock-minimo').value, 10)
+                    stock_minimo: parseInt(document.getElementById('edit-stock-minimo').value, 10),
+                    costo_promedio: parseFloat(document.getElementById('edit-costo').value) || 0
                 };
                 editarProducto(id, data);
             });

@@ -228,8 +228,8 @@
             };
             const metricColor = () => (isDarkMode() ? PALETTE_DARK[0] : PALETTE_LIGHT[0]);
             // Colores de estado: fijos, no cambian con el tema (misma semántica siempre)
-            const STATUS_COLORS = { 'Estrella': '#0ca30c', 'Caballo de Batalla': '#fab219', 'Enigma': '#ec835a', 'Perro': '#d03b3b', 'Sin receta': '#9CA3AF' };
-            const CLASIFICACION_ICONO = { 'Estrella': '⭐', 'Caballo de Batalla': '🐴', 'Enigma': '❓', 'Perro': '🐶', 'Sin receta': '⚠️' };
+            const STATUS_COLORS = { 'Estrella': '#0ca30c', 'Caballo de Batalla': '#fab219', 'Enigma': '#ec835a', 'Perro': '#d03b3b', 'Sin receta': '#9CA3AF', 'Costo Incompleto': '#9CA3AF' };
+            const CLASIFICACION_ICONO = { 'Estrella': '⭐', 'Caballo de Batalla': '🐴', 'Enigma': '❓', 'Perro': '🐶', 'Sin receta': '⚠️', 'Costo Incompleto': '⚠️' };
             const destroyCharts = () => { activeCharts.forEach(c => c.destroy()); activeCharts = []; };
             const money = (v) => '$' + Number(v).toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
@@ -394,7 +394,7 @@
                     if (!response.ok) throw new Error(data.error || 'Error al calcular márgenes');
                     if (data.reporte.length === 0) { resultadosDiv.innerHTML = '<p>No hay ventas registradas en este periodo.</p>'; return; }
 
-                    const evaluables = data.reporte.filter(p => !p.sin_receta);
+                    const evaluables = data.reporte.filter(p => !p.sin_receta && !p.costo_incompleto);
 
                     let html = `
                         <h4>Margen por Platillo (${fechaInicio} al ${fechaFin})</h4>
@@ -415,13 +415,16 @@
                         </div>`;
 
                     if (data.productos_sin_receta && data.productos_sin_receta.length > 0) {
-                        html += `<p style="font-size:0.85em; color:var(--color-text-muted); margin-bottom:15px;">⚠️ ${data.productos_sin_receta.length} producto(s) sin receta configurada (costo desconocido, excluidos de la clasificación): ${data.productos_sin_receta.join(', ')}.</p>`;
+                        html += `<p style="font-size:0.85em; color:var(--color-text-muted); margin-bottom:10px;">⚠️ ${data.productos_sin_receta.length} producto(s) sin receta configurada (costo desconocido, excluidos de la clasificación): ${data.productos_sin_receta.join(', ')}.</p>`;
+                    }
+                    if (data.insumos_sin_costo && data.insumos_sin_costo.length > 0) {
+                        html += `<p style="font-size:0.85em; color:var(--color-brand); margin-bottom:15px;">⚠️ ${data.insumos_sin_costo.length} insumo(s) usados en recetas nunca han capturado un costo, así que ${data.productos_costo_incompleto.length} producto(s) quedaron excluidos de la clasificación: ${data.insumos_sin_costo.join(', ')}. Captúralo en Inventario &rarr; Editar Insumo o registra una compra.</p>`;
                     }
 
                     if (evaluables.length > 0) {
                         html += `<div class="chart-wrap" style="height:340px;"><canvas id="chart-margen-matriz"></canvas></div>
                         <div style="display:flex; gap:16px; flex-wrap:wrap; justify-content:center; margin:10px 0 25px; font-size:0.85em;">
-                            ${Object.keys(STATUS_COLORS).filter(k => k !== 'Sin receta').map(k => `<span><span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:${STATUS_COLORS[k]}; margin-right:6px;"></span>${CLASIFICACION_ICONO[k]} ${k}</span>`).join('')}
+                            ${Object.keys(STATUS_COLORS).filter(k => k !== 'Sin receta' && k !== 'Costo Incompleto').map(k => `<span><span style="display:inline-block; width:10px; height:10px; border-radius:50%; background:${STATUS_COLORS[k]}; margin-right:6px;"></span>${CLASIFICACION_ICONO[k]} ${k}</span>`).join('')}
                         </div>`;
                     }
 
@@ -430,15 +433,17 @@
                         </tr></thead><tbody>`;
                     data.reporte.forEach(p => {
                         const badgeColor = STATUS_COLORS[p.clasificacion];
+                        const sinDatos = p.sin_receta || p.costo_incompleto;
+                        const titulo = p.costo_incompleto ? `title="Insumos sin costo: ${p.insumos_sin_costo.join(', ')}"` : '';
                         html += `<tr>
                             <td style="font-weight:500;">${p.producto}</td>
-                            <td><span style="color:${badgeColor}; font-weight:bold;">${CLASIFICACION_ICONO[p.clasificacion]} ${p.clasificacion}</span></td>
+                            <td ${titulo}><span style="color:${badgeColor}; font-weight:bold;">${CLASIFICACION_ICONO[p.clasificacion]} ${p.clasificacion}</span></td>
                             <td>${p.cantidad_vendida}</td>
                             <td>${p.mix_pct !== undefined ? p.mix_pct.toFixed(2) + '%' : '—'}</td>
                             <td>${money(p.ingreso_generado)}</td>
-                            <td>${p.sin_receta ? '—' : money(p.costo_total)}</td>
-                            <td style="font-weight:bold; color:${p.margen_total >= 0 ? 'var(--color-success)' : 'var(--color-brand)'};">${p.sin_receta ? '—' : money(p.margen_total)}</td>
-                            <td>${p.sin_receta ? '—' : money(p.margen_unitario)}</td>
+                            <td>${sinDatos ? '—' : money(p.costo_total)}</td>
+                            <td style="font-weight:bold; color:${p.margen_total >= 0 ? 'var(--color-success)' : 'var(--color-brand)'};">${sinDatos ? '—' : money(p.margen_total)}</td>
+                            <td>${sinDatos ? '—' : money(p.margen_unitario)}</td>
                         </tr>`;
                     });
                     html += '</tbody></table></div>';
@@ -537,6 +542,9 @@
                     ${porcentajeCOGS > 35 ? '⚠️ Tu costo de alimentos es alto. Revisa desperdicios o precios de compra.' : '✅ Tu costo de alimentos está saludable.'}
                 </p>
             </div>
+            ${dataCogs.insumos_sin_costo && dataCogs.insumos_sin_costo.length > 0 ? `
+                <p style="margin-top:15px; font-size:0.85em; color:var(--color-brand);">⚠️ Este cálculo está subestimado: ${dataCogs.insumos_sin_costo.length} insumo(s) usados en el periodo nunca han capturado un costo (${dataCogs.insumos_sin_costo.join(', ')}). Captúralo en Inventario &rarr; Editar Insumo o registra una compra.</p>
+            ` : ''}
         `;
         mensajeElemento.textContent = 'KPI calculado correctamente.';
         mensajeElemento.style.color = 'var(--color-success)';
@@ -871,13 +879,17 @@
                     const response = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
                     const data = await response.json();
                     if (!response.ok) throw new Error(data.error || 'Error al obtener datos');
-                    if (data.length === 0) { resultadosDiv.innerHTML = '<p>No hay datos suficientes en este periodo. Se necesitan ventas y recetas configuradas.</p>'; return; }
+                    const semanas = data.semanas || [];
+                    if (semanas.length === 0) { resultadosDiv.innerHTML = '<p>No hay datos suficientes en este periodo. Se necesitan ventas y recetas configuradas.</p>'; return; }
 
                     let html = `<h4>Tendencia de % COGS por Semana (${fechaInicio} al ${fechaFin})</h4>`;
                     html += `<p style="font-size:0.9em; color:var(--color-text-muted); margin-bottom:15px;">* Cada punto es la semana que inicia en esa fecha (lunes). Referencia saludable: ≤35%.</p>`;
+                    if (data.insumos_sin_costo && data.insumos_sin_costo.length > 0) {
+                        html += `<p style="font-size:0.85em; color:var(--color-brand); margin-bottom:15px;">⚠️ Estos porcentajes están subestimados: ${data.insumos_sin_costo.length} insumo(s) usados en el periodo nunca han capturado un costo (${data.insumos_sin_costo.join(', ')}).</p>`;
+                    }
                     html += `<div class="chart-wrap"><canvas id="chart-tendencia-cogs"></canvas></div>`;
                     html += `<table><thead><tr><th>Semana de</th><th>Costo Insumos</th><th>Venta Bruta</th><th>% COGS</th></tr></thead><tbody>`;
-                    data.forEach(d => {
+                    semanas.forEach(d => {
                         const color = d.porcentaje > 35 ? 'var(--color-brand)' : 'var(--color-success)';
                         html += `<tr><td>${d.semana}</td><td>$${d.costo_total.toFixed(2)}</td><td>$${d.venta_bruta.toFixed(2)}</td><td style="font-weight:bold; color:${color};">${d.porcentaje.toFixed(2)}%</td></tr>`;
                     });
@@ -889,9 +901,9 @@
                     const chart = new Chart(document.getElementById('chart-tendencia-cogs'), {
                         type: 'line',
                         data: {
-                            labels: data.map(d => d.semana),
+                            labels: semanas.map(d => d.semana),
                             datasets: [{
-                                data: data.map(d => d.porcentaje),
+                                data: semanas.map(d => d.porcentaje),
                                 borderColor: color, backgroundColor: color + '1A',
                                 borderWidth: 2, fill: true, tension: 0.25,
                                 pointRadius: 0, pointHoverRadius: 6, pointBackgroundColor: color,
