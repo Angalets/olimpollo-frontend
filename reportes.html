@@ -67,6 +67,7 @@
                         <option value="platillos">Conteo de Platillos</option>
                         <option value="margen_platillos">Margen por Platillo</option>
                         <option value="horas_pico">Horas Pico (personal)</option>
+                        <option value="top_clientes">Top Clientes (histórico)</option>
                         <option value="ventas">Reporte de Ventas</option>
                        <option value="insumos_teoricos">Uso de Insumos (Teórico)</option>
                         <option value="historico_inventario">Inventario Histórico</option>
@@ -185,12 +186,13 @@
 
             selectTipoReporte.addEventListener('change', async () => {
                 const esMerma = selectTipoReporte.value === 'merma';
-                document.getElementById('fechaInicio').style.display = esMerma ? 'none' : '';
-                document.getElementById('fechaFin').style.display = esMerma ? 'none' : '';
+                const sinFecha = selectTipoReporte.value === 'top_clientes';
+                document.getElementById('fechaInicio').style.display = esMerma || sinFecha ? 'none' : '';
+                document.getElementById('fechaFin').style.display = esMerma || sinFecha ? 'none' : '';
                 selectFechaInicioMerma.style.display = esMerma ? '' : 'none';
                 selectFechaFinMerma.style.display = esMerma ? '' : 'none';
-                labelFechaInicio.textContent = esMerma ? 'Conteo Inicial:' : 'Fecha Inicio / Fecha Única:';
-                labelFechaFin.textContent = esMerma ? 'Conteo Final:' : 'Fecha Fin:';
+                labelFechaInicio.textContent = esMerma ? 'Conteo Inicial:' : sinFecha ? 'Reporte histórico (sin fecha):' : 'Fecha Inicio / Fecha Única:';
+                labelFechaFin.textContent = esMerma ? 'Conteo Final:' : sinFecha ? '' : 'Fecha Fin:';
                 if (!esMerma) return;
                 if (selectFechaInicioMerma.options.length > 0) return;
                 try {
@@ -1125,6 +1127,103 @@
                 } catch (error) { resultadosDiv.innerHTML = `<p style="color:var(--color-brand); font-weight:bold;">${error.message}</p>`; }
             };
 
+            // Top Clientes (histórico, ver comentario del endpoint sobre por qué no es por fecha)
+            const generarReporteTopClientes = async () => {
+                resultadosDiv.innerHTML = '<h4>Cargando clientes...</h4>';
+                resultadosDiv.style.display = 'block';
+                try {
+                    const response = await fetch(`${API_URL}/top-clientes`, { headers: { 'Authorization': `Bearer ${token}` } });
+                    const data = await response.json();
+                    if (!response.ok) throw new Error(data.error || 'Error al obtener clientes');
+                    const clientes = data.clientes || [];
+                    if (clientes.length === 0) { resultadosDiv.innerHTML = '<p>Aún no hay clientes registrados en el CRM.</p>'; return; }
+
+                    const gastoTotalHistorico = clientes.reduce((s, c) => s + c.total_gastado, 0);
+                    const visitasTotales = clientes.reduce((s, c) => s + c.visitas, 0);
+                    const ticketPromedioGeneral = visitasTotales > 0 ? gastoTotalHistorico / visitasTotales : 0;
+
+                    const topGasto = [...clientes].sort((a, b) => b.total_gastado - a.total_gastado).slice(0, 10);
+                    const topVisitas = [...clientes].sort((a, b) => b.visitas - a.visitas).slice(0, 10);
+                    const enRiesgo = clientes.filter(c => c.visitas >= 2 && c.dias_desde_ultima_visita !== null)
+                        .sort((a, b) => b.dias_desde_ultima_visita - a.dias_desde_ultima_visita).slice(0, 10);
+
+                    let html = `
+                        <h4>Top Clientes (histórico, todo el tiempo)</h4>
+                        <p style="font-size:0.9em; color:var(--color-text-muted); margin-bottom:20px;">* No es por rango de fechas: refleja el gasto/visitas acumulados de siempre por teléfono.</p>
+                        <div style="display:flex; gap:15px; margin-bottom:25px; flex-wrap:wrap;">
+                            <div style="flex:1; min-width:200px; background: var(--color-surface-alt); padding:15px; border-radius:10px; border-left:5px solid var(--color-border);">
+                                <small>Clientes Registrados</small>
+                                <div style="font-size:22px; font-weight:bold;">${clientes.length}</div>
+                            </div>
+                            <div style="flex:1; min-width:200px; background: var(--color-surface-alt); padding:15px; border-radius:10px; border-left:5px solid var(--color-border);">
+                                <small>Gasto Total Histórico</small>
+                                <div style="font-size:22px; font-weight:bold;">${money(gastoTotalHistorico)}</div>
+                            </div>
+                            <div style="flex:1; min-width:200px; background: var(--color-surface-alt); padding:15px; border-radius:10px; border-left:5px solid var(--color-border);">
+                                <small>Ticket Promedio General</small>
+                                <div style="font-size:22px; font-weight:bold;">${money(ticketPromedioGeneral)}</div>
+                            </div>
+                        </div>
+
+                        <h4>🏆 Top 10 por Gasto Total</h4>
+                        <div class="chart-wrap" style="height:260px;"><canvas id="chart-top-gasto"></canvas></div>
+                        <div style="overflow-x:auto; margin-bottom:30px;"><table><thead><tr>
+                            <th>Cliente</th><th>Teléfono</th><th>Visitas</th><th>Gasto Total</th><th>Ticket Promedio</th>
+                        </tr></thead><tbody>
+                            ${topGasto.map(c => `<tr>
+                                <td style="font-weight:500;">${c.nombre}</td><td>${c.telefono}</td><td>${c.visitas}</td>
+                                <td style="font-weight:bold; color:var(--color-success);">${money(c.total_gastado)}</td><td>${money(c.ticket_promedio)}</td>
+                            </tr>`).join('')}
+                        </tbody></table></div>
+
+                        <h4>🔁 Top 10 por Frecuencia de Visitas</h4>
+                        <div style="overflow-x:auto; margin-bottom:30px;"><table><thead><tr>
+                            <th>Cliente</th><th>Teléfono</th><th>Visitas</th><th>Gasto Total</th><th>Ticket Promedio</th>
+                        </tr></thead><tbody>
+                            ${topVisitas.map(c => `<tr>
+                                <td style="font-weight:500;">${c.nombre}</td><td>${c.telefono}</td>
+                                <td style="font-weight:bold; color:var(--color-brand);">${c.visitas}</td>
+                                <td>${money(c.total_gastado)}</td><td>${money(c.ticket_promedio)}</td>
+                            </tr>`).join('')}
+                        </tbody></table></div>
+
+                        <h4>⚠️ Clientes en Riesgo (no han vuelto)</h4>
+                        <p style="font-size:0.85em; color:var(--color-text-muted); margin-bottom:10px;">Clientes con 2+ visitas históricas ordenados por más tiempo sin volver — candidatos a una llamada o promo de "te extrañamos".</p>
+                        ${enRiesgo.length === 0 ? '<p style="color:var(--color-text-muted);">No hay suficientes clientes recurrentes todavía para esta vista.</p>' : `
+                        <div style="overflow-x:auto;"><table><thead><tr>
+                            <th>Cliente</th><th>Teléfono</th><th>Última Visita</th><th>Días sin Volver</th><th>Visitas Históricas</th><th>Gasto Total</th>
+                        </tr></thead><tbody>
+                            ${enRiesgo.map(c => `<tr>
+                                <td style="font-weight:500;">${c.nombre}</td><td>${c.telefono}</td>
+                                <td>${c.ultima_visita ? c.ultima_visita.slice(0,10) : '—'}</td>
+                                <td style="font-weight:bold; color:var(--color-brand);">${c.dias_desde_ultima_visita} días</td>
+                                <td>${c.visitas}</td><td>${money(c.total_gastado)}</td>
+                            </tr>`).join('')}
+                        </tbody></table></div>`}
+                    `;
+                    resultadosDiv.innerHTML = html;
+
+                    const color = metricColor();
+                    const opts = baseChartOptions(true);
+                    const chart = new Chart(document.getElementById('chart-top-gasto'), {
+                        type: 'bar',
+                        data: {
+                            labels: topGasto.map(c => c.nombre),
+                            datasets: [{ data: topGasto.map(c => c.total_gastado), backgroundColor: color, borderRadius: 4, maxBarThickness: 24 }]
+                        },
+                        options: {
+                            ...opts,
+                            scales: { ...opts.scales, x: { ...opts.scales.x, ticks: { ...opts.scales.x.ticks, callback: (v) => '$' + v.toLocaleString('es-MX') } } },
+                            plugins: { ...opts.plugins, tooltip: { ...opts.plugins.tooltip, callbacks: { label: (c) => money(c.parsed.x) } } }
+                        }
+                    });
+                    activeCharts.push(chart);
+
+                    mensajeElemento.textContent = 'Reporte de clientes generado.';
+                    mensajeElemento.style.color = 'var(--color-success)';
+                } catch (error) { resultadosDiv.innerHTML = `<p style="color:var(--color-brand); font-weight:bold;">${error.message}</p>`; }
+            };
+
             // --- 5. MANEJADOR DE EVENTOS (BOTÓN GENERAR) ---
             botonGenerar.addEventListener('click', () => {
                 const tipoReporte = selectTipoReporte.value;
@@ -1172,6 +1271,9 @@
                         return;
                     }
                     generarReporteMargenPlatillos(fechaInicio, fechaFin);
+
+                } else if (tipoReporte === 'top_clientes') {
+                    generarReporteTopClientes();
 
                 } else if (tipoReporte === 'horas_pico') {
                     if (!fechaInicio || !fechaFin) {
