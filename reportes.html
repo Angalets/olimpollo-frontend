@@ -67,15 +67,18 @@
                         <option value="cogs">KPI: Porcentaje COGS</option>
                         <option value="tendencia_ventas">Tendencia de Ventas (diaria)</option>
                         <option value="tendencia_cogs">Tendencia de % COGS (semanal)</option>
+                        <option value="merma">Merma (Teórico vs. Físico)</option>
                     </select>
                 </div>
                 <div>
-                    <label for="fechaInicio">Fecha Inicio / Fecha Única:</label>
+                    <label for="fechaInicio" id="label-fecha-inicio">Fecha Inicio / Fecha Única:</label>
                     <input type="date" id="fechaInicio" class="input">
+                    <select id="select-fecha-inicio-merma" class="select" style="display:none;"></select>
                 </div>
                 <div>
-                    <label for="fechaFin">Fecha Fin:</label>
+                    <label for="fechaFin" id="label-fecha-fin">Fecha Fin:</label>
                     <input type="date" id="fechaFin" class="input">
+                    <select id="select-fecha-fin-merma" class="select" style="display:none;"></select>
                 </div>
                 <div>
                     <button id="btn-generar" class="btn btn-primary" style="width: 100%;">Generar Reporte</button>
@@ -154,6 +157,52 @@
             const inputFechaFin = document.getElementById('fechaFin');
             const selectTipoReporte = document.getElementById('select-tipo-reporte');
             const resultadosDiv = document.getElementById('resultados-reporte');
+            const labelFechaInicio = document.getElementById('label-fecha-inicio');
+            const labelFechaFin = document.getElementById('label-fecha-fin');
+            const selectFechaInicioMerma = document.getElementById('select-fecha-inicio-merma');
+            const selectFechaFinMerma = document.getElementById('select-fecha-fin-merma');
+            let fechasInventarioCache = null;
+
+            const cargarFechasInventario = async () => {
+                if (fechasInventarioCache) return fechasInventarioCache;
+                const response = await fetch(`${API_URL}/inventario-fechas`, { headers: { 'Authorization': `Bearer ${token}` } });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.error || 'No se pudieron cargar las fechas de conteo.');
+                fechasInventarioCache = data;
+                return data;
+            };
+
+            const poblarSelectorFechas = (select, fechas) => {
+                select.innerHTML = fechas.map(f => `<option value="${f.fecha}">${f.fecha} (${f.insumos_contados} insumos)</option>`).join('');
+            };
+
+            selectTipoReporte.addEventListener('change', async () => {
+                const esMerma = selectTipoReporte.value === 'merma';
+                document.getElementById('fechaInicio').style.display = esMerma ? 'none' : '';
+                document.getElementById('fechaFin').style.display = esMerma ? 'none' : '';
+                selectFechaInicioMerma.style.display = esMerma ? '' : 'none';
+                selectFechaFinMerma.style.display = esMerma ? '' : 'none';
+                labelFechaInicio.textContent = esMerma ? 'Conteo Inicial:' : 'Fecha Inicio / Fecha Única:';
+                labelFechaFin.textContent = esMerma ? 'Conteo Final:' : 'Fecha Fin:';
+                if (!esMerma) return;
+                if (selectFechaInicioMerma.options.length > 0) return;
+                try {
+                    const fechas = await cargarFechasInventario();
+                    if (fechas.length < 2) {
+                        mensajeElemento.textContent = 'Se necesitan al menos 2 conteos de inventario guardados ("Cierre de día" en Inventario) para calcular merma.';
+                        mensajeElemento.style.color = 'var(--color-brand)';
+                        return;
+                    }
+                    poblarSelectorFechas(selectFechaInicioMerma, fechas);
+                    poblarSelectorFechas(selectFechaFinMerma, fechas);
+                    // Por defecto: el conteo más reciente como "final" y el segundo más reciente como "inicial"
+                    selectFechaFinMerma.selectedIndex = 0;
+                    selectFechaInicioMerma.selectedIndex = 1;
+                } catch (error) {
+                    mensajeElemento.textContent = error.message;
+                    mensajeElemento.style.color = 'var(--color-brand)';
+                }
+            });
 
             // --- 3. HELPERS DE GRÁFICAS (Chart.js) ---
             // Paleta categórica de orden fijo (misma identidad = mismo color siempre,
@@ -736,11 +785,96 @@
                 } catch (error) { resultadosDiv.innerHTML = `<p style="color:var(--color-brand); font-weight:bold;">${error.message}</p>`; }
             };
 
+            // Merma (Teórico vs. Físico)
+            const generarReporteMerma = async (fechaInicio, fechaFin) => {
+                resultadosDiv.innerHTML = '<h4>Cruzando conteos físicos, compras y consumo teórico...</h4>';
+                resultadosDiv.style.display = 'block';
+                const url = `${API_URL}/merma?fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`;
+                try {
+                    const response = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
+                    const data = await response.json();
+                    if (!response.ok) throw new Error(data.error || 'Error al calcular la merma');
+                    if (data.reporte.length === 0) { resultadosDiv.innerHTML = '<p>No hay insumos con conteo en ambas fechas para comparar.</p>'; return; }
+
+                    const perdidaTotal = data.reporte.filter(r => r.merma > 0).reduce((sum, r) => sum + r.merma_valor, 0);
+                    const conMermaSignificativa = data.reporte.filter(r => r.merma_valor > 20 && (r.merma_pct === null || Math.abs(r.merma_pct) > 5));
+                    const top = conMermaSignificativa.slice(0, 12);
+
+                    let html = `
+                        <h4>Merma: ${fechaInicio} → ${fechaFin}</h4>
+                        <p style="font-size:0.9em; color:var(--color-text-muted); margin-bottom:20px;">* Merma = (conteo inicial + compras del periodo − conteo final) − consumo teórico según recetas vendidas. Positivo = se consumió más de lo que las ventas explican (posible desperdicio, robo, o error de medición/receta).</p>
+                        <div style="display:flex; gap:15px; margin-bottom:25px; flex-wrap:wrap;">
+                            <div style="flex:1; min-width:220px; background: var(--color-brand-tint); padding:15px; border-radius:10px; border-left:5px solid var(--color-brand);">
+                                <small>Pérdida Estimada del Periodo</small>
+                                <div style="font-size:24px; font-weight:bold; color:var(--color-brand);">${money(perdidaTotal)}</div>
+                            </div>
+                            <div style="flex:1; min-width:220px; background: var(--color-surface-alt); padding:15px; border-radius:10px; border-left:5px solid var(--color-border);">
+                                <small>Insumos Comparados</small>
+                                <div style="font-size:24px; font-weight:bold;">${data.reporte.length}</div>
+                            </div>
+                            <div style="flex:1; min-width:220px; background: var(--color-warning-tint); padding:15px; border-radius:10px; border-left:5px solid var(--color-warning);">
+                                <small>Con Merma Significativa (&gt;$20 y &gt;5%)</small>
+                                <div style="font-size:24px; font-weight:bold; color:var(--color-warning);">${conMermaSignificativa.length}</div>
+                            </div>
+                        </div>`;
+
+                    if (data.omitidos && data.omitidos.length > 0) {
+                        html += `<p style="font-size:0.85em; color:var(--color-text-muted); margin-bottom:15px;">⚠️ ${data.omitidos.length} insumo(s) con compras o ventas en el periodo no se pudieron comparar por no tener conteo final guardado: ${data.omitidos.join(', ')}.</p>`;
+                    }
+
+                    if (top.length > 0) {
+                        html += `<div class="chart-wrap"><canvas id="chart-merma"></canvas></div>`;
+                    }
+
+                    html += `<div style="overflow-x:auto;"><table><thead><tr>
+                        <th>Insumo</th><th>Conteo Inicial</th><th>+ Compras</th><th>− Consumo Teórico</th><th>= Esperado</th><th>Conteo Real Final</th><th>Merma</th><th>Merma ($)</th>
+                        </tr></thead><tbody>`;
+                    data.reporte.forEach(r => {
+                        const esperado = r.conteo_inicial + r.compras - r.consumo_teorico;
+                        const esSignificativa = r.merma_valor > 20 && (r.merma_pct === null || Math.abs(r.merma_pct) > 5);
+                        const color = r.merma > 0 ? (esSignificativa ? 'var(--color-brand)' : 'var(--color-warning)') : 'var(--color-text-muted)';
+                        html += `<tr>
+                            <td style="font-weight:500;">${r.nombre_insumo}</td>
+                            <td>${r.conteo_inicial.toFixed(2)} ${r.unidad}</td>
+                            <td>${r.compras.toFixed(2)}</td>
+                            <td>${r.consumo_teorico.toFixed(2)}</td>
+                            <td>${esperado.toFixed(2)}</td>
+                            <td>${r.conteo_final.toFixed(2)}</td>
+                            <td style="font-weight:bold; color:${color};">${r.merma > 0 ? '+' : ''}${r.merma.toFixed(2)} ${r.unidad}${r.merma_pct !== null ? ` (${r.merma_pct > 0 ? '+' : ''}${r.merma_pct.toFixed(1)}%)` : ''}</td>
+                            <td style="font-weight:bold; color:${color};">${money(r.merma_valor)}</td>
+                        </tr>`;
+                    });
+                    html += '</tbody></table></div>';
+                    resultadosDiv.innerHTML = html;
+
+                    if (top.length > 0) {
+                        const color = metricColor();
+                        const opts = baseChartOptions(true);
+                        const chart = new Chart(document.getElementById('chart-merma'), {
+                            type: 'bar',
+                            data: {
+                                labels: top.map(r => r.nombre_insumo),
+                                datasets: [{ data: top.map(r => r.merma_valor), backgroundColor: color, borderRadius: 4, maxBarThickness: 24 }]
+                            },
+                            options: {
+                                ...opts,
+                                scales: { ...opts.scales, x: { ...opts.scales.x, ticks: { ...opts.scales.x.ticks, callback: (v) => '$' + v.toLocaleString('es-MX') } } },
+                                plugins: { ...opts.plugins, tooltip: { ...opts.plugins.tooltip, callbacks: { label: (c) => money(c.parsed.x) } } }
+                            }
+                        });
+                        activeCharts.push(chart);
+                    }
+
+                    mensajeElemento.textContent = 'Reporte de merma generado.';
+                    mensajeElemento.style.color = 'var(--color-success)';
+                } catch (error) { resultadosDiv.innerHTML = `<p style="color:var(--color-brand); font-weight:bold;">${error.message}</p>`; }
+            };
+
             // --- 5. MANEJADOR DE EVENTOS (BOTÓN GENERAR) ---
             botonGenerar.addEventListener('click', () => {
                 const tipoReporte = selectTipoReporte.value;
-                const fechaInicio = inputFechaInicio.value;
-                const fechaFin = inputFechaFin.value;
+                const fechaInicio = tipoReporte === 'merma' ? selectFechaInicioMerma.value : inputFechaInicio.value;
+                const fechaFin = tipoReporte === 'merma' ? selectFechaFinMerma.value : inputFechaFin.value;
 
                 mensajeElemento.textContent = '';
                 resultadosDiv.style.display = 'none';
@@ -807,6 +941,19 @@
                         return;
                     }
                     generarReporteTendenciaCOGS(fechaInicio, fechaFin);
+
+                } else if (tipoReporte === 'merma') {
+                    if (!fechaInicio || !fechaFin) {
+                        mensajeElemento.textContent = 'Selecciona el conteo inicial y el conteo final.';
+                        mensajeElemento.style.color = 'var(--color-brand)';
+                        return;
+                    }
+                    if (fechaInicio >= fechaFin) {
+                        mensajeElemento.textContent = 'El conteo final debe ser posterior al conteo inicial.';
+                        mensajeElemento.style.color = 'var(--color-brand)';
+                        return;
+                    }
+                    generarReporteMerma(fechaInicio, fechaFin);
 
                 } else if (tipoReporte === 'historico_inventario') {
                     if (!fechaInicio) {
