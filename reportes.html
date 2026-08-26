@@ -31,6 +31,8 @@
             gap: 20px;
             align-items: flex-end;
         }
+        .chart-wrap { position: relative; height: 280px; margin: 15px 0 25px; }
+        .chart-wrap canvas { max-width: 100%; }
     </style>
 </head>
 <body>
@@ -63,6 +65,8 @@
                         <option value="historico_inventario">Inventario Histórico</option>
                         <option value="semanal_gerencial">Resumen Semanal Gerencial</option>
                         <option value="cogs">KPI: Porcentaje COGS</option>
+                        <option value="tendencia_ventas">Tendencia de Ventas (diaria)</option>
+                        <option value="tendencia_cogs">Tendencia de % COGS (semanal)</option>
                     </select>
                 </div>
                 <div>
@@ -88,6 +92,7 @@
         &copy; 2026 Los Boneless del Olimpo
     </footer>
 
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.9/dist/chart.umd.min.js"></script>
 <script src="design-system.js"></script>
 <script>
         (function() {
@@ -148,9 +153,61 @@
             const inputFechaInicio = document.getElementById('fechaInicio');
             const inputFechaFin = document.getElementById('fechaFin');
             const selectTipoReporte = document.getElementById('select-tipo-reporte');
-            const resultadosDiv = document.getElementById('resultados-reporte'); 
-            
-            // --- 3. FUNCIONES DE REPORTES ---
+            const resultadosDiv = document.getElementById('resultados-reporte');
+
+            // --- 3. HELPERS DE GRÁFICAS (Chart.js) ---
+            // Paleta categórica de orden fijo (misma identidad = mismo color siempre,
+            // sin importar qué categorías aparezcan en un periodo dado).
+            const PALETTE_LIGHT = ['#2a78d6', '#eb6834', '#1baf7a', '#eda100', '#e87ba4', '#008300', '#4a3aa7', '#e34948'];
+            const PALETTE_DARK  = ['#3987e5', '#d95926', '#199e70', '#c98500', '#d55181', '#008300', '#9085e9', '#e66767'];
+            const METODO_COLOR_MAP = { 'Efectivo': 0, 'Tarjeta': 1, 'Transferencia': 2, 'Aplicación': 3 };
+            const CANAL_COLOR_MAP = { 'OyR': 0, 'Uber': 1, 'Didi': 2, 'Rappi': 3, 'Empleado': 4 };
+            let activeCharts = [];
+
+            const cssVar = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+            const isDarkMode = () => {
+                const attr = document.documentElement.getAttribute('data-theme');
+                if (attr === 'dark') return true;
+                if (attr === 'light') return false;
+                return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            };
+            const paletteColor = (map, key, fallbackIndex) => {
+                const palette = isDarkMode() ? PALETTE_DARK : PALETTE_LIGHT;
+                const idx = (key in map) ? map[key] : (fallbackIndex % palette.length);
+                return palette[idx];
+            };
+            const metricColor = () => (isDarkMode() ? PALETTE_DARK[0] : PALETTE_LIGHT[0]);
+            const destroyCharts = () => { activeCharts.forEach(c => c.destroy()); activeCharts = []; };
+            const money = (v) => '$' + Number(v).toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+            const baseChartOptions = (horizontal) => {
+                const textColor = cssVar('--color-text-muted');
+                const gridColor = cssVar('--color-border');
+                const fontFamily = cssVar('--font-body') || "'Inter', sans-serif";
+                return {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    indexAxis: horizontal ? 'y' : 'x',
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            backgroundColor: cssVar('--color-surface'),
+                            titleColor: cssVar('--color-text'),
+                            bodyColor: cssVar('--color-text'),
+                            borderColor: gridColor,
+                            borderWidth: 1,
+                            padding: 10,
+                            displayColors: false
+                        }
+                    },
+                    scales: {
+                        x: { grid: { color: gridColor }, ticks: { color: textColor, font: { family: fontFamily } }, border: { display: false } },
+                        y: { grid: { color: gridColor }, ticks: { color: textColor, font: { family: fontFamily } }, border: { display: false } }
+                    }
+                };
+            };
+
+            // --- 4. FUNCIONES DE REPORTES ---
 
             const generarReporteHistorico = async (fecha) => {
                 resultadosDiv.innerHTML = '<h4>Cargando registros...</h4>';
@@ -212,7 +269,14 @@
                     if (!response.ok) throw new Error(data.error || 'Error al obtener datos');
                     if (data.length === 0) { resultadosDiv.innerHTML = '<p>No hay ventas registradas en este periodo.</p>'; return; }
 
-                    let html = `<h4>Popularidad de Platillos (${fechaInicio} al ${fechaFin})</h4><table><thead><tr><th style="text-align:center">Posición</th><th>Producto Base</th><th>Cantidad Vendida</th><th>Ingresos Generados</th></tr></thead><tbody>`;
+                    const TOP_N = 15;
+                    const top = data.slice(0, TOP_N);
+                    const truncado = data.length > TOP_N;
+
+                    let html = `<h4>Popularidad de Platillos (${fechaInicio} al ${fechaFin})</h4>`;
+                    html += `<div class="chart-wrap"><canvas id="chart-platillos"></canvas></div>`;
+                    if (truncado) html += `<p style="font-size:0.85em; color:var(--color-text-muted); margin-top:-10px;">Gráfica mostrando los ${TOP_N} más vendidos de ${data.length} productos con ventas — la tabla completa está abajo.</p>`;
+                    html += `<table><thead><tr><th style="text-align:center">Posición</th><th>Producto Base</th><th>Cantidad Vendida</th><th>Ingresos Generados</th></tr></thead><tbody>`;
                     data.forEach((item, index) => {
                         let rango = `#${index + 1}`; let rowStyle = "";
                         if (index === 0) { rango = '🥇'; rowStyle = "background-color: var(--color-warning-tint);"; }
@@ -222,6 +286,22 @@
                     });
                     html += '</tbody></table>';
                     resultadosDiv.innerHTML = html;
+
+                    const color = metricColor();
+                    const opts = baseChartOptions(false);
+                    const chart = new Chart(document.getElementById('chart-platillos'), {
+                        type: 'bar',
+                        data: {
+                            labels: top.map(d => d.producto),
+                            datasets: [{ data: top.map(d => parseInt(d.cantidad_vendida)), backgroundColor: color, borderRadius: 4, maxBarThickness: 32 }]
+                        },
+                        options: {
+                            ...opts,
+                            plugins: { ...opts.plugins, tooltip: { ...opts.plugins.tooltip, callbacks: { label: (c) => `${c.parsed.y} vendidos` } } }
+                        }
+                    });
+                    activeCharts.push(chart);
+
                     mensajeElemento.textContent = 'Reporte de popularidad generado.';
                     mensajeElemento.style.color = 'var(--color-success)';
                 } catch (error) { resultadosDiv.innerHTML = `<p style="color:var(--color-brand); font-weight:bold;">${error.message}</p>`; }
@@ -315,6 +395,7 @@
                     };
 
                     let apps_desglose = {};
+                    let canal_totales = {}; // TODOS los canales (OyR incluido), para la gráfica de ventas por canal
 
                     // Iterar sobre los detalles que manda el servidor para armar la sumatoria
                     f.detalles.forEach(row => {
@@ -322,6 +403,9 @@
                         const comision = parseFloat(row.comisiones || 0);
                         const metodo = row.metodo_pago || 'Efectivo';
                         const canal = row.canal_venta || 'OyR';
+
+                        if (!canal_totales[canal]) canal_totales[canal] = 0;
+                        canal_totales[canal] += bruta;
 
                         // 1. Desglose General de Métodos de Pago
                         if (metodo.includes('Efectivo')) {
@@ -415,6 +499,17 @@
                             </table>
                         </div>
 
+                        <div style="display: flex; gap: 20px; flex-wrap: wrap; margin-bottom: 30px;">
+                            <div style="flex: 1; min-width: 280px; background: var(--color-surface); border: 1px solid var(--color-border); padding: 20px; border-radius: 8px;">
+                                <h3 style="margin-top:0; border-bottom: 2px solid var(--color-border); padding-bottom: 10px;">📊 Ventas por Método de Pago</h3>
+                                <div class="chart-wrap" style="height: 220px;"><canvas id="chart-metodo"></canvas></div>
+                            </div>
+                            <div style="flex: 1; min-width: 280px; background: var(--color-surface); border: 1px solid var(--color-border); padding: 20px; border-radius: 8px;">
+                                <h3 style="margin-top:0; border-bottom: 2px solid var(--color-border); padding-bottom: 10px;">🛵 Ventas por Canal</h3>
+                                <div class="chart-wrap" style="height: 220px;"><canvas id="chart-canal"></canvas></div>
+                            </div>
+                        </div>
+
                         <div style="margin-bottom: 30px;">
                             <h3 style="border-bottom: 2px solid var(--color-border); padding-bottom: 5px;">📱 Desglose por Plataforma (Apps)</h3>
                             <table style="width: 100%; margin-top: 10px; border-collapse: collapse;">
@@ -478,6 +573,51 @@
                     `;
 
                     resultadosDiv.innerHTML = html;
+
+                    // Gráfica: Ventas por Método de Pago (colores de identidad fija, ver METODO_COLOR_MAP)
+                    const metodoLabels = ['Efectivo', 'Transferencia', 'Tarjeta', 'Aplicación'];
+                    const metodoValores = [desglose.efectivo, desglose.transferencia, desglose.tarjeta_bruto, desglose.apps_bruto];
+                    const metodoIdx = metodoLabels.map((l, i) => i).filter(i => metodoValores[i] > 0);
+                    const optsMetodo = baseChartOptions(true);
+                    const chartMetodo = new Chart(document.getElementById('chart-metodo'), {
+                        type: 'bar',
+                        data: {
+                            labels: metodoIdx.map(i => metodoLabels[i]),
+                            datasets: [{
+                                data: metodoIdx.map(i => metodoValores[i]),
+                                backgroundColor: metodoIdx.map(i => paletteColor(METODO_COLOR_MAP, metodoLabels[i], i)),
+                                borderRadius: 4, maxBarThickness: 28
+                            }]
+                        },
+                        options: {
+                            ...optsMetodo,
+                            scales: { ...optsMetodo.scales, x: { ...optsMetodo.scales.x, ticks: { ...optsMetodo.scales.x.ticks, callback: (v) => '$' + v.toLocaleString('es-MX') } } },
+                            plugins: { ...optsMetodo.plugins, tooltip: { ...optsMetodo.plugins.tooltip, callbacks: { label: (c) => money(c.parsed.x) } } }
+                        }
+                    });
+                    activeCharts.push(chartMetodo);
+
+                    // Gráfica: Ventas por Canal (misma identidad de color que la app usa en pedidos.html)
+                    const canalLabels = Object.keys(canal_totales);
+                    const optsCanal = baseChartOptions(true);
+                    const chartCanal = new Chart(document.getElementById('chart-canal'), {
+                        type: 'bar',
+                        data: {
+                            labels: canalLabels,
+                            datasets: [{
+                                data: canalLabels.map(c => canal_totales[c]),
+                                backgroundColor: canalLabels.map((c, i) => paletteColor(CANAL_COLOR_MAP, c, i)),
+                                borderRadius: 4, maxBarThickness: 28
+                            }]
+                        },
+                        options: {
+                            ...optsCanal,
+                            scales: { ...optsCanal.scales, x: { ...optsCanal.scales.x, ticks: { ...optsCanal.scales.x.ticks, callback: (v) => '$' + v.toLocaleString('es-MX') } } },
+                            plugins: { ...optsCanal.plugins, tooltip: { ...optsCanal.plugins.tooltip, callbacks: { label: (c) => money(c.parsed.x) } } }
+                        }
+                    });
+                    activeCharts.push(chartCanal);
+
                     mensajeElemento.textContent = 'Resumen gerencial generado.';
                     mensajeElemento.style.color = 'var(--color-success)';
 
@@ -486,7 +626,117 @@
                 }
             };
             
-            // --- 4. MANEJADOR DE EVENTOS (BOTÓN GENERAR) ---
+            // Tendencia de Ventas (día por día)
+            const generarReporteTendenciaVentas = async (fechaInicio, fechaFin) => {
+                resultadosDiv.innerHTML = '<h4>Calculando tendencia de ventas...</h4>';
+                resultadosDiv.style.display = 'block';
+                const url = `${API_URL}/ventas-diario?fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`;
+                try {
+                    const response = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
+                    const data = await response.json();
+                    if (!response.ok) throw new Error(data.error || 'Error al obtener datos');
+                    if (data.length === 0) { resultadosDiv.innerHTML = '<p>No hay ventas registradas en este periodo.</p>'; return; }
+
+                    // Rellenar días sin venta con $0 para que la línea no salte fechas
+                    const porFecha = {};
+                    data.forEach(d => { porFecha[d.fecha] = d; });
+                    const dias = [];
+                    let cursor = new Date(fechaInicio + 'T00:00:00');
+                    const fin = new Date(fechaFin + 'T00:00:00');
+                    while (cursor <= fin) {
+                        const key = cursor.toISOString().slice(0, 10);
+                        dias.push(porFecha[key] || { fecha: key, total_pedidos: 0, ventas_totales: 0, comisiones: 0 });
+                        cursor.setDate(cursor.getDate() + 1);
+                    }
+
+                    let html = `<h4>Tendencia de Ventas (${fechaInicio} al ${fechaFin})</h4>`;
+                    html += `<div class="chart-wrap"><canvas id="chart-tendencia-ventas"></canvas></div>`;
+                    html += `<table><thead><tr><th>Fecha</th><th>Pedidos</th><th>Venta Bruta</th><th>Comisiones</th></tr></thead><tbody>`;
+                    dias.forEach(d => {
+                        html += `<tr><td>${d.fecha}</td><td>${d.total_pedidos}</td><td style="font-weight:bold;">$${parseFloat(d.ventas_totales).toFixed(2)}</td><td style="color:var(--color-brand);">$${parseFloat(d.comisiones).toFixed(2)}</td></tr>`;
+                    });
+                    html += '</tbody></table>';
+                    resultadosDiv.innerHTML = html;
+
+                    const color = metricColor();
+                    const opts = baseChartOptions(false);
+                    const chart = new Chart(document.getElementById('chart-tendencia-ventas'), {
+                        type: 'line',
+                        data: {
+                            labels: dias.map(d => d.fecha),
+                            datasets: [{
+                                data: dias.map(d => parseFloat(d.ventas_totales)),
+                                borderColor: color, backgroundColor: color + '1A',
+                                borderWidth: 2, fill: true, tension: 0.25,
+                                pointRadius: 0, pointHoverRadius: 6, pointBackgroundColor: color,
+                                pointBorderColor: cssVar('--color-surface'), pointBorderWidth: 2
+                            }]
+                        },
+                        options: {
+                            ...opts,
+                            interaction: { mode: 'index', intersect: false },
+                            scales: { ...opts.scales, y: { ...opts.scales.y, ticks: { ...opts.scales.y.ticks, callback: (v) => '$' + v.toLocaleString('es-MX') } } },
+                            plugins: { ...opts.plugins, tooltip: { ...opts.plugins.tooltip, callbacks: { label: (c) => money(c.parsed.y) } } }
+                        }
+                    });
+                    activeCharts.push(chart);
+
+                    mensajeElemento.textContent = 'Tendencia de ventas generada.';
+                    mensajeElemento.style.color = 'var(--color-success)';
+                } catch (error) { resultadosDiv.innerHTML = `<p style="color:var(--color-brand); font-weight:bold;">${error.message}</p>`; }
+            };
+
+            // Tendencia de % COGS (por semana)
+            const generarReporteTendenciaCOGS = async (fechaInicio, fechaFin) => {
+                resultadosDiv.innerHTML = '<h4>Calculando tendencia de COGS...</h4>';
+                resultadosDiv.style.display = 'block';
+                const url = `${API_URL}/cogs-historico?fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`;
+                try {
+                    const response = await fetch(url, { headers: { 'Authorization': `Bearer ${token}` } });
+                    const data = await response.json();
+                    if (!response.ok) throw new Error(data.error || 'Error al obtener datos');
+                    if (data.length === 0) { resultadosDiv.innerHTML = '<p>No hay datos suficientes en este periodo. Se necesitan ventas y recetas configuradas.</p>'; return; }
+
+                    let html = `<h4>Tendencia de % COGS por Semana (${fechaInicio} al ${fechaFin})</h4>`;
+                    html += `<p style="font-size:0.9em; color:var(--color-text-muted); margin-bottom:15px;">* Cada punto es la semana que inicia en esa fecha (lunes). Referencia saludable: ≤35%.</p>`;
+                    html += `<div class="chart-wrap"><canvas id="chart-tendencia-cogs"></canvas></div>`;
+                    html += `<table><thead><tr><th>Semana de</th><th>Costo Insumos</th><th>Venta Bruta</th><th>% COGS</th></tr></thead><tbody>`;
+                    data.forEach(d => {
+                        const color = d.porcentaje > 35 ? 'var(--color-brand)' : 'var(--color-success)';
+                        html += `<tr><td>${d.semana}</td><td>$${d.costo_total.toFixed(2)}</td><td>$${d.venta_bruta.toFixed(2)}</td><td style="font-weight:bold; color:${color};">${d.porcentaje.toFixed(2)}%</td></tr>`;
+                    });
+                    html += '</tbody></table>';
+                    resultadosDiv.innerHTML = html;
+
+                    const color = metricColor();
+                    const opts = baseChartOptions(false);
+                    const chart = new Chart(document.getElementById('chart-tendencia-cogs'), {
+                        type: 'line',
+                        data: {
+                            labels: data.map(d => d.semana),
+                            datasets: [{
+                                data: data.map(d => d.porcentaje),
+                                borderColor: color, backgroundColor: color + '1A',
+                                borderWidth: 2, fill: true, tension: 0.25,
+                                pointRadius: 0, pointHoverRadius: 6, pointBackgroundColor: color,
+                                pointBorderColor: cssVar('--color-surface'), pointBorderWidth: 2
+                            }]
+                        },
+                        options: {
+                            ...opts,
+                            interaction: { mode: 'index', intersect: false },
+                            scales: { ...opts.scales, y: { ...opts.scales.y, ticks: { ...opts.scales.y.ticks, callback: (v) => v + '%' } } },
+                            plugins: { ...opts.plugins, tooltip: { ...opts.plugins.tooltip, callbacks: { label: (c) => c.parsed.y.toFixed(2) + '%' } } }
+                        }
+                    });
+                    activeCharts.push(chart);
+
+                    mensajeElemento.textContent = 'Tendencia de COGS generada.';
+                    mensajeElemento.style.color = 'var(--color-success)';
+                } catch (error) { resultadosDiv.innerHTML = `<p style="color:var(--color-brand); font-weight:bold;">${error.message}</p>`; }
+            };
+
+            // --- 5. MANEJADOR DE EVENTOS (BOTÓN GENERAR) ---
             botonGenerar.addEventListener('click', () => {
                 const tipoReporte = selectTipoReporte.value;
                 const fechaInicio = inputFechaInicio.value;
@@ -494,6 +744,7 @@
 
                 mensajeElemento.textContent = '';
                 resultadosDiv.style.display = 'none';
+                destroyCharts();
 
                 if (!tipoReporte) {
                     mensajeElemento.textContent = 'Por favor, selecciona el tipo de reporte.';
@@ -540,6 +791,22 @@
         return;
     }
     generarReporteCOGS(fechaInicio, fechaFin);
+
+                } else if (tipoReporte === 'tendencia_ventas') {
+                    if (!fechaInicio || !fechaFin) {
+                        mensajeElemento.textContent = 'Selecciona fecha inicio y fin.';
+                        mensajeElemento.style.color = 'var(--color-brand)';
+                        return;
+                    }
+                    generarReporteTendenciaVentas(fechaInicio, fechaFin);
+
+                } else if (tipoReporte === 'tendencia_cogs') {
+                    if (!fechaInicio || !fechaFin) {
+                        mensajeElemento.textContent = 'Selecciona fecha inicio y fin (idealmente varias semanas) para ver la tendencia.';
+                        mensajeElemento.style.color = 'var(--color-brand)';
+                        return;
+                    }
+                    generarReporteTendenciaCOGS(fechaInicio, fechaFin);
 
                 } else if (tipoReporte === 'historico_inventario') {
                     if (!fechaInicio) {
