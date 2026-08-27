@@ -73,6 +73,7 @@
                         <option value="margen_platillos">Margen por Platillo</option>
                         <option value="horas_pico">Horas Pico (personal)</option>
                         <option value="top_clientes">Top Clientes (histórico)</option>
+                        <option value="costeo_menu">Costeo de Menú (por producto)</option>
                         <option value="ventas">Reporte de Ventas</option>
                        <option value="insumos_teoricos">Uso de Insumos (Teórico)</option>
                         <option value="historico_inventario">Inventario Histórico</option>
@@ -216,7 +217,7 @@
 
             selectTipoReporte.addEventListener('change', async () => {
                 const esMerma = selectTipoReporte.value === 'merma';
-                const sinFecha = selectTipoReporte.value === 'top_clientes';
+                const sinFecha = selectTipoReporte.value === 'top_clientes' || selectTipoReporte.value === 'costeo_menu';
                 document.getElementById('fechaInicio').style.display = esMerma || sinFecha ? 'none' : '';
                 document.getElementById('fechaFin').style.display = esMerma || sinFecha ? 'none' : '';
                 selectFechaInicioMerma.style.display = esMerma ? '' : 'none';
@@ -1318,6 +1319,96 @@
                 } catch (error) { resultadosDiv.innerHTML = `<p style="color:var(--color-brand); font-weight:bold;">${error.message}</p>`; }
             };
 
+            // Costeo de Menú (ficha de costeo por producto: costo de receta vs. precio de venta,
+            // histórico/sin fecha — no depende de ventas, ver comentario del endpoint)
+            const generarReporteCosteoMenu = async () => {
+                resultadosDiv.innerHTML = '<h4>Calculando costeo de menú...</h4>';
+                resultadosDiv.style.display = 'block';
+                try {
+                    const response = await fetch(`${API_URL}/costeo-menu`, { headers: { 'Authorization': `Bearer ${token}` } });
+                    const data = await response.json();
+                    if (!response.ok) throw new Error(data.error || 'Error al calcular el costeo de menú');
+                    const productos = data.productos || [];
+                    if (productos.length === 0) { resultadosDiv.innerHTML = '<p>No hay productos en el menú.</p>'; return; }
+
+                    const evaluables = productos.filter(p => !p.sin_receta && !p.costo_incompleto);
+                    const margenPromedioPct = evaluables.length > 0 ? evaluables.reduce((s, p) => s + p.margen_pct, 0) / evaluables.length : 0;
+                    const conPerdida = evaluables.filter(p => p.margen <= 0);
+                    const peores = evaluables.slice(0, 10);
+
+                    let html = `
+                        <h4>Costeo de Menú (por producto)</h4>
+                        <p style="font-size:0.9em; color:var(--color-text-muted); margin-bottom:20px;">* Costo teórico de receta (sin modificadores) contra el precio de venta actual del menú — no depende de ventas ni de un periodo. Ordenado de peor a mejor margen %.</p>
+                        <div style="display:flex; gap:15px; margin-bottom:20px; flex-wrap:wrap;">
+                            <div style="flex:1; min-width:200px; background: var(--color-surface-alt); padding:15px; border-radius:10px; border-left:5px solid var(--color-border);">
+                                <small>Productos Evaluados</small>
+                                <div style="font-size:22px; font-weight:bold;">${evaluables.length}</div>
+                            </div>
+                            <div style="flex:1; min-width:200px; background: var(--color-surface-alt); padding:15px; border-radius:10px; border-left:5px solid var(--color-border);">
+                                <small>Margen Promedio</small>
+                                <div style="font-size:22px; font-weight:bold;">${margenPromedioPct.toFixed(1)}%</div>
+                            </div>
+                            <div style="flex:1; min-width:200px; background: ${conPerdida.length > 0 ? 'var(--color-brand-tint)' : 'var(--color-surface-alt)'}; padding:15px; border-radius:10px; border-left:5px solid ${conPerdida.length > 0 ? 'var(--color-brand)' : 'var(--color-border)'};">
+                                <small>Vendiendo con Pérdida</small>
+                                <div style="font-size:22px; font-weight:bold; color:${conPerdida.length > 0 ? 'var(--color-brand)' : 'var(--color-text)'};">${conPerdida.length}</div>
+                            </div>
+                        </div>`;
+
+                    if (data.productos_sin_receta && data.productos_sin_receta.length > 0) {
+                        html += `<p style="font-size:0.85em; color:var(--color-text-muted); margin-bottom:10px;">⚠️ ${data.productos_sin_receta.length} producto(s) sin receta configurada: ${data.productos_sin_receta.join(', ')}.</p>`;
+                    }
+                    if (data.productos_costo_incompleto && data.productos_costo_incompleto.length > 0) {
+                        html += `<p style="font-size:0.85em; color:var(--color-brand); margin-bottom:15px;">⚠️ ${data.productos_costo_incompleto.length} producto(s) con algún insumo sin costo capturado, excluidos del costeo: ${data.productos_costo_incompleto.join(', ')}.</p>`;
+                    }
+
+                    if (peores.length > 0) {
+                        html += `<div class="chart-wrap" style="height:280px;"><canvas id="chart-costeo-menu"></canvas></div>`;
+                    }
+
+                    html += `<div style="overflow-x:auto;"><table><thead><tr>
+                        <th>Producto</th><th>Precio de Venta</th><th>Costo de Receta</th><th>Margen</th><th>Margen %</th>
+                        </tr></thead><tbody>`;
+                    productos.forEach(p => {
+                        const sinDatos = p.sin_receta || p.costo_incompleto;
+                        const estado = p.sin_receta ? '⚠️ Sin receta' : p.costo_incompleto ? '⚠️ Costo incompleto' : null;
+                        const color = sinDatos ? 'var(--color-text-muted)' : (p.margen <= 0 ? 'var(--color-brand)' : (p.margen_pct < 40 ? 'var(--color-warning)' : 'var(--color-success)'));
+                        html += `<tr>
+                            <td style="font-weight:500;">${p.producto}</td>
+                            <td>${money(p.precio_venta)}</td>
+                            <td>${sinDatos ? '—' : money(p.costo_receta)}</td>
+                            <td style="font-weight:bold; color:${color};">${sinDatos ? (estado || '—') : money(p.margen)}</td>
+                            <td style="font-weight:bold; color:${color};">${sinDatos ? '—' : p.margen_pct.toFixed(1) + '%'}</td>
+                        </tr>`;
+                    });
+                    html += '</tbody></table></div>';
+                    resultadosDiv.innerHTML = html;
+
+                    if (peores.length > 0) {
+                        const opts = baseChartOptions(true);
+                        const chart = new Chart(document.getElementById('chart-costeo-menu'), {
+                            type: 'bar',
+                            data: {
+                                labels: peores.map(p => p.producto),
+                                datasets: [{
+                                    data: peores.map(p => p.margen_pct),
+                                    backgroundColor: peores.map(p => p.margen <= 0 ? '#d03b3b' : (p.margen_pct < 40 ? '#fab219' : '#0ca30c')),
+                                    borderRadius: 4, maxBarThickness: 24
+                                }]
+                            },
+                            options: {
+                                ...opts,
+                                scales: { ...opts.scales, x: { ...opts.scales.x, ticks: { ...opts.scales.x.ticks, callback: (v) => v + '%' } } },
+                                plugins: { ...opts.plugins, tooltip: { ...opts.plugins.tooltip, callbacks: { label: (c) => c.parsed.x.toFixed(1) + '%' } } }
+                            }
+                        });
+                        activeCharts.push(chart);
+                    }
+
+                    mensajeElemento.textContent = 'Costeo de menú generado.';
+                    mensajeElemento.style.color = 'var(--color-success)';
+                } catch (error) { resultadosDiv.innerHTML = `<p style="color:var(--color-brand); font-weight:bold;">${error.message}</p>`; }
+            };
+
             // --- 5. MANEJADOR DE EVENTOS (BOTÓN GENERAR) ---
             botonGenerar.addEventListener('click', () => {
                 const tipoReporte = selectTipoReporte.value;
@@ -1368,6 +1459,9 @@
 
                 } else if (tipoReporte === 'top_clientes') {
                     generarReporteTopClientes();
+
+                } else if (tipoReporte === 'costeo_menu') {
+                    generarReporteCosteoMenu();
 
                 } else if (tipoReporte === 'horas_pico') {
                     if (!fechaInicio || !fechaFin) {

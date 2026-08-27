@@ -324,6 +324,28 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
 
+    const money = (v) => '$' + Number(v).toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+    // Costeo en vivo: costo de receta (sin modificadores, son variables por pedido) contra
+    // el precio de venta del producto vinculado. Usa insumosDisponibles (ya trae
+    // costo_promedio de /api/inventario), así que no depende de ningún reporte.
+    const calcularCosteoReceta = (receta) => {
+        const tieneIngredientes = receta.ingredientes && receta.ingredientes[0] && receta.ingredientes[0].insumo_id;
+        if (!tieneIngredientes) return null;
+        let costo = 0; const insumosSinCosto = [];
+        receta.ingredientes.forEach(ing => {
+            const insumo = insumosDisponibles.find(i => i.id == ing.insumo_id);
+            const costoUnitario = insumo ? parseFloat(insumo.costo_promedio || 0) : 0;
+            if (costoUnitario <= 0) insumosSinCosto.push(ing.nombre || (insumo ? insumo.nombre : `Insumo #${ing.insumo_id}`));
+            costo += ing.cantidad_necesaria * costoUnitario;
+        });
+        const productoVinculado = productosVenta.find(p => p.receta_id == receta.id);
+        const precio = productoVinculado ? parseFloat(productoVinculado.precio_base || 0) : null;
+        const margen = precio !== null ? precio - costo : null;
+        const margenPct = precio !== null && precio > 0 ? (margen / precio) * 100 : null;
+        return { costo, insumosSinCosto, precio, margen, margenPct, productoVinculado };
+    };
+
     const mostrarDetalles = (id) => {
         detalleTitulo.textContent = 'Detalles de la Receta';
         detalleContenido.innerHTML = '<p>Selecciona una receta de la lista para ver sus detalles.</p>';
@@ -341,7 +363,28 @@ document.addEventListener('DOMContentLoaded', () => {
                 contenidoHTML += `<li><strong>${ing.nombre}:</strong> ${ing.cantidad_necesaria} ${ing.unidad_medida}</li>`;
             });
         }
-        contenidoHTML += '</ul><h4>Pasos:</h4><ol>';
+        contenidoHTML += '</ul>';
+
+        const costeo = calcularCosteoReceta(receta);
+        if (costeo) {
+            const costoIncompleto = costeo.insumosSinCosto.length > 0;
+            contenidoHTML += `<h4>💰 Costeo</h4>`;
+            if (costoIncompleto) {
+                contenidoHTML += `<p style="font-size:0.85em; color:var(--color-brand);">⚠️ Costo no confiable: ${costeo.insumosSinCosto.join(', ')} no tiene costo capturado (Inventario &rarr; Editar Insumo).</p>`;
+            } else {
+                contenidoHTML += `<p><strong>Costo de receta:</strong> ${money(costeo.costo)}</p>`;
+                if (costeo.precio !== null) {
+                    const colorMargen = costeo.margen <= 0 ? 'var(--color-brand)' : (costeo.margenPct < 40 ? 'var(--color-warning)' : 'var(--color-success)');
+                    contenidoHTML += `
+                        <p><strong>Precio de venta (${costeo.productoVinculado.nombre_venta}):</strong> ${money(costeo.precio)}</p>
+                        <p><strong>Margen:</strong> <span style="color:${colorMargen}; font-weight:bold;">${money(costeo.margen)} (${costeo.margenPct.toFixed(1)}%)</span></p>`;
+                } else {
+                    contenidoHTML += `<p style="color:var(--color-text-muted); font-size:0.85em;">Vincula esta receta a un producto de venta para ver el margen.</p>`;
+                }
+            }
+        }
+
+        contenidoHTML += '<h4>Pasos:</h4><ol>';
         const pasosArray = receta.pasos ? receta.pasos.split(/\.\s*|\n/).filter(p => p.trim()) : [];
         if (pasosArray.length > 0) {
             pasosArray.forEach(paso => { contenidoHTML += `<li>${paso}</li>`; });
