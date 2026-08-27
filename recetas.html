@@ -341,9 +341,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         const productoVinculado = productosVenta.find(p => p.receta_id == receta.id);
         const precio = productoVinculado ? parseFloat(productoVinculado.precio_base || 0) : null;
-        const margen = precio !== null ? precio - costo : null;
-        const margenPct = precio !== null && precio > 0 ? (margen / precio) * 100 : null;
-        return { costo, insumosSinCosto, precio, margen, margenPct, productoVinculado };
+        // precio_base puede ser 0 en productos legacy/sin precio asignado — no es lo mismo
+        // que "sin producto vinculado", pero igual impide calcular un margen real.
+        const tienePrecio = precio !== null && precio > 0;
+        const margen = tienePrecio ? precio - costo : null;
+        const margenPct = tienePrecio ? (margen / precio) * 100 : null;
+        return { costo, insumosSinCosto, precio, tienePrecio, margen, margenPct, productoVinculado };
     };
 
     const mostrarDetalles = (id) => {
@@ -373,11 +376,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 contenidoHTML += `<p style="font-size:0.85em; color:var(--color-brand);">⚠️ Costo no confiable: ${costeo.insumosSinCosto.join(', ')} no tiene costo capturado (Inventario &rarr; Editar Insumo).</p>`;
             } else {
                 contenidoHTML += `<p><strong>Costo de receta:</strong> ${money(costeo.costo)}</p>`;
-                if (costeo.precio !== null) {
+                if (costeo.tienePrecio) {
                     const colorMargen = costeo.margen <= 0 ? 'var(--color-brand)' : (costeo.margenPct < 40 ? 'var(--color-warning)' : 'var(--color-success)');
                     contenidoHTML += `
                         <p><strong>Precio de venta (${costeo.productoVinculado.nombre_venta}):</strong> ${money(costeo.precio)}</p>
                         <p><strong>Margen:</strong> <span style="color:${colorMargen}; font-weight:bold;">${money(costeo.margen)} (${costeo.margenPct.toFixed(1)}%)</span></p>`;
+                } else if (costeo.productoVinculado) {
+                    contenidoHTML += `<p style="color:var(--color-brand); font-size:0.85em;">⚠️ El producto vinculado (${costeo.productoVinculado.nombre_venta}) tiene precio de venta $0 — asígnale un precio en Menú para ver el margen.</p>`;
                 } else {
                     contenidoHTML += `<p style="color:var(--color-text-muted); font-size:0.85em;">Vincula esta receta a un producto de venta para ver el margen.</p>`;
                 }

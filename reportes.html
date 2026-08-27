@@ -1331,7 +1331,7 @@
                     const productos = data.productos || [];
                     if (productos.length === 0) { resultadosDiv.innerHTML = '<p>No hay productos en el menú.</p>'; return; }
 
-                    const evaluables = productos.filter(p => !p.sin_receta && !p.costo_incompleto);
+                    const evaluables = productos.filter(p => !p.sin_receta && !p.costo_incompleto && !p.sin_precio);
                     const margenPromedioPct = evaluables.length > 0 ? evaluables.reduce((s, p) => s + p.margen_pct, 0) / evaluables.length : 0;
                     const conPerdida = evaluables.filter(p => p.margen <= 0);
                     const peores = evaluables.slice(0, 10);
@@ -1360,6 +1360,9 @@
                     if (data.productos_costo_incompleto && data.productos_costo_incompleto.length > 0) {
                         html += `<p style="font-size:0.85em; color:var(--color-brand); margin-bottom:15px;">⚠️ ${data.productos_costo_incompleto.length} producto(s) con algún insumo sin costo capturado, excluidos del costeo: ${data.productos_costo_incompleto.join(', ')}.</p>`;
                     }
+                    if (data.productos_sin_precio && data.productos_sin_precio.length > 0) {
+                        html += `<p style="font-size:0.85em; color:var(--color-brand); margin-bottom:15px;">⚠️ ${data.productos_sin_precio.length} producto(s) vinculados a una receta pero con precio de venta $0: ${data.productos_sin_precio.join(', ')}. Asígnales un precio en Menú para ver su margen.</p>`;
+                    }
 
                     if (peores.length > 0) {
                         html += `<div class="chart-wrap" style="height:280px;"><canvas id="chart-costeo-menu"></canvas></div>`;
@@ -1369,8 +1372,8 @@
                         <th>Producto</th><th>Precio de Venta</th><th>Costo de Receta</th><th>Margen</th><th>Margen %</th>
                         </tr></thead><tbody>`;
                     productos.forEach(p => {
-                        const sinDatos = p.sin_receta || p.costo_incompleto;
-                        const estado = p.sin_receta ? '⚠️ Sin receta' : p.costo_incompleto ? '⚠️ Costo incompleto' : null;
+                        const sinDatos = p.sin_receta || p.costo_incompleto || p.sin_precio;
+                        const estado = p.sin_receta ? '⚠️ Sin receta' : p.costo_incompleto ? '⚠️ Costo incompleto' : p.sin_precio ? '⚠️ Sin precio' : null;
                         const color = sinDatos ? 'var(--color-text-muted)' : (p.margen <= 0 ? 'var(--color-brand)' : (p.margen_pct < 40 ? 'var(--color-warning)' : 'var(--color-success)'));
                         html += `<tr>
                             <td style="font-weight:500;">${p.producto}</td>
