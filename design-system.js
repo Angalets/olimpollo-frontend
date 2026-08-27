@@ -145,3 +145,65 @@ const DS = (() => {
 
     return { toast, confirm: confirmAction, prompt: promptAction, notice: noticeAction };
 })();
+
+// Toggle de tema claro/oscuro: se inyecta solo en el <header> de cualquier página que
+// cargue este script, así que no hay que tocar el HTML de cada página una por una.
+// La preferencia se guarda en localStorage (compartido entre todas las páginas, mismo
+// origen) y gana sobre prefers-color-scheme del sistema hasta que el usuario la borre.
+(function () {
+    const KEY = 'olimpollo_theme';
+
+    function getStored() {
+        try { return localStorage.getItem(KEY); } catch (e) { return null; }
+    }
+
+    function efectivo() {
+        const guardado = getStored();
+        if (guardado === 'light' || guardado === 'dark') return guardado;
+        return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    }
+
+    function aplicar(tema) {
+        if (tema === 'light' || tema === 'dark') document.documentElement.setAttribute('data-theme', tema);
+        else document.documentElement.removeAttribute('data-theme');
+    }
+
+    // Se aplica de inmediato (antes de esperar a DOMContentLoaded) para minimizar el
+    // parpadeo si la preferencia guardada difiere del tema del sistema.
+    aplicar(getStored());
+
+    function actualizarIcono(btn) {
+        const activo = efectivo();
+        btn.textContent = activo === 'dark' ? '☀️' : '🌙';
+        const etiqueta = activo === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro';
+        btn.title = etiqueta;
+        btn.setAttribute('aria-label', etiqueta);
+    }
+
+    function inyectarToggle() {
+        const header = document.querySelector('header');
+        if (!header || document.getElementById('ds-theme-toggle')) return;
+
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.id = 'ds-theme-toggle';
+        btn.className = 'ds-theme-toggle';
+        actualizarIcono(btn);
+        btn.addEventListener('click', () => {
+            const nuevo = efectivo() === 'dark' ? 'light' : 'dark';
+            try { localStorage.setItem(KEY, nuevo); } catch (e) {}
+            aplicar(nuevo);
+            actualizarIcono(btn);
+        });
+
+        const userInfo = header.querySelector('.user-info');
+        if (userInfo) userInfo.appendChild(btn);
+        else header.appendChild(btn);
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', inyectarToggle);
+    } else {
+        inyectarToggle();
+    }
+})();
