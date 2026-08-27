@@ -134,7 +134,7 @@
                 <div><label for="stock-minimo-agregar">Stock Mínimo (Alerta):</label><input type="number" id="stock-minimo-agregar" class="input" min="0" value="10" required></div>
                 <div>
                     <label for="costo-agregar">Costo Unitario ($ por unidad):</label>
-                    <input type="number" id="costo-agregar" class="input" min="0" value="0" step="0.01">
+                    <input type="number" id="costo-agregar" class="input" min="0" value="0" step="0.0001">
                     <div class="field-help">Opcional al crear. Si lo dejas en 0, cualquier receta que use este insumo mostrará costo/margen no confiable hasta que lo captures aquí o hagas una compra.</div>
                 </div>
                 <button type="submit" class="btn btn-primary">Guardar Insumo</button>
@@ -176,7 +176,7 @@
 
                 <div>
                     <label for="edit-costo">Costo Unitario ($ por unidad):</label>
-                    <input type="number" id="edit-costo" class="input" min="0" step="0.01" required>
+                    <input type="number" id="edit-costo" class="input" min="0" step="0.0001" required>
                     <div class="field-help">Se actualiza automáticamente al registrar una compra (promedio ponderado). Corrígelo aquí si nunca se ha restockeado o si el dato quedó mal.</div>
                 </div>
 
@@ -255,7 +255,7 @@
 
                         const costo = parseFloat(producto.costo_promedio || 0);
                         const costoHtml = costo > 0
-                            ? `$${costo.toFixed(2)}`
+                            ? `$${costo.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 4 })}`
                             : `<span style="color:var(--color-brand); font-weight:600;" title="Nunca se ha capturado un costo para este insumo">⚠️ Sin costo</span>`;
 
                         // Renderizamos la fila incluyendo PROVEEDOR
