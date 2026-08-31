@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Olimpollo - Finanzas</title>
+    <link rel="stylesheet" href="design-system.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        body { display: flex; flex-direction: column; min-height: 100vh; }
+        header { background: var(--color-surface); padding: 15px 40px; box-shadow: var(--shadow-sm); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--color-border); }
+        header .logo { font-family: var(--font-display); font-size: 22px; font-weight: 700; text-decoration: none; color: var(--color-text); }
+        header nav { display: flex; gap: 20px; }
+        header nav a { text-decoration: none; color: var(--color-text-muted); font-weight: 600; font-size: 14px; transition: color 0.2s; }
+        header nav a:hover { color: var(--color-brand); }
+        .user-info { display: flex; align-items: center; gap: 16px; }
+        #user-identifier { font-weight: 600; background: var(--color-surface-alt); padding: 5px 12px; border-radius: var(--radius-full); font-size: 13px; }
+
+        main { flex: 1; padding: 40px; max-width: 1300px; margin: 0 auto; width: 100%; box-sizing: border-box; }
+        .page-title { margin-bottom: 30px; font-size: 26px; }
+        .card { background: var(--color-surface); border-radius: var(--radius-lg); padding: 25px; box-shadow: var(--shadow-sm); margin-bottom: 25px; }
+        .card h3 { margin-top: 0; }
+        table { width: 100%; border-collapse: collapse; background: var(--color-surface); border-radius: var(--radius-lg); overflow: hidden; }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid var(--color-border); }
+        th { font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: 0.03em; color: var(--color-text-muted); background: var(--color-surface-alt); }
+        footer { text-align: center; padding: 20px; font-size: 13px; color: var(--color-text-muted); }
+
+        .form-grid { display: grid; grid-template-columns: 2fr 1.2fr 1fr 1fr 1.2fr auto; gap: 15px; align-items: end; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 500; font-size: 14px; }
+        .form-note { font-size: 12px; color: var(--color-text-muted); margin-top: 4px; }
+
+        .filtros-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 20px; align-items: flex-end; }
+
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-5); margin-bottom: 25px; }
+        .kpi-card { padding: var(--space-5); border-radius: var(--radius-lg); background: var(--color-surface-alt); border-left: 4px solid var(--color-border); }
+        .kpi-card h4 { margin: 0; font-size: 12px; font-weight: 700; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.03em; }
+        .kpi-card p { margin: 8px 0 0; font-family: var(--font-display); font-size: 22px; font-weight: 700; color: var(--color-text); }
+        .kpi-card small { font-size: 12px; color: var(--color-text-muted); }
+        .kpi-ingresos { border-left-color: var(--color-success); }
+        .kpi-costo { border-left-color: var(--color-warning); }
+        .kpi-gastos { border-left-color: var(--color-brand); }
+        .kpi-utilidad.positiva p { color: var(--color-success); }
+        .kpi-utilidad.negativa p { color: var(--color-brand); }
+
+        .warning-banner { background: var(--color-warning-tint); color: var(--color-text); border-radius: var(--radius-md); padding: 12px 16px; margin-bottom: 20px; font-size: 13px; }
+
+        .chart-wrap { position: relative; height: 280px; margin-top: 10px; }
+        .empty-msg { color: var(--color-text-muted); text-align: center; padding: 20px; }
+    </style>
+</head>
+<body>
+    <header>
+        <a href="index.html" class="logo">Olimpollo</a>
+        <nav>
+            <a href="pedidos.html">POS</a>
+            <a href="reportes.html">Reportes</a>
+            <a href="compras.html">Compras</a>
+            <a href="finanzas.html" style="color: var(--color-brand);">Finanzas</a>
+        </nav>
+        <div class="user-info">
+            <span id="user-identifier"></span>
+            <button class="btn btn-secondary btn-sm" id="btn-logout">Cerrar Sesión</button>
+        </div>
+    </header>
+
+    <main>
+        <h2 class="page-title ds-display">Gestión Financiera</h2>
+
+        <div class="card" id="card-form-gasto">
+            <h3 id="form-gasto-titulo">Registrar Gasto</h3>
+            <form id="form-gasto">
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label>Concepto:</label>
+                        <input type="text" id="gasto-concepto" class="input" placeholder="Ej: Renta de local, Recibo CFE..." required>
+                    </div>
+                    <div class="form-group">
+                        <label>Categoría:</label>
+                        <select id="gasto-categoria" class="select" required>
+                            <option value="">Cargando...</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Monto ($):</label>
+                        <input type="number" id="gasto-monto" class="input" placeholder="0.00" min="0.01" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Fecha:</label>
+                        <input type="date" id="gasto-fecha" class="input" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Proveedor (opcional):</label>
+                        <input type="text" id="gasto-proveedor" class="input" placeholder="Opcional">
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="btn-guardar-gasto">Guardar</button>
+                </div>
+                <div class="form-group" style="margin-top: 15px;">
+                    <label>Notas (opcional):</label>
+                    <input type="text" id="gasto-notas" class="input" placeholder="Opcional">
+                </div>
+                <button type="button" class="btn btn-secondary btn-sm" id="btn-cancelar-edicion" style="display:none; margin-top: 10px;">Cancelar edición</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <h3>Periodo de Análisis</h3>
+            <div class="filtros-grid">
+                <div class="form-group">
+                    <label for="fechaInicio">Desde:</label>
+                    <input type="date" id="fechaInicio" class="input">
+                </div>
+                <div class="form-group">
+                    <label for="fechaFin">Hasta:</label>
+                    <input type="date" id="fechaFin" class="input">
+                </div>
+                <button id="btn-generar" class="btn btn-primary">Generar</button>
+            </div>
+            <div id="date-presets" style="display:flex; gap:8px; flex-wrap:wrap; margin-top:15px;"></div>
+        </div>
+
+        <div class="card" id="card-estado-resultados">
+            <h3>Estado de Resultados</h3>
+            <div id="warning-sin-costo" class="warning-banner" style="display:none;"></div>
+            <div class="kpi-grid">
+                <div class="kpi-card kpi-ingresos">
+                    <h4>Ingresos Netos</h4>
+                    <p id="kpi-ingresos">$0.00</p>
+                    <small id="kpi-ingresos-detalle"></small>
+                </div>
+                <div class="kpi-card kpi-costo">
+                    <h4>Costo de Venta (COGS)</h4>
+                    <p id="kpi-costo">$0.00</p>
+                    <small id="kpi-utilidad-bruta"></small>
+                </div>
+                <div class="kpi-card kpi-gastos">
+                    <h4>Gastos Operativos</h4>
+                    <p id="kpi-gastos">$0.00</p>
+                    <small>Renta, servicios, nómina, etc.</small>
+                </div>
+                <div class="kpi-card kpi-utilidad" id="kpi-utilidad-card">
+                    <h4>Utilidad Neta</h4>
+                    <p id="kpi-utilidad">$0.00</p>
+                    <small id="kpi-margen"></small>
+                </div>
+            </div>
+
+            <h4>Gastos por Categoría</h4>
+            <table>
+                <thead><tr><th>Categoría</th><th>Total</th><th>% del Total</th></tr></thead>
+                <tbody id="tabla-categorias-body"></tbody>
+            </table>
+        </div>
+
+        <div class="card">
+            <h3>Tendencia Mensual (últimos 6 meses)</h3>
+            <div class="chart-wrap"><canvas id="chart-tendencia"></canvas></div>
+        </div>
+
+        <div class="card">
+            <h3>Gastos del Periodo</h3>
+            <table>
+                <thead>
+                    <tr><th>Fecha</th><th>Concepto</th><th>Categoría</th><th>Proveedor</th><th>Monto</th><th>Registró</th><th>Acciones</th></tr>
+                </thead>
+                <tbody id="tabla-gastos-body"></tbody>
+            </table>
+            <p id="gastos-vacio" class="empty-msg" style="display:none;">No hay gastos registrados en este periodo.</p>
+        </div>
+    </main>
+
+    <footer>&copy; 2026 Los Boneless del Olimpo</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.9/dist/chart.umd.min.js"></script>
+<script src="design-system.js"></script>
+<script>
+    (function() {
+        const originalFetch = window.fetch;
+        window.fetch = async function(...args) {
+            const response = await originalFetch(...args);
+            if (response.status === 401) {
+                localStorage.removeItem('authToken');
+                localStorage.removeItem('userRole');
+                if (!location.pathname.endsWith('login.html')) window.location.href = 'login.html';
+            }
+            return response;
+        };
+    })();
+
+    function parseJwt(token) {
+        try {
+            const base64Url = token.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+            return JSON.parse(jsonPayload);
+        } catch (e) { return null; }
+    }
+
+    document.addEventListener('DOMContentLoaded', async () => {
+        const API_URL = 'https://olimpollo-api.onrender.com/api';
+        const token = localStorage.getItem('authToken');
+        const role = localStorage.getItem('userRole');
+
+        if (!token || !role) { window.location.href = 'login.html'; return; }
+        if (role !== 'Administrador') {
+            await DS.notice('La Gestión Financiera es solo para Administradores.', { title: 'Acceso denegado' });
+            window.location.href = 'index.html';
+            return;
+        }
+
+        const authHeaders = { 'Authorization': `Bearer ${token}` };
+        const userData = parseJwt(token);
+        if (userData && userData.username) document.getElementById('user-identifier').textContent = userData.username;
+
+        document.getElementById('btn-logout').addEventListener('click', () => {
+            localStorage.removeItem('authToken'); localStorage.removeItem('userRole'); window.location.href = 'login.html';
+        });
+
+        const money = (v) => '$' + Number(v || 0).toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        const toISO = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+        const addDays = (d, n) => { const r = new Date(d); r.setDate(r.getDate() + n); return r; };
+
+        // --- ELEMENTOS ---
+        const form = document.getElementById('form-gasto');
+        const inputConcepto = document.getElementById('gasto-concepto');
+        const selectCategoria = document.getElementById('gasto-categoria');
+        const inputMonto = document.getElementById('gasto-monto');
+        const inputFecha = document.getElementById('gasto-fecha');
+        const inputProveedor = document.getElementById('gasto-proveedor');
+        const inputNotas = document.getElementById('gasto-notas');
+        const btnGuardarGasto = document.getElementById('btn-guardar-gasto');
+        const btnCancelarEdicion = document.getElementById('btn-cancelar-edicion');
+        const formTitulo = document.getElementById('form-gasto-titulo');
+
+        const inputFechaInicio = document.getElementById('fechaInicio');
+        const inputFechaFin = document.getElementById('fechaFin');
+        const btnGenerar = document.getElementById('btn-generar');
+        const datePresetsDiv = document.getElementById('date-presets');
+
+        let editandoId = null;
+
+        // --- FECHAS POR DEFECTO: mes actual ---
+        const hoy = new Date();
+        inputFecha.value = toISO(hoy);
+        inputFechaInicio.value = toISO(new Date(hoy.getFullYear(), hoy.getMonth(), 1));
+        inputFechaFin.value = toISO(hoy);
+
+        const DATE_PRESETS = [
+            { label: 'Este mes', calc: () => [toISO(new Date(hoy.getFullYear(), hoy.getMonth(), 1)), toISO(hoy)] },
+            { label: 'Mes pasado', calc: () => [toISO(new Date(hoy.getFullYear(), hoy.getMonth() - 1, 1)), toISO(new Date(hoy.getFullYear(), hoy.getMonth(), 0))] },
+            { label: 'Este año', calc: () => [toISO(new Date(hoy.getFullYear(), 0, 1)), toISO(hoy)] },
+            { label: 'Últimos 30 días', calc: () => [toISO(addDays(hoy, -29)), toISO(hoy)] }
+        ];
+        datePresetsDiv.innerHTML = DATE_PRESETS.map((p, i) => `<button type="button" class="btn btn-secondary btn-sm" data-preset="${i}">${p.label}</button>`).join('');
+        datePresetsDiv.addEventListener('click', (e) => {
+            const btn = e.target.closest('[data-preset]');
+            if (!btn) return;
+            const [inicio, fin] = DATE_PRESETS[parseInt(btn.dataset.preset)].calc();
+            inputFechaInicio.value = inicio;
+            inputFechaFin.value = fin;
+            cargarPeriodo();
+        });
+
+        // --- CATEGORÍAS ---
+        try {
+            const res = await fetch(`${API_URL}/gastos/categorias`, { headers: authHeaders });
+            const categorias = await res.json();
+            selectCategoria.innerHTML = categorias.map(c => `<option value="${c}">${c}</option>`).join('');
+        } catch (err) {
+            selectCategoria.innerHTML = '<option value="">Error al cargar</option>';
+        }
+
+        function resetFormulario() {
+            editandoId = null;
+            form.reset();
+            inputFecha.value = toISO(new Date());
+            formTitulo.textContent = 'Registrar Gasto';
+            btnGuardarGasto.textContent = 'Guardar';
+            btnCancelarEdicion.style.display = 'none';
+        }
+
+        btnCancelarEdicion.addEventListener('click', resetFormulario);
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const payload = {
+                concepto: inputConcepto.value.trim(),
+                categoria: selectCategoria.value,
+                monto: parseFloat(inputMonto.value),
+                fecha_gasto: inputFecha.value,
+                proveedor: inputProveedor.value.trim() || null,
+                notas: inputNotas.value.trim() || null
+            };
+            if (!payload.concepto || !payload.categoria || isNaN(payload.monto) || payload.monto <= 0) {
+                return DS.toast('Completa concepto, categoría y un monto válido.', { type: 'warning' });
+            }
+            btnGuardarGasto.disabled = true;
+            try {
+                const url = editandoId ? `${API_URL}/gastos/${editandoId}` : `${API_URL}/gastos`;
+                const method = editandoId ? 'PUT' : 'POST';
+                const res = await fetch(url, {
+                    method,
+                    headers: { 'Content-Type': 'application/json', ...authHeaders },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (!res.ok) return DS.toast('Error: ' + (data.error || 'No se pudo guardar'), { type: 'error', duration: 0 });
+                DS.toast(editandoId ? 'Gasto actualizado.' : 'Gasto registrado.', { type: 'success' });
+                resetFormulario();
+                cargarPeriodo();
+            } catch (err) {
+                DS.toast('Error de conexión.', { type: 'error', duration: 0 });
+            } finally {
+                btnGuardarGasto.disabled = false;
+            }
+        });
+
+        window.editarGasto = (g) => {
+            editandoId = g.id;
+            inputConcepto.value = g.concepto;
+            selectCategoria.value = g.categoria;
+            inputMonto.value = g.monto;
+            inputFecha.value = g.fecha_gasto.slice(0, 10);
+            inputProveedor.value = g.proveedor || '';
+            inputNotas.value = g.notas || '';
+            formTitulo.textContent = 'Editar Gasto';
+            btnGuardarGasto.textContent = 'Guardar Cambios';
+            btnCancelarEdicion.style.display = '';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        };
+
+        window.eliminarGasto = async (id) => {
+            const ok = await DS.confirm('¿Eliminar este gasto? Esta acción no se puede deshacer.', { title: 'Eliminar Gasto', danger: true, confirmText: 'Eliminar' });
+            if (!ok) return;
+            try {
+                const res = await fetch(`${API_URL}/gastos/${id}`, { method: 'DELETE', headers: authHeaders });
+                if (!res.ok && res.status !== 204) {
+                    const data = await res.json().catch(() => ({}));
+                    return DS.toast('Error: ' + (data.error || 'No se pudo eliminar'), { type: 'error', duration: 0 });
+                }
+                DS.toast('Gasto eliminado.', { type: 'success' });
+                cargarPeriodo();
+            } catch (err) {
+                DS.toast('Error de conexión.', { type: 'error', duration: 0 });
+            }
+        };
+
+        // --- ESTADO DE RESULTADOS + LISTA DE GASTOS DEL PERIODO ---
+        async function cargarEstadoResultados(fechaInicio, fechaFin) {
+            const res = await fetch(`${API_URL}/reportes/estado-resultados?fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`, { headers: authHeaders });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.error || 'No se pudo generar el estado de resultados.');
+
+            document.getElementById('kpi-ingresos').textContent = money(data.ingresos_netos);
+            document.getElementById('kpi-ingresos-detalle').textContent = `Bruto ${money(data.ventas_brutas)} − Comisiones ${money(data.comisiones)}`;
+            document.getElementById('kpi-costo').textContent = money(data.costo_venta);
+            document.getElementById('kpi-utilidad-bruta').textContent = `Utilidad bruta: ${money(data.utilidad_bruta)} (${data.margen_bruto_pct.toFixed(1)}%)`;
+            document.getElementById('kpi-gastos').textContent = money(data.gastos_operativos_total);
+            document.getElementById('kpi-utilidad').textContent = money(data.utilidad_neta);
+            document.getElementById('kpi-margen').textContent = `Margen neto: ${data.margen_neto_pct.toFixed(1)}%`;
+
+            const kpiCard = document.getElementById('kpi-utilidad-card');
+            kpiCard.classList.toggle('positiva', data.utilidad_neta >= 0);
+            kpiCard.classList.toggle('negativa', data.utilidad_neta < 0);
+
+            const warning = document.getElementById('warning-sin-costo');
+            if (data.insumos_sin_costo && data.insumos_sin_costo.length > 0) {
+                warning.style.display = '';
+                warning.textContent = `⚠️ Estos insumos no tienen costo capturado y el costo de venta puede estar subestimado: ${data.insumos_sin_costo.join(', ')}`;
+            } else {
+                warning.style.display = 'none';
+            }
+
+            const tbody = document.getElementById('tabla-categorias-body');
+            if (data.gastos_por_categoria.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="3" class="empty-msg">Sin gastos registrados en este periodo.</td></tr>';
+            } else {
+                tbody.innerHTML = data.gastos_por_categoria.map(g => `
+                    <tr>
+                        <td>${g.categoria}</td>
+                        <td>${money(g.total)}</td>
+                        <td>${data.gastos_operativos_total > 0 ? ((g.total / data.gastos_operativos_total) * 100).toFixed(1) : '0.0'}%</td>
+                    </tr>
+                `).join('');
+            }
+        }
+
+        async function cargarListaGastos(fechaInicio, fechaFin) {
+            const res = await fetch(`${API_URL}/gastos?fechaInicio=${fechaInicio}&fechaFin=${fechaFin}`, { headers: authHeaders });
+            const gastos = await res.json();
+            if (!res.ok) throw new Error(gastos.error || 'No se pudo cargar la lista de gastos.');
+
+            const tbody = document.getElementById('tabla-gastos-body');
+            const vacio = document.getElementById('gastos-vacio');
+            if (gastos.length === 0) {
+                tbody.innerHTML = '';
+                vacio.style.display = '';
+                return;
+            }
+            vacio.style.display = 'none';
+            tbody.innerHTML = gastos.map(g => `
+                <tr>
+                    <td>${g.fecha_gasto.slice(0, 10)}</td>
+                    <td>${g.concepto}</td>
+                    <td>${g.categoria}</td>
+                    <td>${g.proveedor || '—'}</td>
+                    <td>${money(g.monto)}</td>
+                    <td>${g.registrado_por || '—'}</td>
+                    <td>
+                        <button type="button" class="btn btn-secondary btn-sm" onclick='editarGasto(${JSON.stringify(g).replace(/'/g, "&#39;")})'><i class="fas fa-pen"></i></button>
+                        <button type="button" class="btn btn-danger-outline btn-sm" onclick="eliminarGasto(${g.id})"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function cargarPeriodo() {
+            const fechaInicio = inputFechaInicio.value;
+            const fechaFin = inputFechaFin.value;
+            if (!fechaInicio || !fechaFin) return;
+            btnGenerar.disabled = true;
+            try {
+                await Promise.all([
+                    cargarEstadoResultados(fechaInicio, fechaFin),
+                    cargarListaGastos(fechaInicio, fechaFin)
+                ]);
+            } catch (err) {
+                DS.toast(err.message, { type: 'error', duration: 0 });
+            } finally {
+                btnGenerar.disabled = false;
+            }
+        }
+        btnGenerar.addEventListener('click', cargarPeriodo);
+
+        // --- TENDENCIA MENSUAL (últimos 6 meses) ---
+        let chartTendencia = null;
+        async function cargarTendencia() {
+            const inicio = toISO(new Date(hoy.getFullYear(), hoy.getMonth() - 5, 1));
+            const fin = toISO(hoy);
+            try {
+                const res = await fetch(`${API_URL}/reportes/estado-resultados-mensual?fechaInicio=${inicio}&fechaFin=${fin}`, { headers: authHeaders });
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.error || 'No se pudo cargar la tendencia.');
+
+                const cssVar = (name) => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+                const isDark = () => {
+                    const attr = document.documentElement.getAttribute('data-theme');
+                    if (attr === 'dark') return true;
+                    if (attr === 'light') return false;
+                    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+                };
+                const colorUtilidad = isDark() ? '#3987e5' : '#2a78d6';
+                const colorIngresos = isDark() ? '#199e70' : '#1baf7a';
+
+                const labels = data.meses.map(m => {
+                    const [y, mo] = m.mes.split('-');
+                    return new Date(y, mo - 1, 1).toLocaleDateString('es-MX', { month: 'short', year: '2-digit' });
+                });
+
+                if (chartTendencia) chartTendencia.destroy();
+                chartTendencia = new Chart(document.getElementById('chart-tendencia'), {
+                    type: 'bar',
+                    data: {
+                        labels,
+                        datasets: [
+                            { label: 'Ingresos Netos', data: data.meses.map(m => m.ingresos_netos), backgroundColor: colorIngresos, borderRadius: 4 },
+                            { label: 'Utilidad Neta', data: data.meses.map(m => m.utilidad_neta), backgroundColor: colorUtilidad, borderRadius: 4 }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { labels: { color: cssVar('--color-text-muted') } },
+                            tooltip: {
+                                backgroundColor: cssVar('--color-surface'), titleColor: cssVar('--color-text'), bodyColor: cssVar('--color-text'),
+                                borderColor: cssVar('--color-border'), borderWidth: 1, padding: 10
+                            }
+                        },
+                        scales: {
+                            x: { grid: { display: false }, ticks: { color: cssVar('--color-text-muted') } },
+                            y: { grid: { color: cssVar('--color-border') }, ticks: { color: cssVar('--color-text-muted') } }
+                        }
+                    }
+                });
+            } catch (err) {
+                DS.toast(err.message, { type: 'error', duration: 0 });
+            }
+        }
+
+        cargarPeriodo();
+        cargarTendencia();
+    });
+</script>
+</body>
+</html>
