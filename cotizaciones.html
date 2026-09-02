@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Olimpollo - Cotizaciones</title>
+    <link rel="stylesheet" href="design-system.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+    <style>
+        body { display: flex; flex-direction: column; min-height: 100vh; }
+        header { background: var(--color-surface); padding: 15px 40px; box-shadow: var(--shadow-sm); display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--color-border); }
+        header .logo { font-family: var(--font-display); font-size: 22px; font-weight: 700; text-decoration: none; color: var(--color-text); }
+        header nav { display: flex; gap: 20px; }
+        header nav a { text-decoration: none; color: var(--color-text-muted); font-weight: 600; font-size: 14px; transition: color 0.2s; }
+        header nav a:hover { color: var(--color-brand); }
+        .user-info { display: flex; align-items: center; gap: 16px; }
+        #user-identifier { font-weight: 600; background: var(--color-surface-alt); padding: 5px 12px; border-radius: var(--radius-full); font-size: 13px; }
+
+        main { flex: 1; padding: 40px; max-width: 1100px; margin: 0 auto; width: 100%; box-sizing: border-box; }
+        .page-title { margin-bottom: 6px; font-size: 26px; }
+        .page-subtitle { color: var(--color-text-muted); font-size: 14px; margin: 0 0 30px; }
+        .card { background: var(--color-surface); border-radius: var(--radius-lg); padding: 25px; box-shadow: var(--shadow-sm); margin-bottom: 25px; }
+        .card h3 { margin-top: 0; }
+        table { width: 100%; border-collapse: collapse; background: var(--color-surface); border-radius: var(--radius-lg); overflow: hidden; }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid var(--color-border); }
+        th { font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: 0.03em; color: var(--color-text-muted); background: var(--color-surface-alt); }
+        td.num, th.num { text-align: right; }
+        footer { text-align: center; padding: 20px; font-size: 13px; color: var(--color-text-muted); }
+
+        .field-help { font-size: 12px; color: var(--color-text-muted); margin-top: 4px; }
+
+        .evento-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 20px; }
+        .evento-grid .full { grid-column: 1 / -1; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 500; font-size: 14px; }
+
+        .agregar-grid { display: grid; grid-template-columns: 2.2fr 1fr 0.8fr auto; gap: 15px; align-items: end; }
+        .agregar-grid.otro { grid-template-columns: 1.6fr 1fr 0.8fr 1fr auto; }
+
+        .tabs { display: flex; gap: 10px; margin-bottom: 18px; }
+        .tab-btn { background: var(--color-surface-alt); border: 1px solid var(--color-border); border-radius: var(--radius-full); padding: 8px 18px; font-weight: 600; font-size: 13px; cursor: pointer; color: var(--color-text-muted); }
+        .tab-btn.active { background: var(--color-brand); border-color: var(--color-brand); color: #fff; }
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+
+        .sin-costo { color: var(--color-brand); font-weight: 600; font-size: 12px; }
+        .btn-remove { background: transparent; border: none; color: var(--color-text-muted); cursor: pointer; font-size: 16px; padding: 4px 8px; }
+        .btn-remove:hover { color: var(--color-brand); }
+
+        .empty-msg { color: var(--color-text-muted); text-align: center; padding: 24px; }
+
+        .resumen-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--space-5); align-items: end; }
+        .resumen-item { padding: var(--space-5); border-radius: var(--radius-lg); background: var(--color-surface-alt); border-left: 4px solid var(--color-border); }
+        .resumen-item.costo { border-left-color: var(--color-warning); }
+        .resumen-item.utilidad { border-left-color: var(--color-success); }
+        .resumen-item.precio { border-left-color: var(--color-brand); }
+        .resumen-item h4 { margin: 0; font-size: 12px; font-weight: 700; color: var(--color-text-muted); text-transform: uppercase; letter-spacing: 0.03em; }
+        .resumen-item p { margin: 8px 0 0; font-family: var(--font-display); font-size: 22px; font-weight: 700; color: var(--color-text); }
+
+        .action-bar { display: flex; flex-wrap: wrap; gap: 12px; justify-content: flex-end; margin-top: 10px; }
+
+        .print-only { display: none; }
+
+        @media print {
+            header, .tabs, #card-agregar, .no-print, footer { display: none !important; }
+            body, main { margin: 0; padding: 0; max-width: 100%; }
+            .card { box-shadow: none; border: 1px solid #ccc; }
+            .print-only { display: block; }
+            th, td { color: #000 !important; }
+        }
+    </style>
+</head>
+<body>
+    <header class="no-print">
+        <a href="index.html" class="logo">Olimpollo</a>
+        <nav>
+            <a href="pedidos.html">POS</a>
+            <a href="reportes.html">Reportes</a>
+            <a href="finanzas.html">Finanzas</a>
+            <a href="cotizaciones.html" style="color: var(--color-brand);">Cotizaciones</a>
+        </nav>
+        <div class="user-info">
+            <span id="user-identifier"></span>
+            <button class="btn btn-secondary btn-sm" id="btn-logout">Cerrar Sesión</button>
+        </div>
+    </header>
+
+    <main>
+        <h2 class="page-title ds-display">Cotizador de Eventos</h2>
+        <p class="page-subtitle">Calcula el costo aproximado de llevar productos a un evento o pedido especial. No descuenta inventario ni registra ninguna venta — solo es para visualizar costos.</p>
+
+        <div class="card">
+            <h3>Datos del Evento <span style="font-weight:400; color: var(--color-text-muted); font-size: 13px;">(opcional, solo para referencia en esta cotización)</span></h3>
+            <div class="evento-grid">
+                <div class="form-group">
+                    <label for="evento-nombre">Evento / Cliente:</label>
+                    <input type="text" id="evento-nombre" class="input" placeholder="Ej: Boda Familia Pérez, Posada Empresa XYZ...">
+                </div>
+                <div class="form-group">
+                    <label for="evento-fecha">Fecha del evento:</label>
+                    <input type="date" id="evento-fecha" class="input">
+                </div>
+                <div class="form-group full">
+                    <label for="evento-notas">Notas:</label>
+                    <input type="text" id="evento-notas" class="input" placeholder="Ej: 80 personas, entrega 2pm...">
+                </div>
+            </div>
+        </div>
+
+        <div class="card no-print" id="card-agregar">
+            <h3>Agregar Productos</h3>
+            <div class="tabs">
+                <button type="button" class="tab-btn active" data-tab="tab-insumo">Producto del Inventario</button>
+                <button type="button" class="tab-btn" data-tab="tab-otro">Otro (personalizado)</button>
+            </div>
+
+            <div id="tab-insumo" class="tab-panel active">
+                <form id="form-insumo" class="agregar-grid">
+                    <div class="form-group">
+                        <label for="insumo-buscar">Buscar insumo:</label>
+                        <input type="text" id="insumo-buscar" class="input" list="lista-insumos" placeholder="Escribe para buscar, ej: Pollo" autocomplete="off">
+                        <datalist id="lista-insumos"></datalist>
+                        <div class="field-help" id="insumo-info">Selecciona un insumo de la lista de inventario.</div>
+                    </div>
+                    <div class="form-group">
+                        <label for="insumo-cantidad">Cantidad aproximada:</label>
+                        <input type="number" id="insumo-cantidad" class="input" min="0" step="0.01" placeholder="Ej: 15">
+                    </div>
+                    <div class="form-group">
+                        <label>Unidad:</label>
+                        <input type="text" id="insumo-unidad-display" class="input" disabled>
+                    </div>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-plus"></i> Agregar</button>
+                </form>
+            </div>
+
+            <div id="tab-otro" class="tab-panel">
+                <form id="form-otro" class="agregar-grid otro">
+                    <div class="form-group">
+                        <label for="otro-nombre">Nombre del producto/servicio:</label>
+                        <input type="text" id="otro-nombre" class="input" placeholder="Ej: Renta de mesas, Hielo extra...">
+                    </div>
+                    <div class="form-group">
+                        <label for="otro-cantidad">Cantidad:</label>
+                        <input type="number" id="otro-cantidad" class="input" min="0" step="0.01" value="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="otro-unidad">Unidad:</label>
+                        <input type="text" id="otro-unidad" class="input" value="pza">
+                    </div>
+                    <div class="form-group">
+                        <label for="otro-costo">Costo unitario ($):</label>
+                        <input type="number" id="otro-costo" class="input" min="0" step="0.01" placeholder="0.00">
+                    </div>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-plus"></i> Agregar</button>
+                </form>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3>Productos de la Cotización</h3>
+            <table id="tabla-items">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>Origen</th>
+                        <th class="num">Cantidad</th>
+                        <th class="num">Costo Unitario</th>
+                        <th class="num">Subtotal</th>
+                        <th class="no-print">Acciones</th>
+                    </tr>
+                </thead>
+                <tbody id="tabla-items-body">
+                    <tr><td colspan="6" class="empty-msg">Aún no has agregado productos a esta cotización.</td></tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="card">
+            <h3>Resumen de Costo</h3>
+            <div class="resumen-grid">
+                <div class="resumen-item costo">
+                    <h4>Costo Total</h4>
+                    <p id="resumen-costo">$0.00</p>
+                </div>
+                <div class="form-group no-print">
+                    <label for="margen-pct">Margen de utilidad sugerido (%):</label>
+                    <input type="number" id="margen-pct" class="input" min="0" step="1" value="0">
+                    <div class="field-help">Opcional. Se suma sobre el costo total para sugerir un precio a cobrarle al cliente.</div>
+                </div>
+                <div class="resumen-item utilidad">
+                    <h4>Utilidad Estimada</h4>
+                    <p id="resumen-utilidad">$0.00</p>
+                </div>
+                <div class="resumen-item precio">
+                    <h4>Precio Sugerido al Cliente</h4>
+                    <p id="resumen-precio">$0.00</p>
+                </div>
+            </div>
+            <div class="field-help" id="warning-sin-costo" style="display:none; margin-top: 16px;">⚠️ Uno o más insumos no tienen costo capturado en inventario — el costo total puede estar incompleto. Revisa esos productos en el módulo de Inventario.</div>
+
+            <div class="action-bar no-print">
+                <button type="button" id="btn-limpiar" class="btn btn-danger-outline"><i class="fas fa-trash"></i> Limpiar Todo</button>
+                <button type="button" id="btn-imprimir" class="btn btn-secondary"><i class="fas fa-print"></i> Imprimir / Exportar PDF</button>
+            </div>
+        </div>
+    </main>
+
+    <footer class="no-print">&copy; 2026 Los Boneless del Olimpo</footer>
+
+    <script src="design-system.js"></script>
+    <script>
+        (function() {
+            const originalFetch = window.fetch;
+            window.fetch = async function(...args) {
+                const response = await originalFetch(...args);
+                if (response.status === 401) {
+                    localStorage.removeItem('authToken');
+                    localStorage.removeItem('userRole');
+                    if (!location.pathname.endsWith('login.html')) window.location.href = 'login.html';
+                }
+                return response;
+            };
+        })();
+        function parseJwt(token) { try { const base64Url = token.split('.')[1]; const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/'); const jsonPayload = decodeURIComponent(atob(base64).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join('')); return JSON.parse(jsonPayload); } catch (e) { return null; } }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const API_URL = 'https://olimpollo-api.onrender.com/api/inventario';
+
+            // --- 1. VERIFICACIÓN Y SESIÓN ---
+            const token = localStorage.getItem('authToken');
+            const role = localStorage.getItem('userRole');
+            if (!token || !role) { window.location.href = 'login.html'; return; }
+            if (role !== 'Administrador') {
+                await DS.notice('El Cotizador de Eventos es solo para Administradores.', { title: 'Acceso denegado' });
+                window.location.href = 'index.html';
+                return;
+            }
+            const userData = parseJwt(token);
+            if (userData && userData.username) document.getElementById('user-identifier').textContent = userData.username;
+            document.getElementById('btn-logout').addEventListener('click', () => { localStorage.clear(); window.location.href = 'login.html'; });
+
+            // --- 2. TABS ---
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+                    btn.classList.add('active');
+                    document.getElementById(btn.dataset.tab).classList.add('active');
+                });
+            });
+
+            // --- 3. CARGAR INSUMOS DEL INVENTARIO ---
+            let insumosPorNombre = {};
+            const datalist = document.getElementById('lista-insumos');
+            const insumoBuscar = document.getElementById('insumo-buscar');
+            const insumoUnidadDisplay = document.getElementById('insumo-unidad-display');
+            const insumoInfo = document.getElementById('insumo-info');
+
+            try {
+                const res = await fetch(API_URL, { headers: { 'Authorization': `Bearer ${token}` } });
+                if (!res.ok) throw new Error('No se pudo cargar el inventario');
+                const insumos = await res.json();
+                insumos
+                    .slice()
+                    .sort((a, b) => a.nombre.localeCompare(b.nombre))
+                    .forEach(ins => {
+                        insumosPorNombre[ins.nombre] = ins;
+                        const opt = document.createElement('option');
+                        opt.value = ins.nombre;
+                        datalist.appendChild(opt);
+                    });
+            } catch (err) {
+                DS.toast('No se pudo cargar el inventario: ' + err.message, { type: 'error', duration: 0 });
+            }
+
+            insumoBuscar.addEventListener('input', () => {
+                const match = insumosPorNombre[insumoBuscar.value];
+                if (match) {
+                    insumoUnidadDisplay.value = match.unidad;
+                    const costo = parseFloat(match.costo_promedio || 0);
+                    insumoInfo.innerHTML = costo > 0
+                        ? `Costo: $${costo.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 4 })} por ${match.unidad}`
+                        : `<span class="sin-costo">⚠️ Este insumo no tiene costo capturado en inventario</span>`;
+                } else {
+                    insumoUnidadDisplay.value = '';
+                    insumoInfo.textContent = 'Selecciona un insumo de la lista de inventario.';
+                }
+            });
+
+            // --- 4. ITEMS DE LA COTIZACIÓN (en memoria, no se guarda en servidor) ---
+            let items = [];
+            const tbody = document.getElementById('tabla-items-body');
+            const fmt = (n) => `$${(n || 0).toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+
+            function render() {
+                if (items.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" class="empty-msg">Aún no has agregado productos a esta cotización.</td></tr>';
+                } else {
+                    tbody.innerHTML = items.map((item, i) => `
+                        <tr>
+                            <td>${item.nombre}${item.sinCosto ? ' <span class="sin-costo">⚠️ sin costo</span>' : ''}</td>
+                            <td>${item.origen}</td>
+                            <td class="num">${item.cantidad} ${item.unidad}</td>
+                            <td class="num">${fmt(item.costoUnitario)}</td>
+                            <td class="num">${fmt(item.subtotal)}</td>
+                            <td class="no-print"><button type="button" class="btn-remove" data-idx="${i}" title="Quitar"><i class="fas fa-times"></i></button></td>
+                        </tr>
+                    `).join('');
+                }
+                actualizarResumen();
+            }
+
+            function actualizarResumen() {
+                const costoTotal = items.reduce((sum, it) => sum + it.subtotal, 0);
+                const margenPct = parseFloat(document.getElementById('margen-pct').value) || 0;
+                const precioSugerido = costoTotal * (1 + margenPct / 100);
+                const utilidad = precioSugerido - costoTotal;
+
+                document.getElementById('resumen-costo').textContent = fmt(costoTotal);
+                document.getElementById('resumen-utilidad').textContent = fmt(utilidad);
+                document.getElementById('resumen-precio').textContent = fmt(precioSugerido);
+
+                document.getElementById('warning-sin-costo').style.display = items.some(it => it.sinCosto) ? 'block' : 'none';
+            }
+
+            document.getElementById('margen-pct').addEventListener('input', actualizarResumen);
+
+            tbody.addEventListener('click', (e) => {
+                const btn = e.target.closest('.btn-remove');
+                if (!btn) return;
+                items.splice(parseInt(btn.dataset.idx, 10), 1);
+                render();
+            });
+
+            document.getElementById('form-insumo').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const match = insumosPorNombre[insumoBuscar.value];
+                const cantidad = parseFloat(document.getElementById('insumo-cantidad').value);
+                if (!match) return DS.toast('Selecciona un insumo válido de la lista.', { type: 'warning' });
+                if (!cantidad || cantidad <= 0) return DS.toast('Ingresa una cantidad aproximada válida.', { type: 'warning' });
+
+                const costoUnitario = parseFloat(match.costo_promedio || 0);
+                items.push({
+                    nombre: match.nombre,
+                    origen: 'Inventario',
+                    cantidad,
+                    unidad: match.unidad,
+                    costoUnitario,
+                    subtotal: cantidad * costoUnitario,
+                    sinCosto: costoUnitario <= 0
+                });
+                render();
+                e.target.reset();
+                insumoUnidadDisplay.value = '';
+                insumoInfo.textContent = 'Selecciona un insumo de la lista de inventario.';
+                insumoBuscar.focus();
+            });
+
+            document.getElementById('form-otro').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const nombre = document.getElementById('otro-nombre').value.trim();
+                const cantidad = parseFloat(document.getElementById('otro-cantidad').value);
+                const unidad = document.getElementById('otro-unidad').value.trim() || 'pza';
+                const costoUnitario = parseFloat(document.getElementById('otro-costo').value);
+
+                if (!nombre) return DS.toast('Ingresa un nombre para el producto.', { type: 'warning' });
+                if (!cantidad || cantidad <= 0) return DS.toast('Ingresa una cantidad válida.', { type: 'warning' });
+                if (isNaN(costoUnitario) || costoUnitario < 0) return DS.toast('Ingresa un costo unitario válido.', { type: 'warning' });
+
+                items.push({
+                    nombre,
+                    origen: 'Otro',
+                    cantidad,
+                    unidad,
+                    costoUnitario,
+                    subtotal: cantidad * costoUnitario,
+                    sinCosto: false
+                });
+                render();
+                e.target.reset();
+                document.getElementById('otro-unidad').value = 'pza';
+                document.getElementById('otro-cantidad').value = 1;
+            });
+
+            document.getElementById('btn-limpiar').addEventListener('click', async () => {
+                if (items.length === 0) return;
+                const ok = await DS.confirm('¿Quitar todos los productos de esta cotización?', { title: 'Limpiar Cotización', danger: true, confirmText: 'Limpiar' });
+                if (!ok) return;
+                items = [];
+                render();
+            });
+
+            document.getElementById('btn-imprimir').addEventListener('click', () => {
+                if (items.length === 0) return DS.toast('Agrega al menos un producto antes de imprimir.', { type: 'warning' });
+                window.print();
+            });
+
+            render();
+        });
+    </script>
+</body>
+</html>
